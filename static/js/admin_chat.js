@@ -75,7 +75,7 @@ function initSocket() {
         return;
     }
 
-    socket = io();
+    socket = io({ withCredentials: true });
 
     socket.on('connect', () => {
         socket.emit('join_room', { room_user_id: userId }, (res) => {

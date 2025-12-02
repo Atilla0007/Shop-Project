@@ -102,7 +102,7 @@ function initSocket() {
         return;
     }
 
-    socket = io();
+    socket = io({ withCredentials: true });
 
     socket.on('connect', () => {
         loadMessages();

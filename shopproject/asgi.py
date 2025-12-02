@@ -18,7 +18,7 @@ from core.models import ChatMessage, ChatThread  # noqa: E402
 
 sio = socketio.AsyncServer(
     async_mode="asgi",
-    cors_allowed_origins=[],
+    cors_allowed_origins="*",
     logger=False,
     engineio_logger=False,
 )
