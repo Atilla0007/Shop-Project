@@ -10,6 +10,7 @@ const pageChatForm = document.getElementById('chat-form');
 const pageChatInput = document.getElementById('chat-input');
 
 const isAuth = document.body.dataset.userAuthenticated === 'true';
+const currentUserId = Number(document.body.dataset.userId || '0');
 
 let socket = null;
 let messagesCache = [];
@@ -130,7 +131,7 @@ function sendMessage(text, btnElement, inputElement) {
     btnElement.textContent = '...';
 
     const emitter = socket.timeout ? socket.timeout(5000) : socket;
-    emitter.emit('user_message', { message: text }, (err, res) => {
+    emitter.emit('send_message', { room_user_id: currentUserId, message: text }, (err, res) => {
         if (err || !res || res.status !== 'ok') {
             alert('ارسال پیام انجام نشد. لطفا دوباره تلاش کنید.');
         } else {

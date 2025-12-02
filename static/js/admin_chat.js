@@ -78,7 +78,7 @@ function initSocket() {
     socket = io();
 
     socket.on('connect', () => {
-        socket.emit('join_thread', { user_id: userId }, (res) => {
+        socket.emit('join_room', { room_user_id: userId }, (res) => {
             if (res && res.status === 'error') {
                 console.error('عدم دسترسی به اتاق چت کاربر', res);
             }
@@ -110,7 +110,7 @@ function sendMessage() {
     submitBtn.textContent = '...';
 
     const emitter = socket.timeout ? socket.timeout(5000) : socket;
-    emitter.emit('admin_message', { user_id: userId, message: text }, (err, res) => {
+    emitter.emit('send_message', { room_user_id: userId, message: text }, (err, res) => {
         if (err || !res || res.status !== 'ok') {
             alert('ارسال پیام انجام نشد. دوباره تلاش کنید.');
         } else {

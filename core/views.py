@@ -7,10 +7,15 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Max, Count, Q
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.models import User
 
 from .models import ChatThread, ChatMessage, ContactMessage, News
 from .forms import ContactForm
 from store.models import Product, Category, Order
+
+
+def _get_first_staff():
+    return User.objects.filter(is_staff=True).order_by("id").first()
 
 
 # ----------------------------
@@ -124,9 +129,12 @@ def chat_send(request):
 
     thread, _ = ChatThread.objects.get_or_create(user=request.user)
 
+    receiver = _get_first_staff()
+
     ChatMessage.objects.create(
         thread=thread,
         sender=request.user,
+        receiver=receiver,
         text=text,
         is_admin=False,
         is_read_by_user=True,   # چون کاربر خودش فرستاده است
@@ -260,6 +268,7 @@ def admin_chat_send(request, user_id):
     ChatMessage.objects.create(
         thread=thread,
         sender=request.user,
+        receiver=thread.user,
         text=text,
         is_admin=True,
         is_read_by_admin=True,
