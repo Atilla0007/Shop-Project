@@ -14,6 +14,7 @@ urlpatterns = [
     path('chat/', views.chat, name='chat'),
     path('chat/messages/', views.chat_messages, name='chat_messages'),
     path('chat/send/', views.chat_send, name='chat_send'),
+    path('chat/bot/', views.chat_bot, name='chat_bot'),
     path('chat/stream/', views.chat_stream, name='chat_stream'),  # جدید - SSE
 
     # پنل چت ادمین

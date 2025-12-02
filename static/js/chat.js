@@ -1,3 +1,21 @@
+// Simple polling-based chatbot client
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
 const widgetToggleBtn = document.getElementById('global-chat-toggle');
 const widgetContainer = document.getElementById('global-chat-widget');
 const widgetCloseBtn = document.getElementById('global-chat-close');
@@ -10,9 +28,8 @@ const pageChatForm = document.getElementById('chat-form');
 const pageChatInput = document.getElementById('chat-input');
 
 const isAuth = document.body.dataset.userAuthenticated === 'true';
-const currentUserId = Number(document.body.dataset.userId || '0');
 
-let socket = null;
+let pollTimer = null;
 let messagesCache = [];
 
 function escapeHtml(text) {
@@ -23,13 +40,11 @@ function escapeHtml(text) {
 
 function renderMessages(boxElement, messages) {
     if (!boxElement) return;
-
     boxElement.innerHTML = '';
     if (!messages.length) {
         boxElement.innerHTML = '<div class="chat-empty">هنوز پیامی وجود ندارد. سلام کنید! 👋</div>';
         return;
     }
-
     messages.forEach((msg) => {
         const div = document.createElement('div');
         div.className = 'chat-message ' + (msg.is_admin ? 'from-admin' : 'from-user');
@@ -42,7 +57,6 @@ function renderMessages(boxElement, messages) {
         `;
         boxElement.appendChild(div);
     });
-
     boxElement.scrollTop = boxElement.scrollHeight;
 }
 
@@ -53,21 +67,6 @@ function renderAllMessages(messages) {
 
 function setMessages(messages) {
     messagesCache = Array.isArray(messages) ? [...messages] : [];
-    renderAllMessages(messagesCache);
-}
-
-function upsertMessage(message) {
-    if (!message || !message.id) return;
-    if (!Array.isArray(messagesCache)) {
-        messagesCache = [];
-    }
-    const exists = messagesCache.some((m) => m.id === message.id);
-    if (!exists) {
-        messagesCache.push(message);
-        messagesCache.sort((a, b) => a.id - b.id);
-    } else {
-        messagesCache = messagesCache.map((m) => (m.id === message.id ? message : m));
-    }
     renderAllMessages(messagesCache);
 }
 
@@ -83,81 +82,63 @@ function loadMessages() {
         .catch((err) => console.error('خطا در دریافت پیام‌ها:', err));
 }
 
-function handleIncomingMessage(msg) {
-    upsertMessage(msg);
-    if (msg && msg.is_admin) {
-        const widgetHidden = widgetContainer && widgetContainer.classList.contains('hidden');
-        const notOnPage = !pageChatBox;
-        if (widgetHidden && notOnPage) {
-            showNotification('پیام جدید پشتیبانی دریافت شد');
-        }
-        loadMessages(); // mark admin messages as read on the server
-    }
-}
-
-function initSocket() {
-    if (!isAuth || socket) return;
-    if (typeof io === 'undefined') {
-        console.error('Socket.IO script not loaded');
-        return;
-    }
-
-    socket = io({ withCredentials: true, transports: ['websocket', 'polling'] });
-
-    socket.on('connect', () => {
-        loadMessages();
-    });
-
-    socket.on('chat_message', (msg) => {
-        handleIncomingMessage(msg);
-    });
-
-    socket.on('connect_error', (err) => {
-        console.error('Socket.IO connection error:', err);
-    });
-
-    socket.connect();
+function startPolling() {
+    if (!isAuth) return;
+    loadMessages();
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(loadMessages, 3000);
 }
 
 function sendMessage(text, btnElement, inputElement) {
     if (!text) return;
-    if (!socket || !socket.connected) {
-        alert('اتصال به سرور چت برقرار نیست. لطفا دوباره تلاش کنید.');
-        return;
-    }
-
     const originalText = btnElement.textContent;
     btnElement.disabled = true;
     btnElement.textContent = '...';
 
-    const emitter = socket.timeout ? socket.timeout(5000) : socket;
-    emitter.emit('send_message', { room_user_id: currentUserId, message: text }, (err, res) => {
-        if (err || !res || res.status !== 'ok') {
-            alert('ارسال پیام انجام نشد. لطفا دوباره تلاش کنید.');
-        } else {
+    const formData = new FormData();
+    formData.append('message', text);
+
+    fetch('/chat/bot/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        body: formData,
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.status !== 'ok') {
+                alert(data.error || 'ارسال پیام انجام نشد.');
+            } else {
+                loadMessages();
+                if (data.handoff) {
+                    showNotification('سؤال شما برای پشتیبان ارسال شد.');
+                }
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('خطا در ارسال پیام.');
+        })
+        .finally(() => {
+            btnElement.disabled = false;
+            btnElement.textContent = originalText;
             inputElement.value = '';
             inputElement.focus();
-        }
-        btnElement.disabled = false;
-        btnElement.textContent = originalText;
-    });
+        });
 }
 
 function showNotification(msg) {
     if (!('Notification' in window)) return;
     if (Notification.permission === 'granted') {
-        new Notification('پیام جدید پشتیبانی', { body: msg });
+        new Notification('پیام پشتیبانی', { body: msg });
     } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then((p) => {
-            if (p === 'granted') {
-                new Notification('پیام جدید پشتیبانی', { body: msg });
-            }
+            if (p === 'granted') new Notification('پیام پشتیبانی', { body: msg });
         });
     }
 }
 
 function alertAuth() {
-    alert('برای استفاده از چت باید وارد حساب خود شوید.');
+    alert('برای استفاده از چت باید وارد حساب شوید.');
     window.location.href = '/login/';
 }
 
@@ -186,8 +167,8 @@ if (widgetToggleBtn) {
         if (!isAuth) return alertAuth();
         widgetContainer.classList.remove('hidden');
         widgetToggleBtn.classList.add('hidden');
-        loadMessages();
-        if (widgetInput) widgetInput.focus();
+        startPolling();
+        widgetInput && widgetInput.focus();
     });
 }
 
@@ -199,11 +180,9 @@ if (widgetCloseBtn) {
 }
 
 if (isAuth) {
-    initSocket();
+    startPolling();
 }
 
 window.addEventListener('beforeunload', () => {
-    if (socket) {
-        socket.close();
-    }
+    if (pollTimer) clearInterval(pollTimer);
 });

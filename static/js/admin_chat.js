@@ -1,11 +1,28 @@
+// Admin chat polling + send
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
 const box = document.getElementById('admin-chat-box');
 const form = document.getElementById('admin-chat-form');
 const input = document.getElementById('admin-chat-input');
 const quickReplies = document.querySelectorAll('.quick-reply');
-
 const userId = box ? parseInt(box.getAttribute('data-user-id') || '', 10) : null;
 
-let socket = null;
+let pollTimer = null;
 let messagesCache = [];
 
 function escapeHtml(text) {
@@ -16,13 +33,11 @@ function escapeHtml(text) {
 
 function renderMessages(messages) {
     if (!box) return;
-
     box.innerHTML = '';
     if (!messages.length) {
         box.innerHTML = '<div class="chat-empty">هنوز پیامی وجود ندارد.</div>';
         return;
     }
-
     messages.forEach((msg) => {
         const div = document.createElement('div');
         div.className = 'chat-message ' + (msg.is_admin ? 'from-admin' : 'from-user');
@@ -35,24 +50,11 @@ function renderMessages(messages) {
         `;
         box.appendChild(div);
     });
-
     box.scrollTop = box.scrollHeight;
 }
 
 function setMessages(messages) {
     messagesCache = Array.isArray(messages) ? [...messages] : [];
-    renderMessages(messagesCache);
-}
-
-function upsertMessage(message) {
-    if (!message || !message.id) return;
-    const exists = messagesCache.some((m) => m.id === message.id);
-    if (!exists) {
-        messagesCache.push(message);
-        messagesCache.sort((a, b) => a.id - b.id);
-    } else {
-        messagesCache = messagesCache.map((m) => (m.id === message.id ? message : m));
-    }
     renderMessages(messagesCache);
 }
 
@@ -68,71 +70,55 @@ function loadAdminMessages() {
         .catch((err) => console.error('خطا در دریافت پیام‌ها:', err));
 }
 
-function initSocket() {
-    if (!userId || socket) return;
-    if (typeof io === 'undefined') {
-        console.error('Socket.IO script not loaded');
-        return;
-    }
-
-    socket = io({ withCredentials: true, transports: ['websocket', 'polling'] });
-
-    socket.on('connect', () => {
-        socket.emit('join_room', { room_user_id: userId }, (res) => {
-            if (res && res.status === 'error') {
-                console.error('عدم دسترسی به اتاق چت کاربر', res);
-            }
-        });
-        loadAdminMessages();
-    });
-
-    socket.on('chat_message', (msg) => {
-        upsertMessage(msg);
-        if (msg && !msg.is_admin) {
-            loadAdminMessages(); // marks user messages as read_by_admin
-        }
-    });
-
-    socket.on('connect_error', (err) => {
-        console.error('Socket.IO connection error:', err);
-    });
-
-    socket.connect();
+function startPolling() {
+    loadAdminMessages();
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(loadAdminMessages, 3000);
 }
 
 function sendMessage() {
     const text = (input.value || '').trim();
-    if (!text || !socket || !socket.connected) return;
-
-    const submitBtn = form.querySelector('button[type="submit"]');
+    if (!text || !userId) return;
+    const submitBtn = form.querySelector('button[type=\"submit\"]');
     const original = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = '...';
 
-    const emitter = socket.timeout ? socket.timeout(5000) : socket;
-    emitter.emit('send_message', { room_user_id: userId, message: text }, (err, res) => {
-        if (err || !res || res.status !== 'ok') {
-            alert('ارسال پیام انجام نشد. دوباره تلاش کنید.');
-        } else {
-            input.value = '';
-            input.focus();
-        }
-        submitBtn.disabled = false;
-        submitBtn.textContent = original;
-    });
+    const formData = new FormData();
+    formData.append('message', text);
+
+    fetch(`/admin-chat/${userId}/send/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        body: formData,
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            if (data.status === 'ok') {
+                input.value = '';
+                loadAdminMessages();
+            } else {
+                alert('ارسال پیام انجام نشد.');
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            alert('خطا در ارسال پیام.');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = original;
+        });
 }
 
 if (userId) {
-    loadAdminMessages();
-    initSocket();
-
+    startPolling();
     if (form) {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             sendMessage();
         });
     }
-
     quickReplies.forEach((btn) => {
         btn.addEventListener('click', function () {
             input.value = this.textContent;
@@ -142,5 +128,5 @@ if (userId) {
 }
 
 window.addEventListener('beforeunload', () => {
-    if (socket) socket.close();
+    if (pollTimer) clearInterval(pollTimer);
 });
