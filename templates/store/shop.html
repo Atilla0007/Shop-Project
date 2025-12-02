@@ -1,0 +1,85 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}فروشگاه - آیدین{% endblock %}
+
+{% block content %}
+<section class="section page-hero">
+    <div class="container">
+        <h1>فروشگاه</h1>
+        <p>لیست تجهیزات آشپزخانه صنعتی با امکان فیلتر بر اساس دسته‌بندی، تگ و دامنه کاربرد.</p>
+
+        <div class="shop-filters">
+            <form method="get" class="filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>دسته‌بندی</label>
+                        <select name="category">
+                            <option value="">همه دسته‌ها</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:'s' %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>جستجو در تگ / دامنه</label>
+                        <input type="text" name="domain" placeholder="مثلاً: فر، یخچال، گریل..." value="{{ request.GET.domain }}">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary small" type="submit">اعمال فیلتر</button>
+                    </div>
+                </div>
+
+                <div class="filter-tags">
+                    <span class="filter-label">تگ‌های پیشنهادی:</span>
+                    <button type="button" class="filter-chip" data-tag="فر">فر</button>
+                    <button type="button" class="filter-chip" data-tag="یخچال">یخچال</button>
+                    <button type="button" class="filter-chip" data-tag="گریل">گریل</button>
+                    <button type="button" class="filter-chip" data-tag="سرخ‌کن">سرخ‌کن</button>
+                    <button type="button" class="filter-chip" data-tag="سینک">سینک</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+
+<section class="section">
+    <div class="container">
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="{% static 'img/default.jpg' %}" alt="{{ product.name }}">
+                </div>
+                <div class="product-info">
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-domain">{{ product.domain }}</p>
+                    <p class="product-price">{{ product.price|floatformat:0 }} تومان</p>
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline small">جزئیات</a>
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary small">افزودن به سبد</a>
+                    <a href="{% url 'add_to_compare' product.id %}" class="btn btn-outline small">مقایسه</a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="empty-text">محصولی یافت نشد.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const tag = chip.dataset.tag;
+            const input = document.querySelector('input[name="domain"]');
+            input.value = tag;
+            input.form.submit();
+        });
+    });
+</script>
+{% endblock %}

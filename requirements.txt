@@ -1,0 +1,4 @@
+Django>=5.2.8
+django-crispy-forms
+channels>=4.3.2
+python-socketio>=5.15.0

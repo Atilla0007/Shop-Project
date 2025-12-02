@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>سبد خرید</h1>
+<ul>{% for i in items %}<li>{{ i.product.name }} x {{ i.qty }} — {{ i.subtotal }}</li>{% empty %}<li>خالی</li>{% endfor %}</ul>
+<p>مجموع: {{ total }}</p>
+<a href="{% url 'store:checkout' %}">نهایی‌سازی</a>
+{% endblock %}

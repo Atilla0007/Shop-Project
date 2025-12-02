@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} - آیدین{% endblock %}
+
+{% block content %}
+<section class="section product-detail">
+    <div class="container product-detail-container">
+        <!-- ستون عکس -->
+        <div class="product-detail-image">
+            <img src="{% static 'img/default.jpg' %}" alt="{{ product.name }}">
+        </div>
+
+        <!-- ستون اطلاعات -->
+        <div class="product-detail-info">
+
+            <h1>{{ product.name }}</h1>
+
+            <!-- بلوک اطلاعات شبیه دیجی‌کالا (برند، دسته، شناسه، تگ‌ها، تاریخ) -->
+            <div class="product-meta-block">
+                <div class="meta-row">
+                    <span class="meta-label">برند:</span>
+                    <span class="meta-value">{{ product.brand|default:"-" }}</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">شناسه محصول:</span>
+                    <span class="meta-value">{{ product.sku|default:product.id }}</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">دسته‌بندی‌ها:</span>
+                    <span class="meta-value">{{ product.category.name }}</span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">برچسب‌ها:</span>
+                    <span class="meta-value">
+                        {% if product.tags %}
+                            {{ product.tags }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-label">تاریخ به‌روزرسانی:</span>
+                    <span class="meta-value">{{ product.updated_at|date:"j F Y" }}</span>
+                </div>
+            </div>
+
+            <!-- توضیحات کوتاه -->
+            <p class="product-description">
+                {{ product.description }}
+            </p>
+
+            <!-- دکمه‌های بالای باکس خرید: علاقه‌مندی، مقایسه، اشتراک‌گذاری -->
+            <div class="detail-actions-top">
+                <button type="button" class="btn btn-outline small">افزودن به علاقه‌مندی‌ها</button>
+
+                <!-- این همونیه که می‌خواستی: دکمه افزودن به مقایسه -->
+                <a href="{% url 'add_to_compare' product.id %}"
+                   class="btn btn-outline small">
+                    افزودن به مقایسه
+                </a>
+
+                <a class="btn btn-outline small"
+                   href="https://t.me/share/url?url={{ absolute_url|urlencode }}&text={{ product.name|urlencode }}"
+                   target="_blank">
+                    اشتراک‌گذاری
+                </a>
+            </div>
+
+            <!-- باکس قیمت + تعداد + دکمه افزودن به سبد خرید -->
+            <div class="detail-buy-box">
+                <div class="price-block">
+                    <div class="price-label">قیمت:</div>
+                    <div class="price-value">
+                        {{ product.price|floatformat:0 }}
+                        <span>تومان</span>
+                    </div>
+                </div>
+
+                <div class="qty-block">
+                    <button type="button" class="qty-btn" data-dir="plus">+</button>
+                    <input type="text" value="1" id="qty-input">
+                    <button type="button" class="qty-btn" data-dir="minus">−</button>
+                </div>
+
+                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                    افزودن به سبد خرید
+                </a>
+            </div>
+
+            <!-- جدول مشخصات فنی -->
+            {% if features %}
+            <div class="product-features">
+                <h2>مشخصات فنی</h2>
+                <table>
+                    <tbody>
+                    {% for f in features %}
+                        <tr>
+                            <th>{{ f.name }}</th>
+                            <td>{{ f.value }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <div class="detail-links-bottom">
+                <a href="{% url 'shop' %}" class="btn btn-outline small">بازگشت به فروشگاه</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const qtyInput = document.getElementById('qty-input');
+    document.querySelectorAll('.qty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            let value = parseInt(qtyInput.value || '1');
+            if (btn.dataset.dir === 'plus') value++;
+            if (btn.dataset.dir === 'minus' && value > 1) value--;
+            qtyInput.value = value;
+        });
+    });
+</script>
+{% endblock %}

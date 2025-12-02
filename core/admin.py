@@ -1,0 +1,32 @@
+from django.contrib import admin
+from .models import News, ContactMessage, ChatMessage, ChatThread
+
+
+@admin.register(News)
+class NewsAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_at')
+    search_fields = ('title',)
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'created_at')
+    search_fields = ('name', 'email')
+
+
+@admin.register(ChatThread)
+class ChatThreadAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
+    search_fields = ('user__username',)
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('thread', 'sender', 'short_text', 'is_admin',
+                    'is_read_by_admin', 'is_read_by_user', 'created_at')
+    list_filter = ('is_admin', 'is_read_by_admin', 'is_read_by_user')
+    search_fields = ('text', 'sender__username', 'thread__user__username')
+
+    def short_text(self, obj):
+        return obj.text[:40]
+    short_text.short_description = "متن"

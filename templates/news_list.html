@@ -1,0 +1,23 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}اخبار فروشگاه{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1>اخبار فروشگاه</h1>
+        <div class="news-grid">
+            {% for item in news %}
+            <article class="news-card">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.text|truncatechars:200 }}</p>
+                <span class="news-date">{{ item.created_at|date:"Y/m/d" }}</span>
+            </article>
+            {% empty %}
+            <p class="empty-text">خبری ثبت نشده است.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

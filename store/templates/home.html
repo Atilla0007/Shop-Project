@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>خوش آمدید</h1>
+<section class="news">
+  <h2>آخرین اخبار</h2>
+  <ul>
+    {% for n in latest %}
+      <li><a href="#">{{ n.title }}</a></li>
+    {% empty %}
+      <li>خبری نیست</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

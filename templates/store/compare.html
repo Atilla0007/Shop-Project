@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}مقایسه محصولات{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="compare-header">
+            <div>
+                <h1 class="section-title">مقایسه محصولات</h1>
+                <p class="section-subtitle">
+                    محصولات موردنظر خود را برای مقایسه انتخاب کنید و مشخصات فنی آن‌ها را کنار هم ببینید.
+                </p>
+            </div>
+            <div class="compare-actions">
+                <a href="{% url 'shop' %}" class="btn btn-outline small">بازگشت به فروشگاه</a>
+                <button type="button" class="btn btn-primary small" id="open-product-picker">
+                    افزودن محصول به مقایسه
+                </button>
+            </div>
+        </div>
+
+        {% if products %}
+        <div class="compare-table-wrapper">
+            <table class="compare-table">
+                <thead>
+                <tr>
+                    <th>ویژگی</th>
+                    {% for p in products %}
+                        <th>
+                            <div class="compare-product-header">
+                                <span>{{ p.name }}</span>
+                                <a href="{% url 'remove_from_compare' p.id %}" class="compare-remove">✕</a>
+                            </div>
+                        </th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <th>{{ row.label }}</th>
+                        {% for val in row.values %}
+                            <td>{{ val }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="empty-text">هیچ محصولی برای مقایسه انتخاب نشده است.</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- پاپ‌آپ انتخاب محصول برای مقایسه -->
+<div id="picker-overlay" class="picker-overlay hidden"></div>
+<div id="picker-popup" class="picker-popup hidden">
+    <div class="picker-inner">
+        <div class="picker-header">
+            <div>
+                <h2>افزودن محصول به مقایسه</h2>
+                <p>می‌توانید بر اساس نام محصول، دسته‌بندی یا برچسب‌ها جستجو کنید.</p>
+            </div>
+            <button type="button" id="close-product-picker" class="picker-close">✕</button>
+        </div>
+
+        <div class="picker-search-row">
+            <input type="text" id="product-search-input" placeholder="جستجوی محصول، مثلاً: گریل، فر، سرخ‌کن...">
+        </div>
+
+        <div class="picker-lists">
+            {% if related_products %}
+            <div class="picker-group" data-group="related">
+                <div class="picker-group-title">محصولات مرتبط با مقایسه فعلی</div>
+                <div class="picker-group-list">
+                    {% for p in related_products %}
+                        <a href="{% url 'add_to_compare' p.id %}"
+                           class="product-option"
+                           data-name="{{ p.name }}"
+                           data-category="{{ p.category.name }}"
+                           data-tags="{{ p.tags }}">
+                            <div class="product-option-main">
+                                <strong>{{ p.name }}</strong>
+                                <span class="product-option-cat">{{ p.category.name }}</span>
+                            </div>
+                            <div class="product-option-meta">
+                                <span class="product-option-price">
+                                    {% if p.price %}
+                                        {{ p.price|floatformat:0 }} تومان
+                                    {% else %}
+                                        قیمت ثبت نشده
+                                    {% endif %}
+                                </span>
+                                {% if p.tags %}
+                                    <span class="product-option-tags">{{ p.tags }}</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="picker-group" data-group="others">
+                <div class="picker-group-title">سایر محصولات</div>
+                <div class="picker-group-list">
+                    {% for p in other_products %}
+                        <a href="{% url 'add_to_compare' p.id %}"
+                           class="product-option"
+                           data-name="{{ p.name }}"
+                           data-category="{{ p.category.name }}"
+                           data-tags="{{ p.tags }}">
+                            <div class="product-option-main">
+                                <strong>{{ p.name }}</strong>
+                                <span class="product-option-cat">{{ p.category.name }}</span>
+                            </div>
+                            <div class="product-option-meta">
+                                <span class="product-option-price">
+                                    {% if p.price %}
+                                        {{ p.price|floatformat:0 }} تومان
+                                    {% else %}
+                                        قیمت ثبت نشده
+                                    {% endif %}
+                                </span>
+                                {% if p.tags %}
+                                    <span class="product-option-tags">{{ p.tags }}</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% empty %}
+                        <p class="empty-text">محصول دیگری برای نمایش وجود ندارد.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const overlay = document.getElementById('picker-overlay');
+        const popup = document.getElementById('picker-popup');
+        const openBtn = document.getElementById('open-product-picker');
+        const closeBtn = document.getElementById('close-product-picker');
+        const searchInput = document.getElementById('product-search-input');
+
+        function openPopup() {
+            if (!popup) return;
+            popup.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            if (searchInput) {
+                searchInput.value = '';
+                filterProducts('');
+                searchInput.focus();
+            }
+        }
+
+        function closePopup() {
+            if (!popup) return;
+            popup.classList.add('hidden');
+            overlay.classList.add('hidden');
+        }
+
+        function normalize(text) {
+            return (text || '').toString().toLowerCase();
+        }
+
+        function filterProducts(query) {
+            const q = normalize(query);
+            const options = document.querySelectorAll('.product-option');
+            options.forEach(opt => {
+                const name = normalize(opt.dataset.name);
+                const cat = normalize(opt.dataset.category);
+                const tags = normalize(opt.dataset.tags);
+                if (!q || name.includes(q) || cat.includes(q) || tags.includes(q)) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openPopup);
+        if (closeBtn) closeBtn.addEventListener('click', closePopup);
+        if (overlay) overlay.addEventListener('click', closePopup);
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                filterProducts(this.value);
+            });
+        }
+    })();
+</script>
+{% endblock %}

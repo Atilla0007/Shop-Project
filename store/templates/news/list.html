@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>اخبار</h1>
+<ul>{% for n in news %}<li>{{ n.title }}</li>{% empty %}<li>خبری نیست</li>{% endfor %}</ul>
+{% endblock %}

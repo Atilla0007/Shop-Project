@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>فروشگاه</h1>
+<div class="products">
+  {% for p in products %}
+    <div class="product-card">
+      <h3>{{ p.name }}</h3>
+      <p>{{ p.description|truncatechars:80 }}</p>
+      <p>قیمت: {{ p.price }} </p>
+      <a href="{% url 'store:product_detail' p.slug %}">مشاهده</a>
+    </div>
+  {% empty %}
+    <p>محصولی موجود نیست.</p>
+  {% endfor %}
+</div>
+{% endblock %}

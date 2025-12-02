@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="fa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}فروشگاه{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+</head>
+<body style="background-color:#F5F7FA; color:#1A1A1A;">
+  <header style="background-color:#0B1D3A; color:white; padding:10px;">
+    <h1>فروشگاه قجاقاز</h1>
+    <nav>
+      <a href="{% url 'store:home' %}">خانه</a> |
+      <a href="{% url 'store:product_list' %}">فروشگاه</a> |
+      <a href="{% url 'store:news_list' %}">اخبار</a> |
+      <a href="{% url 'store:contact' %}">تماس با ما</a>
+    </nav>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer style="background-color:#1C2C55; color:white; padding:10px; text-align:center;">
+    فروشگاه قجاقاز © 2025
+  </footer>
+  <script src="{% static 'store/js/chat.js' %}"></script>
+</body>
+</html>

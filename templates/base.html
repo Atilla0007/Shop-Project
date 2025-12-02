@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}آیدین شاپ{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="body" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+
+<header class="main-header">
+    <div class="container nav-container">
+        <a href="{% url 'home' %}" class="logo">
+            <span class="logo-icon">🍽</span>
+            <span class="logo-text light">آیدین شاپ</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{% url 'shop' %}">فروشگاه</a>
+            <a href="{% url 'news_list' %}">اخبار</a>
+            <a href="{% url 'faq' %}">سوالات متداول</a>
+            <a href="{% url 'contact' %}">تماس با ما</a>
+            {% if user.is_staff %}
+                <a href="{% url 'admin_chat' %}">چت ادمین</a>
+            {% endif %}
+        </nav>
+
+        <div class="nav-actions">
+            <a href="{% url 'cart' %}" class="btn btn-light small">سبد خرید</a>
+            {% if user.is_authenticated %}
+                <span class="user-name">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="btn btn-ghost small">خروج</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline small">ورود</a>
+                <a href="{% url 'signup' %}" class="btn btn-primary small">ثبت نام</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="main-footer">
+    <div class="container footer-top">
+        <div class="footer-brand">
+            <h4>آیدین شاپ</h4>
+            <p>فروش تخصصی تجهیزات آشپزخانه صنعتی با پشتیبانی واقعی.</p>
+        </div>
+        <div class="footer-column">
+            <h4>دسترسی سریع</h4>
+            <a href="{% url 'shop' %}">فروشگاه</a>
+            <a href="{% url 'news_list' %}">اخبار</a>
+            <a href="{% url 'faq' %}">سوالات متداول</a>
+        </div>
+        <div class="footer-column">
+            <h4>خدمات</h4>
+            <a href="{% url 'contact' %}">درخواست مشاوره</a>
+            <a href="{% url 'contact' %}">گارانتی و خدمات پس از فروش</a>
+        </div>
+        <div class="footer-column">
+            <h4>ارتباط</h4>
+            <p>تلفن: ۰۲۱-xxxxxxx</p>
+            <p>ایمیل: info@example.com</p>
+        </div>
+    </div>
+    <div class="container footer-bottom">
+        <p>© تمامی حقوق برای آیدین شاپ محفوظ است.</p>
+    </div>
+</footer>
+
+<!-- دکمه چت شناور -->
+{% if user.is_authenticated %}
+<div id="global-chat-toggle" class="floating-chat-btn">
+    💬
+</div>
+
+<!-- پنل چت شناور -->
+<div id="global-chat-widget" class="global-chat hidden">
+    <div class="global-chat-header">
+        <span>چت آنلاین با پشتیبان</span>
+        <button type="button" id="global-chat-close" class="close-btn">×</button>
+    </div>
+    <div id="global-chat-messages" class="global-chat-messages">
+        <!-- پیام‌ها اینجا نمایش داده می‌شوند -->
+    </div>
+    <form id="global-chat-form" class="global-chat-form">
+        {% csrf_token %}
+        <input id="global-chat-input" type="text" placeholder="پیام خود را بنویسید..." autocomplete="off">
+        <button type="submit">ارسال</button>
+    </form>
+</div>
+{% endif %}
+
+<!-- JavaScript -->
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script src="{% static 'js/chat.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,14 @@
+
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.shop, name='shop'),
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('add-to-cart/<int:pk>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart, name='cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('compare/', views.compare, name='compare'),
+    path('compare/add/<int:pk>/', views.add_to_compare, name='add_to_compare'),
+    path('compare/remove/<int:pk>/', views.remove_from_compare, name='remove_from_compare'),
+]

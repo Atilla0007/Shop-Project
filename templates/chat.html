@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}چت آنلاین{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="page-title">چت آنلاین با پشتیبانی</h1>
+
+        <div id="chat-box" class="chat-box">
+            <!-- پیام‌های چت توسط JavaScript لود می‌شوند -->
+        </div>
+
+        <form id="chat-form" class="chat-form">
+            {% csrf_token %}
+            <input id="chat-input"
+                   type="text"
+                   placeholder="پیام خود را بنویسید..."
+                   autocomplete="off" />
+            <button type="submit" class="btn btn-primary">ارسال</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

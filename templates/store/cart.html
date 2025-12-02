@@ -1,0 +1,40 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}سبد خرید{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1>سبد خرید شما</h1>
+        {% if items %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>محصول</th>
+                    <th>تعداد</th>
+                    <th>قیمت واحد</th>
+                    <th>مجموع</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.product.price|floatformat:0 }} تومان</td>
+                    <td>{{ item.total_price|floatformat:0 }} تومان</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="cart-summary">
+            <p>جمع کل: <strong>{{ total|floatformat:0 }} تومان</strong></p>
+            <a href="{% url 'checkout' %}" class="btn btn-primary">ادامه به پرداخت</a>
+        </div>
+        {% else %}
+        <p class="empty-text">سبد خرید شما خالی است.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

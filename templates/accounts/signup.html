@@ -1,0 +1,30 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ثبت‌نام{% endblock %}
+
+{% block content %}
+<section class="section auth-section">
+    <div class="container auth-container">
+        <div class="auth-card">
+            <h1>ایجاد حساب کاربری</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <label>نام کاربری</label>
+                {{ form.username }}
+                <label>ایمیل</label>
+                {{ form.email }}
+                <label>رمز عبور</label>
+                {{ form.password1 }}
+                <label>تکرار رمز عبور</label>
+                {{ form.password2 }}
+                <button type="submit" class="btn btn-primary">ثبت‌نام</button>
+            </form>
+            <p class="auth-extra">
+                قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">وارد شوید</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

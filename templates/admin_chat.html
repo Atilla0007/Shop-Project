@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}پنل چت ادمین{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container admin-chat-layout">
+        <!-- لیست گفتگوها -->
+        <aside class="admin-chat-sidebar">
+            <h3>گفتگوها</h3>
+            <div class="admin-chat-thread-list">
+                {% for t in threads %}
+                    <a href="{% url 'admin_chat_detail' t.user.id %}"
+                       class="thread-item {% if active_thread and active_thread.id == t.id %}active{% endif %}">
+                        <div class="thread-main">
+                            <span class="thread-user">{{ t.user.username }}</span>
+                            <span class="thread-time">
+                                {% if t.last_time %}
+                                    {{ t.last_time|date:"H:i" }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if t.unread_count %}
+                            <span class="thread-unread">{{ t.unread_count }}</span>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <p class="empty-text">گفتگویی وجود ندارد.</p>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- پنجره چت -->
+        <div class="admin-chat-main">
+            {% if active_thread %}
+                <div class="admin-chat-header">
+                    <div>
+                        <button type="button" class="link-button" id="toggle-user-panel">
+                            {{ active_thread.user.username }}
+                        </button>
+                        <span class="admin-chat-sub">
+                            گفتگو با کاربر
+                        </span>
+                    </div>
+                </div>
+
+                <div id="admin-chat-box"
+                     class="admin-chat-box"
+                     data-user-id="{{ active_thread.user.id }}">
+                    <!-- پیام‌ها با JavaScript لود می‌شوند -->
+                </div>
+
+                <div class="admin-quick-replies">
+                    <span>پیام‌های آماده:</span>
+                    <button type="button" class="chip quick-reply">سلام، وقت شما بخیر. چطور می‌تونم کمکتون کنم؟</button>
+                    <button type="button" class="chip quick-reply">سفارش شما ثبت شد و در حال پردازش است 🌟</button>
+                    <button type="button" class="chip quick-reply">لطفاً شماره تماس یا نام مجموعه را بفرمایید.</button>
+                </div>
+
+                <form id="admin-chat-form" class="admin-chat-form">
+                    {% csrf_token %}
+                    <input type="text" id="admin-chat-input" placeholder="پاسخ خود را بنویسید..." autocomplete="off">
+                    <button type="submit" class="btn btn-primary small">ارسال</button>
+                </form>
+            {% else %}
+                <div class="admin-chat-empty">
+                    <p class="empty-text">گفتگویی برای نمایش انتخاب نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- پنل اطلاعات کاربر / سفارش‌ها -->
+        <aside class="admin-chat-user-panel {% if not active_thread %}hidden{% endif %}" id="admin-user-panel">
+            {% if active_thread and active_thread.user %}
+                <h3>اطلاعات کاربر</h3>
+                <div class="user-info-block">
+                    <div class="user-info-row">
+                        <span>نام کاربری:</span>
+                        <strong>{{ active_thread.user.username }}</strong>
+                    </div>
+                    <div class="user-info-row">
+                        <span>ایمیل:</span>
+                        <strong>{{ active_thread.user.email|default:"-" }}</strong>
+                    </div>
+                    <div class="user-info-row">
+                        <span>تاریخ عضویت:</span>
+                        <strong>{{ active_thread.user.date_joined|date:"j F Y" }}</strong>
+                    </div>
+                </div>
+
+                <h4>سفارش‌ها</h4>
+                <div class="user-orders-list">
+                    {% if user_orders %}
+                        {% for order in user_orders %}
+                            <div class="order-card">
+                                <div class="order-header">
+                                    <span>سفارش #{{ order.id }}</span>
+                                    <span class="order-status">{{ order.get_status_display }}</span>
+                                </div>
+                                <div class="order-meta">
+                                    <span>{{ order.created_at|date:"j F Y - H:i" }}</span>
+                                    <span>{{ order.total_price|floatformat:0 }} تومان</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-text">این کاربر هنوز سفارشی ثبت نکرده است.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </aside>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/admin_chat.js' %}"></script>
+{% endblock %}

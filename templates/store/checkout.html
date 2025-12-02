@@ -1,0 +1,48 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}تکمیل خرید{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1>تکمیل سفارش</h1>
+        <p>در این مرحله صرفاً شبیه‌سازی پرداخت انجام می‌شود و اتصال به درگاه واقعی وجود ندارد.</p>
+
+        <div class="checkout-layout">
+            <div class="checkout-form">
+                <h2>اطلاعات تماس و ارسال</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <label>نام و نام خانوادگی</label>
+                    <input type="text" name="full_name" required>
+
+                    <label>ایمیل</label>
+                    <input type="email" name="email" required>
+
+                    <label>آدرس کامل</label>
+                    <textarea name="address" rows="3" required></textarea>
+
+                    <label>توضیحات سفارش</label>
+                    <textarea name="note" rows="3"></textarea>
+
+                    <button type="submit" class="btn btn-primary">ثبت نهایی سفارش</button>
+                </form>
+            </div>
+            <div class="checkout-summary">
+                <h2>خلاصه سفارش</h2>
+                {% if items %}
+                    <ul>
+                        {% for item in items %}
+                        <li>{{ item.product.name }} × {{ item.quantity }} — {{ item.total_price|floatformat:0 }} تومان</li>
+                        {% endfor %}
+                    </ul>
+                    <p>جمع کل: <strong>{{ total|floatformat:0 }} تومان</strong></p>
+                {% else %}
+                    <p class="empty-text">سبد خرید خالی است.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

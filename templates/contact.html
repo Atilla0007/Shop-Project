@@ -1,0 +1,33 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}تماس با ما{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container contact-container">
+        <div class="contact-form-wrapper">
+            <h1>تماس با ما</h1>
+            <p>برای هرگونه سوال، انتقاد یا پیشنهاد، فرم زیر را پر کنید.</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <label>نام و نام خانوادگی</label>
+                {{ form.name }}
+                <label>ایمیل</label>
+                {{ form.email }}
+                <label>پیام شما</label>
+                {{ form.message }}
+                <button type="submit" class="btn btn-primary">ارسال پیام</button>
+            </form>
+        </div>
+        <div class="contact-info">
+            <h2>اطلاعات تماس</h2>
+            <p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
+            <p>ایمیل: info@aydin.com</p>
+            <p>آدرس: تهران، خیابان مثال، پلاک ۱۲۳</p>
+            <p>ساعات کاری: همه روزه ۸ تا ۲۰</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
