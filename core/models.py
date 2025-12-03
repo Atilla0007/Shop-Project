@@ -32,7 +32,6 @@ class ContactMessage(models.Model):
 
 
 class ChatThread(models.Model):
-    """یک گفت‌وگو برای هر کاربر"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='chat_thread')
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -45,13 +44,6 @@ class ChatThread(models.Model):
 
 
 class ChatMessage(models.Model):
-    """
-    پیام در یک گفتگو
-    - sender: هر کسی که پیام را فرستاده (کاربر یا ادمین)
-    - is_admin: آیا فرستنده ادمین است؟
-    - is_read_by_admin: آیا ادمین این پیام کاربر را دیده؟
-    - is_read_by_user: آیا کاربر این پیام ادمین را دیده؟
-    """
     thread = models.ForeignKey(ChatThread, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_messages')
     receiver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='received_messages')

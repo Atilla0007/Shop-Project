@@ -47,7 +47,7 @@ def _build_user_context(user):
 
     order_lines = []
     for o in orders:
-        items = ", ".join(f"{it.product.title} x{it.quantity}" for it in o.items.all())
+        items = ", ".join(f"{it.product.name} x{it.quantity}" for it in o.items.all())
         order_lines.append(f"Order #{o.id} on {o.created_at:%Y-%m-%d} items: {items}")
 
     product_lines = [f"{p.name} - {p.price}" for p in products]
@@ -64,12 +64,7 @@ def _build_user_context(user):
 # ----------------------------
 
 def home(request):
-    """
-    طµظپط­ظ‡ ط§طµظ„غŒ:
-    - ع†ظ†ط¯ ظ…ط­طµظˆظ„ ط¨ط±ط§غŒ ظ†ظ…ط§غŒط´ (ظ¾ط±ظپط±ظˆط´ / ط¬ط¯غŒط¯)
-    - ط¢ط®ط±غŒظ† ط§ط®ط¨ط§ط±
-    - ظ„غŒط³طھ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒâ€Œظ‡ط§ ط¨ط±ط§غŒ ظ¾ط§ظ¾â€Œط¢ظ¾ ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ
-    """
+    \"\"\"Render home page with highlighted products and news.\"\"\"
     products = Product.objects.all()[:8]
     news = News.objects.all()[:3]
     categories = Category.objects.all()
@@ -83,9 +78,7 @@ def home(request):
 
 
 def contact(request):
-    """
-    طµظپط­ظ‡ طھظ…ط§ط³ ط¨ط§ ظ…ط§ + ط°ط®غŒط±ظ‡ ظپط±ظ… ط¯ط± ContactMessage
-    """
+    \"\"\"Handle contact form submission and render the contact page.\"\"\"
     if request.method == "POST":
         form = ContactForm(request.POST)
         if form.is_valid():
@@ -101,17 +94,13 @@ def contact(request):
 
 
 def news_list(request):
-    """
-    ظ„غŒط³طھ ع©ط§ظ…ظ„ ط§ط®ط¨ط§ط±
-    """
+    \"\"\"List news items.\"\"\"
     news = News.objects.all()
     return render(request, "news_list.html", {"news": news})
 
 
 def faq(request):
-    """
-    طµظپط­ظ‡ ط³ظˆط§ظ„ط§طھ ظ…طھط¯ط§ظˆظ„ (ط§ط³طھط§طھغŒع©)
-    """
+    \"\"\"Render FAQ page.\"\"\"
     return render(request, "faq.html")
 
 
@@ -121,20 +110,14 @@ def faq(request):
 
 @login_required
 def chat(request):
-    """
-    طµظپط­ظ‡â€ŒغŒ ط§طµظ„غŒ ع†طھ ع©ط§ط±ط¨ط± (ط؛غŒط± ط§ط² ظˆغŒط¬طھ ط´ظ†ط§ظˆط±).
-    ظپظ‚ط· ظ‚ط§ظ„ط¨ ط±ط§ ط±ظ†ط¯ط± ظ…غŒâ€Œع©ظ†ط¯طŒ ظ¾غŒط§ظ…â€Œظ‡ط§ ط¨ط§ AJAX ع¯ط±ظپطھظ‡ ظ…غŒâ€Œط´ظˆظ†ط¯.
-    """
+    \"\"\"Render user chat page (thread ensured).\"\"\"
     ChatThread.objects.get_or_create(user=request.user)
     return render(request, "chat.html")
 
 
 @login_required
 def chat_messages(request):
-    """
-    ع¯ط±ظپطھظ† ظ„غŒط³طھ ظ¾غŒط§ظ…â€Œظ‡ط§غŒ ع†طھ ع©ط§ط±ط¨ط± ط¬ط§ط±غŒ (ط¨ط±ط§غŒ طµظپط­ظ‡ ع†طھ ظˆ ظˆغŒط¬طھ ط´ظ†ط§ظˆط±).
-    ط®ط±ظˆط¬غŒ: JSON ط´ط§ظ…ظ„ ط¢ط±ط§غŒظ‡â€ŒغŒ ظ¾غŒط§ظ…â€Œظ‡ط§.
-    """
+    \"\"\"Return chat messages for the current user as JSON and mark admin messages as read.\"\"\"
     thread, _ = ChatThread.objects.get_or_create(user=request.user)
 
     messages_qs = thread.messages.select_related("sender").order_by("created_at")
@@ -160,10 +143,7 @@ def chat_messages(request):
 @login_required
 @require_http_methods(["POST"])
 def chat_send(request):
-    """
-    ط§ط±ط³ط§ظ„ ظ¾غŒط§ظ… ط¬ط¯غŒط¯ طھظˆط³ط· ع©ط§ط±ط¨ط± (ط§ط² طµظپط­ظ‡ ع†طھ ظˆ ط§ط² ظˆغŒط¬طھ ط´ظ†ط§ظˆط±).
-    ط§ظ†طھط¸ط§ط±: POST ط¨ط§ ظپغŒظ„ط¯ 'message'
-    """
+    \"\"\"Send a user chat message via AJAX.\"\"\"
     text = (request.POST.get("message") or "").strip()
     if not text:
         return JsonResponse({"status": "error", "error": "ظ¾غŒط§ظ… ط®ط§ظ„غŒ ط§ط³طھ"}, status=400)
@@ -187,9 +167,7 @@ def chat_send(request):
 
 @login_required
 def chat_stream(request):
-    """
-    SSE Stream ط¨ط±ط§غŒ Real-Time Chat
-    """
+    \"\"\"Server-Sent Events stream for user chat notifications.\"\"\"
     def event_stream():
         thread, _ = ChatThread.objects.get_or_create(user=request.user)
         last_check_time = timezone.now()
@@ -226,12 +204,7 @@ def chat_stream(request):
 
 @staff_member_required
 def admin_chat(request, user_id=None):
-    """
-    ظ¾ظ†ظ„ ع†طھ ط§ط¯ظ…غŒظ†.
-    - ط³طھظˆظ† ط§ظˆظ„: ظ„غŒط³طھ Threadظ‡ط§ ظ‡ظ…ط±ط§ظ‡ ط¨ط§ ط¢ط®ط±غŒظ† ظ¾غŒط§ظ… ظˆ طھط¹ط¯ط§ط¯ ظ¾غŒط§ظ… ط®ظˆط§ظ†ط¯ظ‡â€Œظ†ط´ط¯ظ‡
-    - ط³طھظˆظ† ظˆط³ط·: ع†طھ ظپط¹ط§ظ„
-    - ط³طھظˆظ† ط³ظˆظ…: ط§ط·ظ„ط§ط¹ط§طھ ع©ط§ط±ط¨ط± ظˆ ط³ظپط§ط±ط´â€Œظ‡ط§
-    """
+    \"\"\"Admin chat dashboard with threads and optional active thread.\"\"\"
     threads = (
         ChatThread.objects.select_related("user")
         .annotate(
@@ -270,9 +243,7 @@ def admin_chat(request, user_id=None):
 
 @staff_member_required
 def admin_chat_messages(request, user_id):
-    """
-    ع¯ط±ظپطھظ† ظ¾غŒط§ظ…â€Œظ‡ط§غŒ غŒع© Thread ط®ط§طµ ط¨ط±ط§غŒ ط§ط¯ظ…غŒظ†.
-    """
+    \"\"\"Return messages for a user thread to admin, marking user messages as read.\"\"\"
     thread = get_object_or_404(ChatThread, user_id=user_id)
     messages_qs = thread.messages.select_related("sender").order_by("created_at")
 
@@ -297,9 +268,7 @@ def admin_chat_messages(request, user_id):
 @staff_member_required
 @require_http_methods(["POST"])
 def admin_chat_send(request, user_id):
-    """
-    ط§ط±ط³ط§ظ„ ظ¾غŒط§ظ… طھظˆط³ط· ط§ط¯ظ…غŒظ† ط¨ط±ط§غŒ غŒع© ع©ط§ط±ط¨ط± ظ…ط´ط®طµ.
-    """
+    \"\"\"Admin sends a chat message to a user.\"\"\"
     text = (request.POST.get("message") or "").strip()
     if not text:
         return JsonResponse({"status": "error", "error": "ظ¾غŒط§ظ… ط®ط§ظ„غŒ ط§ط³طھ"}, status=400)
@@ -321,9 +290,7 @@ def admin_chat_send(request, user_id):
 
 @staff_member_required
 def admin_chat_stream(request, user_id):
-    """
-    SSE Stream ط¨ط±ط§غŒ Admin Real-Time Chat
-    """
+    \"\"\"SSE stream for admin chat notifications.\"\"\"
     def event_stream():
         thread = get_object_or_404(ChatThread, user_id=user_id)
         last_check_time = timezone.now()
@@ -356,9 +323,7 @@ def admin_chat_stream(request, user_id):
 @login_required
 @require_http_methods(["POST"])
 def chat_bot(request):
-    """
-    Endpoint for chatbot: saves user message, asks LLM with context, saves bot reply.
-    """
+    \"\"\"Chatbot endpoint: saves user message, calls LLM, saves bot reply.\"\"\"
     if not request.user.is_authenticated:
         return JsonResponse({"status": "error", "error": "login_required"}, status=401)
 

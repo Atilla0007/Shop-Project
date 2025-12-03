@@ -6,12 +6,10 @@ from asgiref.sync import sync_to_async
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        """
-        اتصال وب‌سوکت کاربر به یک گروه اختصاصی براساس ID کاربر.
-        """
+        \"\"\"WebSocket connect: authenticate user and join personal group.\"\"\"
         user = self.scope.get("user")
 
-        # فقط کاربران لاگین‌کرده اجازه اتصال دارند
+        # Only authenticated users can connect
         if not user or not user.is_authenticated:
             await self.close()
             return
@@ -19,32 +17,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = user
         self.group_name = f"chat_{self.user.id}"
 
-        # ایجاد Thread اگر وجود نداشته باشد
+        # Ensure the thread exists
         await sync_to_async(ChatThread.objects.get_or_create)(user=self.user)
 
-        # عضویت در گروه
+        # Join the group
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
         await self.accept()
 
     async def disconnect(self, close_code):
-        # ترک کردن گروه
+        # Leave the group
         if hasattr(self, "group_name"):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
-        """
-        دریافت پیام از کلاینت، ذخیره در دیتابیس و ارسال برای همه اعضای گروه.
-        """
+        \"\"\"Handle incoming message: persist and broadcast to group.\"\"\"
         data = json.loads(text_data)
         message = (data.get("message") or "").strip()
         if not message:
             return
 
-        # ذخیره پیام در دیتابیس (تابع sync روی Thread جداگانه)
+        # Persist message in DB (sync helper on separate thread)
         await sync_to_async(self.save_message)(self.user, message)
 
-        # ارسال پیام به تمامی اعضای گروه
+        # Broadcast message to all group members
         await self.channel_layer.group_send(
             self.group_name,
             {
@@ -54,9 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        """
-        هندلر پیام گروه – ارسال به مرورگر.
-        """
+        \"\"\"Group message handler: send to browser.\"\"\"
         message = event["message"]
 
         await self.send(
@@ -68,9 +62,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     def save_message(self, user, message):
-        """
-        تابع همگام برای ذخیره پیام در دیتابیس.
-        """
+        \"\"\"Sync helper to persist a message.\"\"\"
         thread, _ = ChatThread.objects.get_or_create(user=user)
         ChatMessage.objects.create(
             thread=thread,
