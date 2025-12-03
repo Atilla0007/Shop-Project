@@ -1,23 +1,47 @@
-
-/* رنگ‌های اصلی */
+/* Theme tokens */
 :root {
-    /* رنگ‌های اصلی جدید به ترتیب: تیره اصلی، پرایمری، اکسنت، پس‌زمینه */
-    --navy-dark: #0C2B4E;   /* رنگ تیره اصلی */
-    --navy: #1A3D64;       /* رنگ پرایمری */
-    --accent-green: #1D546C; /* اکسنت (به‌جای سبز قبلی) */
-    --accent-yellow: #1D546C; /* اکسنت جایگزین زرد */
-    --accent-orange: #1D546C; /* اکسنت جایگزین نارنجی */
-
-    --bg-light: #F4F4F4;   /* پس‌زمینه کلی */
-    --text-dark: #0C2B4E;  /* رنگ متن */
-
-    /* مرزها و سایه‌ها */
-    --border-light: #D3D7DE; /* کمی خنثی تا مناسب این پالت باشد */
-    --shadow-soft: 0 18px 45px rgba(12, 43, 78, 0.15);
+    --bg: #0f1824;
+    --bg-alt: #111e2b;
+    --surface: #131f30;
+    --surface-2: #162538;
+    --text: #e9f1ff;
+    --muted: #9bb1cc;
+    --accent: #1ed9ff;
+    --accent-2: #7cf4cf;
+    --danger: #ef4444;
+    --border: #1f3146;
+    --shadow-soft: 0 16px 48px rgba(0, 0, 0, 0.35);
 }
 
+body.theme-light {
+    --bg: #f6f9ff;
+    --bg-alt: #eef5ff;
+    --surface: #ffffff;
+    --surface-2: #f2f6ff;
+    --text: #0f1c2e;
+    --muted: #6b7a90;
+    --accent: #00b4ff;
+    --accent-2: #2dd4bf;
+    --danger: #dc2626;
+    --border: #d6deed;
+    --shadow-soft: 0 14px 36px rgba(15, 23, 42, 0.12);
+}
 
-/* پایه */
+body.theme-dark {
+    --bg: #0f1824;
+    --bg-alt: #111e2b;
+    --surface: #131f30;
+    --surface-2: #162538;
+    --text: #e9f1ff;
+    --muted: #9bb1cc;
+    --accent: #1ed9ff;
+    --accent-2: #7cf4cf;
+    --danger: #ef4444;
+    --border: #1f3146;
+    --shadow-soft: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+
+/* ظ¾ط§غŒظ‡ */
 *,
 *::before,
 *::after {
@@ -31,8 +55,8 @@ html {
 body.body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: var(--bg-light);
-    color: var(--text-dark);
+    background: var(--bg);
+    color: var(--text);
     direction: rtl;
     text-align: right;
 }
@@ -66,7 +90,7 @@ img {
     outline: none;
     transition: all 0.2s ease;
     gap: 0.4rem;
-    transform: translateY(0); /* این خط جدیده */
+    transform: translateY(0); /* ط§غŒظ† ط®ط· ط¬ط¯غŒط¯ظ‡ */
 }
 
 
@@ -131,7 +155,7 @@ img {
     background: #F0F3FA;
 }
 
-/* هدر */
+/* ظ‡ط¯ط± */
 .main-header {
     position: sticky;
     top: 0;
@@ -215,7 +239,7 @@ img {
     opacity: 0.9;
 }
 
-/* سکشن‌ها */
+/* ط³ع©ط´ظ†â€Œظ‡ط§ */
 .section {
     padding: 4.2rem 0;
 }
@@ -403,7 +427,7 @@ img {
     color: #7A869A;
 }
 
-/* محصولات */
+/* ظ…ط­طµظˆظ„ط§طھ */
 .best-products {
     background: linear-gradient(to bottom, #F7F9FF, #FDFEFF);
 }
@@ -527,7 +551,7 @@ img {
     color: #7A869A;
 }
 
-/* CTA بنر */
+/* CTA ط¨ظ†ط± */
 .cta-banner {
     background: linear-gradient(120deg, var(--navy-dark), var(--navy));
     color: #fff;
@@ -552,7 +576,7 @@ img {
     opacity: 0.85;
 }
 
-/* پشتیبانی */
+/* ظ¾ط´طھغŒط¨ط§ظ†غŒ */
 .support {
     background: #F7F8FC;
 }
@@ -624,7 +648,7 @@ img {
     color: #A0ABC0;
 }
 
-/* صفحات فروشگاه داخلی */
+/* طµظپط­ط§طھ ظپط±ظˆط´ع¯ط§ظ‡ ط¯ط§ط®ظ„غŒ */
 .page-hero {
     padding-bottom: 1.5rem;
 }
@@ -667,7 +691,7 @@ textarea:focus {
     box-shadow: 0 0 0 1px rgba(12, 25, 58, 0.09);
 }
 
-/* جزئیات محصول */
+/* ط¬ط²ط¦غŒط§طھ ظ…ط­طµظˆظ„ */
 .product-detail-container {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
@@ -686,7 +710,7 @@ textarea:focus {
     gap: 0.9rem;
 }
 
-/* جدول سبد خرید */
+/* ط¬ط¯ظˆظ„ ط³ط¨ط¯ ط®ط±غŒط¯ */
 .cart-table {
     width: 100%;
     border-collapse: collapse;
@@ -946,7 +970,7 @@ textarea:focus {
     color: #C6D0F3;
 }
 
-/* ریسپانسیو */
+/* ط±غŒط³ظ¾ط§ظ†ط³غŒظˆ */
 @media (max-width: 960px) {
     .hero-container,
     .support-container,
@@ -1231,7 +1255,7 @@ textarea:focus {
     flex-wrap: wrap;
 }
 
-/* پاپ‌آپ انتخاب محصول */
+/* ظ¾ط§ظ¾â€Œط¢ظ¾ ط§ظ†طھط®ط§ط¨ ظ…ط­طµظˆظ„ */
 
 .picker-overlay {
     position: fixed;
@@ -1335,7 +1359,7 @@ textarea:focus {
     gap: 0.35rem;
 }
 
-/* گزینه‌های محصول در لیست */
+/* ع¯ط²غŒظ†ظ‡â€Œظ‡ط§غŒ ظ…ط­طµظˆظ„ ط¯ط± ظ„غŒط³طھ */
 
 .product-option {
     display: flex;
@@ -1390,7 +1414,7 @@ textarea:focus {
     color: #6B7280;
 }
 
-/* کلاس کمکی مشترک */
+/* ع©ظ„ط§ط³ ع©ظ…ع©غŒ ظ…ط´طھط±ع© */
 
 .hidden {
     display: none;
@@ -1429,7 +1453,7 @@ textarea:focus {
     background: #ff8c55;
 }
 
-/* ویجت چت عمومی */
+/* ظˆغŒط¬طھ ع†طھ ط¹ظ…ظˆظ…غŒ */
 .global-chat-overlay {
     position: fixed;
     inset: 0;
@@ -1527,7 +1551,7 @@ textarea:focus {
     opacity: 0.7;
 }
 
-/* کمک‌کار */
+/* ع©ظ…ع©â€Œع©ط§ط± */
 .hidden {
     display: none;
 }
@@ -1670,7 +1694,7 @@ textarea:focus {
     font-size: 0.85rem;
 }
 
-/* پنل اطلاعات کاربر */
+/* ظ¾ظ†ظ„ ط§ط·ظ„ط§ط¹ط§طھ ع©ط§ط±ط¨ط± */
 .admin-chat-user-panel {
     background: #fff;
     border-radius: 20px;
@@ -1732,7 +1756,7 @@ textarea:focus {
 }
 
 
-/* وسط‌چین کردن تصویر محصولات در کارت‌ها */
+/* ظˆط³ط·â€Œع†غŒظ† ع©ط±ط¯ظ† طھطµظˆغŒط± ظ…ط­طµظˆظ„ط§طھ ط¯ط± ع©ط§ط±طھâ€Œظ‡ط§ */
 .product-image {
     text-align: center;
 }
@@ -1798,7 +1822,7 @@ textarea:focus {
     filter: brightness(1.05);
 }
 
-/* --- Product images centering (cards + فروشگاه + صفحه اصلی) --- */
+/* --- Product images centering (cards + ظپط±ظˆط´ع¯ط§ظ‡ + طµظپط­ظ‡ ط§طµظ„غŒ) --- */
 .product-image {
     position: relative;
     border-radius: 18px;
@@ -1830,7 +1854,7 @@ textarea:focus {
     object-fit: cover;
 }
 
-/* --- Features (ارسال سریع، خرید مطمئن، ...) --- */
+/* --- Features (ط§ط±ط³ط§ظ„ ط³ط±غŒط¹طŒ ط®ط±غŒط¯ ظ…ط·ظ…ط¦ظ†طŒ ...) --- */
 .features-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1899,7 +1923,7 @@ textarea:focus {
 }
 
 
-/* --- دکمه چت شناور --- */
+/* --- ط¯ع©ظ…ظ‡ ع†طھ ط´ظ†ط§ظˆط± --- */
 .floating-chat-btn {
     position: fixed;
     bottom: 20px;
@@ -1918,7 +1942,7 @@ textarea:focus {
     background-color: #FF7A45;
 }
 
-/* --- پنل چت --- */
+/* --- ظ¾ظ†ظ„ ع†طھ --- */
 .global-chat {
     display: none;
     position: fixed;
@@ -1987,7 +2011,7 @@ textarea:focus {
     background-color: #FF7A45;
 }
 
-/* --- دکمه چت شناور --- */
+/* --- ط¯ع©ظ…ظ‡ ع†طھ ط´ظ†ط§ظˆط± --- */
 .floating-chat-btn {
     position: fixed;
     bottom: 20px;
@@ -2006,7 +2030,7 @@ textarea:focus {
     background-color: #FF7A45;
 }
 
-/* --- پنل چت --- */
+/* --- ظ¾ظ†ظ„ ع†طھ --- */
 .global-chat {
     display: none;
     position: fixed;
@@ -2075,7 +2099,7 @@ textarea:focus {
     background-color: #FF7A45;
 }
 
-/* --- دکمه چت شناور --- */
+/* --- ط¯ع©ظ…ظ‡ ع†طھ ط´ظ†ط§ظˆط± --- */
 .floating-chat-btn {
     position: fixed;
     bottom: 20px;
@@ -2102,7 +2126,7 @@ textarea:focus {
     box-shadow: 0 12px 35px rgba(255, 122, 69, 0.5);
 }
 
-/* --- پنل چت --- */
+/* --- ظ¾ظ†ظ„ ع†طھ --- */
 .global-chat {
     position: fixed;
     bottom: 0;
@@ -2132,7 +2156,7 @@ textarea:focus {
     }
 }
 
-/* هدر چت */
+/* ظ‡ط¯ط± ع†طھ */
 .global-chat-header {
     background: linear-gradient(135deg, #0B1D3A, #1D546C);
     color: #F9FAFF;
@@ -2168,7 +2192,7 @@ textarea:focus {
     transform: rotate(90deg);
 }
 
-/* باکس پیام‌ها */
+/* ط¨ط§ع©ط³ ظ¾غŒط§ظ…â€Œظ‡ط§ */
 .global-chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -2186,7 +2210,7 @@ textarea:focus {
     padding: 2rem 1rem;
 }
 
-/* پیام‌ها */
+/* ظ¾غŒط§ظ…â€Œظ‡ط§ */
 .chat-message {
     max-width: 75%;
     padding: 0.6rem 0.9rem;
@@ -2243,7 +2267,7 @@ textarea:focus {
     margin: 0;
 }
 
-/* فرم ارسال پیام */
+/* ظپط±ظ… ط§ط±ط³ط§ظ„ ظ¾غŒط§ظ… */
 .global-chat-form {
     padding: 0.9rem 1rem;
     background: #fff;
@@ -2289,7 +2313,7 @@ textarea:focus {
     cursor: not-allowed;
 }
 
-/* اسکرول‌بار سفارشی */
+/* ط§ط³ع©ط±ظˆظ„â€Œط¨ط§ط± ط³ظپط§ط±ط´غŒ */
 .global-chat-messages::-webkit-scrollbar {
     width: 6px;
 }
@@ -2316,7 +2340,7 @@ textarea:focus {
     min-height: 80vh;
 }
 
-/* سایدبار لیست گفتگوها */
+/* ط³ط§غŒط¯ط¨ط§ط± ظ„غŒط³طھ ع¯ظپطھع¯ظˆظ‡ط§ */
 .admin-chat-sidebar {
     background: #fff;
     border-radius: 20px;
@@ -2390,7 +2414,7 @@ textarea:focus {
     font-weight: 600;
 }
 
-/* پنجره اصلی چت */
+/* ظ¾ظ†ط¬ط±ظ‡ ط§طµظ„غŒ ع†طھ */
 .admin-chat-main {
     background: #fff;
     border-radius: 20px;
@@ -2455,7 +2479,7 @@ textarea:focus {
     padding: 2rem 1rem;
 }
 
-/* پیام‌های آماده */
+/* ظ¾غŒط§ظ…â€Œظ‡ط§غŒ ط¢ظ…ط§ط¯ظ‡ */
 .admin-quick-replies {
     padding: 0.7rem 1rem;
     border-top: 1px solid #E5E7EB;
@@ -2488,7 +2512,7 @@ textarea:focus {
     transform: translateY(-1px);
 }
 
-/* فرم ارسال */
+/* ظپط±ظ… ط§ط±ط³ط§ظ„ */
 .admin-chat-form {
     padding: 0.9rem 1rem;
     border-top: 1px solid #E5E7EB;
@@ -2515,7 +2539,7 @@ textarea:focus {
     padding: 0.6rem 1.4rem;
 }
 
-/* پنل اطلاعات کاربر */
+/* ظ¾ظ†ظ„ ط§ط·ظ„ط§ط¹ط§طھ ع©ط§ط±ط¨ط± */
 .admin-chat-user-panel {
     background: #fff;
     border-radius: 20px;
@@ -2600,7 +2624,7 @@ textarea:focus {
     font-size: 0.78rem;
 }
 
-/* پیام‌های چت */
+/* ظ¾غŒط§ظ…â€Œظ‡ط§غŒ ع†طھ */
 .chat-message {
     max-width: 75%;
     padding: 0.6rem 0.9rem;
@@ -2657,7 +2681,7 @@ textarea:focus {
     margin: 0;
 }
 
-/* ریسپانسیو */
+/* ط±غŒط³ظ¾ط§ظ†ط³غŒظˆ */
 @media (max-width: 1200px) {
     .admin-chat-layout {
         grid-template-columns: 240px minmax(0, 1fr) 280px;
@@ -2686,7 +2710,7 @@ textarea:focus {
     display: none;
 }
 
-/* اسکرول‌بار سفارشی */
+/* ط§ط³ع©ط±ظˆظ„â€Œط¨ط§ط± ط³ظپط§ط±ط´غŒ */
 .admin-chat-thread-list::-webkit-scrollbar,
 .admin-chat-box::-webkit-scrollbar,
 .admin-chat-user-panel::-webkit-scrollbar {
@@ -2710,4 +2734,161 @@ textarea:focus {
 .admin-chat-box::-webkit-scrollbar-thumb:hover,
 .admin-chat-user-panel::-webkit-scrollbar-thumb:hover {
     background: #9CA3AF;
+}
+
+/* --- Theme overrides --- */
+body.body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.main-header {
+    background: linear-gradient(135deg, var(--surface-2), var(--surface));
+    color: var(--text);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.nav-links a {
+    color: var(--text);
+    opacity: 0.9;
+}
+
+.nav-actions .btn,
+.btn {
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0a1420;
+    border: none;
+}
+
+.btn-outline {
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: var(--accent);
+    color: #0a1420;
+}
+
+.btn-light {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.section {
+    background: transparent;
+}
+
+.feature-card,
+.product-card,
+.news-card,
+.support-card,
+.contact-form-wrapper,
+.contact-info,
+.checkout-form,
+.checkout-summary,
+.auth-card,
+.chat-window,
+.chat-info,
+.cart-table,
+.compare-table-wrapper,
+.picker-inner,
+.admin-chat-sidebar,
+.admin-chat-main,
+.admin-chat-user-panel {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+}
+
+.compare-table thead th,
+.compare-table td,
+.compare-table th {
+    color: var(--text);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.compare-table-wrapper {
+    background: var(--surface-2);
+}
+
+.product-option,
+.picker-group {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.product-option:hover {
+    border-color: var(--accent);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+}
+
+.chat-box,
+.admin-chat-box {
+    background: var(--surface-2);
+}
+
+.main-footer {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.footer-column a {
+    color: var(--muted);
+}
+
+.compare-header h1,
+.section-title,
+.section-subtitle,
+.feature-card h3,
+.product-info h3,
+.news-card h3 {
+    color: var(--text);
+}
+
+.section-subtitle,
+.product-price,
+.product-domain,
+.feature-card p,
+.news-card p,
+.empty-text {
+    color: var(--muted);
+}
+
+input,
+textarea,
+select {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.picker-overlay {
+    background: rgba(0,0,0,0.55);
+}
+
+.picker-close,
+.compare-remove {
+    color: var(--danger);
+}
+
+.main-header .logo-text,
+.main-header .logo-icon {
+    color: var(--text);
+}
+
+.product-badge.new,
+.product-badge.best {
+    background: var(--accent);
+    color: #0b1320;
 }
