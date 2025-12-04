@@ -6,7 +6,7 @@ from asgiref.sync import sync_to_async
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        \"\"\"WebSocket connect: authenticate user and join personal group.\"\"\"
+        """WebSocket connect: authenticate user and join personal group."""
         user = self.scope.get("user")
 
         # Only authenticated users can connect
@@ -31,7 +31,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
-        \"\"\"Handle incoming message: persist and broadcast to group.\"\"\"
+        """Handle incoming message: persist and broadcast to group."""
         data = json.loads(text_data)
         message = (data.get("message") or "").strip()
         if not message:
@@ -50,7 +50,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        \"\"\"Group message handler: send to browser.\"\"\"
+        """Group message handler: send to browser."""
         message = event["message"]
 
         await self.send(
@@ -62,7 +62,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     def save_message(self, user, message):
-        \"\"\"Sync helper to persist a message.\"\"\"
+        """Sync helper to persist a message."""
         thread, _ = ChatThread.objects.get_or_create(user=user)
         ChatMessage.objects.create(
             thread=thread,
