@@ -568,6 +568,10 @@ img {
     transform: translateY(-1px);
 }
 
+.sidebar-spacer {
+    flex: 1 1 auto;
+}
+
 .sub-menu {
     position: relative;
     overflow: hidden;
