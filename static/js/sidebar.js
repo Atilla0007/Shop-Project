@@ -8,14 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!sidebar) return;
         sidebar.classList.add('open');
         overlay?.classList.add('show');
-        document.body.classList.add('sidebar-open');
     };
 
     const closeSidebar = () => {
         if (!sidebar) return;
         sidebar.classList.remove('open');
         overlay?.classList.remove('show');
-        document.body.classList.remove('sidebar-open');
     };
 
     toggle?.addEventListener('click', openSidebar);
