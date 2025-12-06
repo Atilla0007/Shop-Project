@@ -3,99 +3,49 @@
 {% block title %}Login | Aydin Shop{% endblock %}
 
 {% block content %}
-<section class="login-shell">
-    <div class="card container" id="login-card" data-view="signin">
-        <nav class="card-nav">
-            <ul>
-                <li>
-                    <button type="button" class="nav-btn active" data-view="signin">
-                        <i class="ai-person-check"></i>
-                        <span>Sign in</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="nav-btn" data-view="signup">
-                        <i class="ai-person-add"></i>
-                        <span>Sign up</span>
-                    </button>
-                </li>
-            </ul>
-            <span class="active-bar"></span>
-        </nav>
+<section class="auth-viewport">
+    <div class="auth-hero">
+        <span class="brand-mark">BALA .</span>
+        <h1>Login page</h1>
+        <p>Start your journey<br>now with us</p>
+    </div>
 
-        <div class="card-hero">
-            <div class="card-hero-inner">
-                <div class="card-hero-content signin">
-                    <h2>Welcome back!</h2>
-                    <h3>Enter your credentials to continue.</h3>
-                    <div class="card-hero-visual"></div>
+    <div class="auth-panel">
+        <div class="auth-cards">
+            <div class="auth-card signup-card">
+                <h3>Create an account</h3>
+                <label>Email</label>
+                <input type="email" placeholder="you@example.com">
+                <label>Password</label>
+                <div class="input-password">
+                    <input type="password" placeholder="Enter your password">
+                    <span class="icon-eye"></span>
                 </div>
-                <div class="card-hero-content signup">
-                    <h2>New here?</h2>
-                    <h3>Create an account to track orders and get support.</h3>
-                    <div class="card-hero-visual alt"></div>
-                </div>
+                <button type="button" class="btn-solid">Create account</button>
+                <button type="button" class="btn-ghost">Continue with Google</button>
+                <p class="muted">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
             </div>
-        </div>
 
-        <div class="card-form">
-            <div class="forms">
-                <div class="form-panel signin">
-                    <form method="post" class="login-form">
-                        {% csrf_token %}
-                        {{ form.non_field_errors }}
-                        <label for="{{ form.username.id_for_label }}">Username or email</label>
-                        {{ form.username }}
+            <div class="auth-card login-card">
+                <h3>Login to your account</h3>
+                <form method="post" class="login-form">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <label for="{{ form.username.id_for_label }}">Email</label>
+                    {{ form.username }}
+                    <div class="field-row">
                         <label for="{{ form.password.id_for_label }}">Password</label>
-                        {{ form.password }}
-                        <button type="submit" class="btn btn-primary full">Sign in</button>
-                    </form>
-                </div>
-                <div class="form-panel signup">
-                    <div class="signup-hint">
-                        <h3>Create an account</h3>
-                        <p>If you don’t have an account yet, sign up in a few clicks.</p>
-                        <a class="btn btn-light full" href="{% url 'signup' %}">Go to sign up</a>
-                        <a class="btn btn-outline full" href="{% url 'home' %}">Back to home</a>
+                        <a class="link-accent" href="#">Forgot?</a>
                     </div>
-                </div>
+                    <div class="input-password">
+                        {{ form.password }}
+                        <span class="icon-eye"></span>
+                    </div>
+                    <button type="submit" class="btn-solid">Login now</button>
+                </form>
+                <p class="muted">Don’t have an account? <a href="{% url 'signup' %}">Sign up</a></p>
             </div>
         </div>
     </div>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const card = document.getElementById('login-card');
-    const navButtons = document.querySelectorAll('.nav-btn');
-    const activeBar = document.querySelector('.active-bar');
-    const forms = document.querySelector('.forms');
-    const heroInner = document.querySelector('.card-hero-inner');
-
-    const updateView = (view) => {
-        card.dataset.view = view;
-        navButtons.forEach(btn => {
-            const isActive = btn.dataset.view === view;
-            btn.classList.toggle('active', isActive);
-        });
-        if (activeBar) {
-            activeBar.style.top = view === 'signin' ? '0%' : '50%';
-        }
-        if (forms) {
-            forms.style.top = view === 'signin' ? '0' : '-50%';
-        }
-        if (heroInner) {
-            heroInner.style.top = view === 'signin' ? '0' : '-50%';
-        }
-    };
-
-    navButtons.forEach(btn => {
-        btn.addEventListener('click', () => updateView(btn.dataset.view));
-    });
-
-    updateView(card.dataset.view || 'signin');
-});
-</script>
 {% endblock %}

@@ -833,6 +833,175 @@ img {
     }
 }
 
+/* New login layout (two-card hero) */
+.auth-viewport {
+    display: grid;
+    grid-template-columns: 1.1fr 1.2fr;
+    min-height: calc(100vh - 120px);
+    width: 100%;
+    background: linear-gradient(135deg, #060b24 0%, #0b143f 45%, #0f153e 60%, #f4f4fb 60%, #f9f9ff 100%);
+}
+
+.auth-hero {
+    padding: 4.5rem 3.5rem 4rem 4.5rem;
+    color: #e6ebff;
+    background: radial-gradient(circle at 40% 40%, rgba(39, 65, 153, 0.42), transparent 45%),
+                radial-gradient(circle at 30% 65%, rgba(28, 49, 120, 0.35), transparent 50%);
+}
+
+.auth-hero .brand-mark {
+    letter-spacing: 4px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.auth-hero h1 {
+    font-size: clamp(2.5rem, 5vw, 3.3rem);
+    margin: 1.8rem 0 0.6rem;
+    color: #f5f7ff;
+    font-weight: 800;
+}
+
+.auth-hero p {
+    font-size: 1.4rem;
+    line-height: 1.5;
+    color: #c3c9e2;
+    margin: 0;
+}
+
+.auth-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 244, 255, 0.92));
+}
+
+.auth-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+.auth-card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+    padding: 20px 22px;
+    min-width: 280px;
+}
+
+.auth-card h3 {
+    margin: 0 0 14px;
+    color: #111827;
+}
+
+.auth-card label {
+    display: block;
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 10px 0 6px;
+}
+
+.auth-card input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #c9d5f1;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.auth-card .input-password {
+    position: relative;
+}
+
+.auth-card .input-password .icon-eye {
+    position: absolute;
+    inset-inline-end: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"%2399a4c2\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\" d=\"M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7Z\"/><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\" d=\"M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z\"/></svg>') center/18px no-repeat;
+    pointer-events: none;
+}
+
+.btn-solid {
+    width: 100%;
+    margin-top: 12px;
+    background: #2e6bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    height: 40px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-solid:hover {
+    background: #255adc;
+}
+
+.btn-ghost {
+    width: 100%;
+    margin-top: 10px;
+    background: #f5f7ff;
+    color: #1f2937;
+    border: 1px solid #d8def5;
+    border-radius: 6px;
+    height: 40px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-card .muted {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin-top: 14px;
+}
+
+.auth-card .muted a,
+.field-row a {
+    color: #2e6bff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-card .muted a:hover,
+.field-row a:hover {
+    text-decoration: underline;
+}
+
+.field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form button {
+    margin-top: 14px;
+}
+
+@media (max-width: 960px) {
+    .auth-viewport {
+        grid-template-columns: 1fr;
+    }
+    .auth-hero {
+        text-align: center;
+    }
+}
+
 .sub-menu {
     position: relative;
     overflow: hidden;
