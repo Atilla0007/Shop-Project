@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}ورود | آیدین شاپ{% endblock %}
+{% block title %}Login | Aydin Shop{% endblock %}
 
 {% block content %}
 <section class="login-shell">
@@ -10,13 +10,13 @@
                 <li>
                     <button type="button" class="nav-btn active" data-view="signin">
                         <i class="ai-person-check"></i>
-                        <span>ورود</span>
+                        <span>Sign in</span>
                     </button>
                 </li>
                 <li>
                     <button type="button" class="nav-btn" data-view="signup">
                         <i class="ai-person-add"></i>
-                        <span>ثبت نام</span>
+                        <span>Sign up</span>
                     </button>
                 </li>
             </ul>
@@ -26,13 +26,13 @@
         <div class="card-hero">
             <div class="card-hero-inner">
                 <div class="card-hero-content signin">
-                    <h2>خوش برگشتی!</h2>
-                    <h3>برای ورود اطلاعات حساب را وارد کن.</h3>
+                    <h2>Welcome back!</h2>
+                    <h3>Enter your credentials to continue.</h3>
                     <div class="card-hero-visual"></div>
                 </div>
                 <div class="card-hero-content signup">
-                    <h2>اولین باره اینجایی؟</h2>
-                    <h3>ثبت‌نام کن تا سفارش‌ها و پشتیبانی سریع داشته باشی.</h3>
+                    <h2>New here?</h2>
+                    <h3>Create an account to track orders and get support.</h3>
                     <div class="card-hero-visual alt"></div>
                 </div>
             </div>
@@ -44,19 +44,19 @@
                     <form method="post" class="login-form">
                         {% csrf_token %}
                         {{ form.non_field_errors }}
-                        <label for="{{ form.username.id_for_label }}">نام کاربری یا ایمیل</label>
+                        <label for="{{ form.username.id_for_label }}">Username or email</label>
                         {{ form.username }}
-                        <label for="{{ form.password.id_for_label }}">رمز عبور</label>
+                        <label for="{{ form.password.id_for_label }}">Password</label>
                         {{ form.password }}
-                        <button type="submit" class="btn btn-primary full">ورود</button>
+                        <button type="submit" class="btn btn-primary full">Sign in</button>
                     </form>
                 </div>
                 <div class="form-panel signup">
                     <div class="signup-hint">
-                        <h3>ثبت‌نام سریع</h3>
-                        <p>اگر حساب نداری، با چند کلیک حساب جدید بساز.</p>
-                        <a class="btn btn-light full" href="{% url 'signup' %}">رفتن به ثبت‌نام</a>
-                        <a class="btn btn-outline full" href="{% url 'home' %}">بازگشت به صفحه اصلی</a>
+                        <h3>Create an account</h3>
+                        <p>If you don’t have an account yet, sign up in a few clicks.</p>
+                        <a class="btn btn-light full" href="{% url 'signup' %}">Go to sign up</a>
+                        <a class="btn btn-outline full" href="{% url 'home' %}">Back to home</a>
                     </div>
                 </div>
             </div>
@@ -81,13 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.toggle('active', isActive);
         });
         if (activeBar) {
-            activeBar.style.top = view === 'signin' ? '33.33%' : '66.66%';
+            activeBar.style.top = view === 'signin' ? '0%' : '50%';
         }
         if (forms) {
-            forms.style.top = view === 'signin' ? '0' : '-100%';
+            forms.style.top = view === 'signin' ? '0' : '-50%';
         }
         if (heroInner) {
-            heroInner.style.top = view === 'signin' ? '0' : '-100%';
+            heroInner.style.top = view === 'signin' ? '0' : '-50%';
         }
     };
 

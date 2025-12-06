@@ -583,19 +583,22 @@ img {
     display: flex;
     justify-content: center;
     padding: 4rem 0;
+    direction: ltr;
 }
 
 .card {
     display: flex;
     align-content: stretch;
-    width: min(960px, 95vw);
-    height: 420px;
+    width: 660px;
+    max-width: 95vw;
+    height: 360px;
     background: #242b43;
     box-shadow: 0 20px 80px rgba(0, 0, 0, 0.2);
     border-radius: 12px;
     overflow: hidden;
     position: relative;
     gap: 0;
+    direction: ltr;
 }
 
 .card-nav {
@@ -615,6 +618,8 @@ img {
     padding: 0;
     display: grid;
     gap: 8px;
+    height: 100%;
+    grid-template-rows: repeat(2, 1fr);
 }
 
 .card-nav li {
@@ -654,10 +659,10 @@ img {
 
 .card-nav .active-bar {
     position: absolute;
-    top: 33.33%;
+    top: 0;
     left: 0;
     width: 5px;
-    height: 33.33%;
+    height: 50%;
     border-radius: 6px;
     background: var(--login-color-dark);
     transition: 0.4s ease-out;
@@ -669,7 +674,7 @@ img {
     flex-direction: column;
     justify-content: flex-end;
     margin: -48px 0;
-    flex: 0 0 320px;
+    flex: 0 0 300px;
     overflow: hidden;
     border-radius: 12px;
     background: linear-gradient(145deg, rgba(73, 108, 245, 0.4), rgba(37, 55, 120, 0.5));
@@ -695,20 +700,22 @@ img {
 
 .card-hero-content h2,
 .card-hero-content h3 {
-    text-align: right;
+    text-align: left;
     font-weight: 400;
     margin: 0;
-    padding-right: 12px;
+    padding-left: 24px;
 }
 
 .card-hero-content h2 {
     color: #f9f9f9;
+    margin: 0 0 2px;
 }
 
 .card-hero-content h3 {
     color: #f9f9f9;
     opacity: 0.75;
     font-size: 13px;
+    margin: 0 0 32px;
 }
 
 .card-hero-visual,
@@ -731,7 +738,8 @@ img {
     position: relative;
     overflow: hidden;
     padding: 24px;
-    width: calc(100% - 178px - 320px);
+    width: 400px;
+    max-width: calc(100% - 178px - 300px);
     display: flex;
     align-items: center;
 }
