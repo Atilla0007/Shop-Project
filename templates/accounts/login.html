@@ -1,26 +1,30 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}ورود{% endblock %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="section auth-section">
-    <div class="container auth-container">
-        <div class="auth-card">
-            <h1>ورود به حساب کاربری</h1>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                <label>نام کاربری</label>
-                {{ form.username }}
-                <label>رمز عبور</label>
-                {{ form.password }}
-                <button type="submit" class="btn btn-primary">ورود</button>
-            </form>
-            <p class="auth-extra">
-                حساب کاربری ندارید؟ <a href="{% url 'signup' %}">ثبت‌نام کنید</a>
-            </p>
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <div class="card">
+            <a class="login">Log in</a>
+            <div class="inputBox">
+                <input type="text" name="username" required="required">
+                <span class="user">Username</span>
+            </div>
+
+            <div class="inputBox">
+                <input type="password" name="password" required="required">
+                <span>Password</span>
+            </div>
+
+            <button class="enter" type="submit">Enter</button>
         </div>
-    </div>
-</section>
+    </form>
+</div>
 {% endblock %}
