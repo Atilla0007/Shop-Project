@@ -1,42 +1,30 @@
 {% extends 'base.html' %}
-{% block title %}Login | Aydin Shop{% endblock %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
 
 {% block content %}
-<section class="auth-viewport">
-    <div class="auth-inner">
-        <div class="card login-card">
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <div class="card">
             <a class="login">Log in</a>
-            <form method="post" class="login-form">
-                {% csrf_token %}
-                {{ form.non_field_errors }}
-                <div class="inputBox">
-                    <input type="text" name="username" required="required" placeholder=" " autocomplete="username">
-                    <span class="user">Username</span>
-                </div>
-                <div class="inputBox">
-                    <input type="password" name="password" required="required" placeholder=" " autocomplete="current-password">
-                    <span>Password</span>
-                </div>
-                <button class="enter" type="submit">Enter</button>
-            </form>
-        </div>
+            <div class="inputBox">
+                <input type="text" name="username" required="required" autocomplete="username">
+                <span class="user">Username</span>
+            </div>
 
-        <div class="card signup-card">
-            <a class="singup">Sign Up</a>
-            <div class="inputBox1">
-                <input type="text" required="required" placeholder=" ">
-                <span class="user">Email</span>
-            </div>
             <div class="inputBox">
-                <input type="text" required="required" placeholder=" ">
-                <span>Username</span>
-            </div>
-            <div class="inputBox">
-                <input type="password" required="required" placeholder=" ">
+                <input type="password" name="password" required="required" autocomplete="current-password">
                 <span>Password</span>
             </div>
-            <a class="enter signup-enter" href="{% url 'signup' %}">Enter</a>
+
+            <button class="enter" type="submit">Enter</button>
         </div>
-    </div>
-</section>
+    </form>
+</div>
 {% endblock %}
