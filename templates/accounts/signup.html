@@ -1,40 +1,8 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block title %}Sign Up{% endblock %}
-
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/signup.css' %}">
-{% endblock %}
-
 {% block content %}
-<div class="container">
-    <form method="post">
-        {% csrf_token %}
-        <div class="card">
-            <a class="singup">Sign Up</a>
-            <div class="inputBox1">
-                <input type="email" name="email" required="required">
-                <span class="user">Email</span>
-            </div>
-
-            <div class="inputBox">
-                <input type="text" name="username" required="required">
-                <span>Username</span>
-            </div>
-
-            <div class="inputBox">
-                <input type="password" name="password" required="required">
-                <span>Password</span>
-            </div>
-
-            <div class="inputBox">
-                <input type="password" name="password2" required="required">
-                <span>Confirm Password</span>
-            </div>
-
-            <button class="enter" type="submit">Enter</button>
-        </div>
-    </form>
+<div class="container" style="padding:2rem 0; text-align:center;">
+    <p>ثبت نام و ورود اکنون در یک صفحه انجام می‌شود.</p>
+    <a href="{% url 'login' %}?view=signup" class="btn btn-primary">رفتن به فرم ورود/ثبت نام</a>
 </div>
 {% endblock %}

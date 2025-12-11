@@ -1,93 +1,235 @@
-.login {
-  color: #000;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  display: block;
-  font-weight: bold;
-  font-size: x-large;
+.wrapper {
+  --input-focus: #B40023;
+  --font-color: #0E2632;
+  --font-color-sub: #05334A;
+  --bg-color: #FCF0D6;
+  --bg-color-alt: #6B9EBD;
+  --main-color: #710004;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* عمودی در مرکز */
+  align-items: center;      /* افقی به حالت قبل (مرکز) */
+  min-height: calc(100vh - 120px);
+  width: 100%;
+  padding: 1.5rem 1rem 2rem;
+  padding: 2.5rem 1rem;
+  background: linear-gradient(135deg, rgba(107, 158, 189, 0.18), rgba(5, 51, 74, 0.3));
 }
 
-.card {
+.card-switch {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 350px;
-  width: 300px;
-  flex-direction: column;
-  gap: 35px;
-  background: #e3e3e3;
-  box-shadow: 16px 16px 32px #c8c8c8,
-        -16px -16px 32px #fefefe;
-  border-radius: 8px;
-}
-
-.inputBox {
-  position: relative;
-  width: 250px;
-}
-
-.inputBox input {
+  gap: 1.6rem;
   width: 100%;
-  padding: 10px;
-  outline: none;
-  border: none;
-  color: #000;
-  font-size: 1em;
-  background: transparent;
-  border-left: 2px solid #000;
-  border-bottom: 2px solid #000;
-  transition: 0.1s;
-  border-bottom-left-radius: 8px;
 }
 
-.inputBox span {
-  margin-top: 5px;
+/* switch card */
+.switch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  width: 50px;
+  height: 20px;
+}
+
+.card-side::before {
   position: absolute;
-  left: 0;
-  transform: translateY(-4px);
-  margin-left: 10px;
-  padding: 10px;
-  pointer-events: none;
-  font-size: 12px;
-  color: #000;
-  text-transform: uppercase;
-  transition: 0.5s;
-  letter-spacing: 3px;
-  border-radius: 8px;
-}
-
-.inputBox input:valid~span,
-.inputBox input:focus~span {
-  transform: translateX(113px) translateY(-15px);
-  font-size: 0.8em;
-  padding: 5px 10px;
-  background: #000;
-  letter-spacing: 0.2em;
-  color: #fff;
-  border: 2px;
-}
-
-.inputBox input:valid,
-.inputBox input:focus {
-  border: 2px solid #000;
-  border-radius: 8px;
-}
-
-.enter {
-  height: 45px;
+  content: 'Log in';
+  left: -70px;
+  top: 0;
   width: 100px;
-  border-radius: 5px;
-  border: 2px solid #000;
-  cursor: pointer;
-  background-color: transparent;
-  transition: 0.5s;
-  text-transform: uppercase;
-  font-size: 10px;
-  letter-spacing: 2px;
-  margin-bottom: 1em;
+  text-decoration: underline;
+  color: var(--font-color);
+  font-weight: 600;
 }
 
-.enter:hover {
-  background-color: rgb(0, 0, 0);
-  color: white;
+.card-side::after {
+  position: absolute;
+  content: 'Sign up';
+  left: 70px;
+  top: 0;
+  width: 100px;
+  text-decoration: none;
+  color: var(--font-color);
+  font-weight: 600;
+}
+
+.toggle {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 2px solid var(--main-color);
+  box-shadow: 4px 4px var(--main-color);
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  transition: 0.3s;
+}
+
+.slider:before {
+  box-sizing: border-box;
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  border: 2px solid var(--main-color);
+  border-radius: 5px;
+  left: -2px;
+  bottom: 2px;
+  background-color: var(--bg-color);
+  box-shadow: 0 3px 0 var(--main-color);
+  transition: 0.3s;
+}
+
+.toggle:checked + .slider {
+  background-color: var(--input-focus);
+}
+
+.toggle:checked + .slider:before {
+  transform: translateX(30px);
+}
+
+.toggle:checked ~ .card-side:before {
+  text-decoration: none;
+}
+
+.toggle:checked ~ .card-side:after {
+  text-decoration: underline;
+}
+
+/* card */ 
+
+.flip-card__inner {
+  width: 320px;
+  height: 380px;
+  position: relative;
+  background-color: transparent;
+  perspective: 1000px;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  margin: 0 auto;
+}
+
+.toggle:checked ~ .flip-card__inner {
+  transform: rotateY(180deg);
+}
+
+.toggle:checked ~ .flip-card__front {
+  box-shadow: none;
+}
+
+.flip-card__front, .flip-card__back {
+  padding: 20px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background: var(--bg-color);
+  gap: 20px;
+  border-radius: 12px;
+  border: 2px solid var(--main-color);
+  box-shadow: 6px 6px 0 var(--main-color);
+}
+
+.flip-card__back {
+  width: 100%;
+  transform: rotateY(180deg);
+}
+
+.flip-card__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.title {
+  margin: 10px 0 10px 0;
+  font-size: 25px;
+  font-weight: 900;
+  text-align: center;
+  color: var(--main-color);
+}
+
+.flip-card__input {
+  width: 250px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid var(--main-color);
+  background-color: var(--bg-color);
+  box-shadow: 4px 4px var(--main-color);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--font-color);
+  padding: 5px 10px;
+  outline: none;
+}
+
+.flip-card__input[type="password"] {
+  background-color: var(--bg-color);
+  color: var(--font-color);
+}
+
+.flip-card__input:-webkit-autofill,
+.flip-card__input:-webkit-autofill:hover,
+.flip-card__input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-color) inset;
+  -webkit-text-fill-color: var(--font-color);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.flip-card__input::placeholder {
+  color: var(--font-color-sub);
+  opacity: 0.8;
+}
+
+.flip-card__input:focus {
+  border: 2px solid var(--input-focus);
+}
+
+.flip-card__btn:active, .button-confirm:active {
+  box-shadow: 0px 0px var(--main-color);
+  transform: translate(3px, 3px);
+}
+
+.flip-card__btn {
+  margin: 10px 0 10px 0;
+  width: 140px;
+  height: 42px;
+  border-radius: 10px;
+  border: 2px solid var(--main-color);
+  background-color: var(--bg-color);
+  box-shadow: 4px 4px var(--main-color);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--font-color);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flip-card__btn:hover {
+  box-shadow: 6px 6px var(--main-color);
+}
+
+@media (max-width: 600px) {
+  .flip-card__inner {
+    width: 280px;
+  }
 }

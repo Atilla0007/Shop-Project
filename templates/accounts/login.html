@@ -8,23 +8,45 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <form method="post">
-        {% csrf_token %}
-        <div class="card">
-            <a class="login">Log in</a>
-            <div class="inputBox">
-                <input type="text" name="username" required="required" autocomplete="username">
-                <span class="user">Username</span>
+<div class="wrapper">
+    <div class="card-switch">
+        <label class="switch">
+            <input type="checkbox" class="toggle" aria-label="Toggle between login and signup">
+            <span class="slider"></span>
+            <span class="card-side"></span>
+            <div class="flip-card__inner">
+                <div class="flip-card__front">
+                    <div class="title">Log in</div>
+                    <form class="flip-card__form" method="post">
+                        {% csrf_token %}
+                        <input class="flip-card__input" name="username" placeholder="Username" autocomplete="username" required>
+                        <input class="flip-card__input" name="password" placeholder="Password" type="password" autocomplete="current-password" required>
+                        <button class="flip-card__btn" type="submit">Let`s go!</button>
+                    </form>
+                </div>
+                <div class="flip-card__back">
+                    <div class="title">Sign up</div>
+                    <form class="flip-card__form" action="{% url 'signup' %}" method="post">
+                        {% csrf_token %}
+                        <input class="flip-card__input" name="email" placeholder="Email" type="email" autocomplete="email" required>
+                        <input class="flip-card__input" name="username" placeholder="Username" type="text" autocomplete="username" required>
+                        <input class="flip-card__input" name="password" placeholder="Password" type="password" autocomplete="new-password" required>
+                        <input class="flip-card__input" name="password2" placeholder="Confirm Password" type="password" autocomplete="new-password" required>
+                        <button class="flip-card__btn" type="submit">Confirm!</button>
+                    </form>
+                </div>
             </div>
-
-            <div class="inputBox">
-                <input type="password" name="password" required="required" autocomplete="current-password">
-                <span>Password</span>
-            </div>
-
-            <button class="enter" type="submit">Enter</button>
-        </div>
-    </form>
+        </label>
+    </div>
 </div>
+
+<script>
+  (() => {
+    const params = new URLSearchParams(window.location.search);
+    const toggle = document.querySelector('.toggle');
+    if (params.get('view') === 'signup' && toggle) {
+      toggle.checked = true;
+    }
+  })();
+</script>
 {% endblock %}

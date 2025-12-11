@@ -6,6 +6,7 @@
     <title>{% block title %}آیدین شاپ{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,8 +34,7 @@
                 <span class="user-name">{{ user.username }}</span>
                 <a href="{% url 'logout' %}" class="btn btn-ghost small">خروج</a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline small">ورود</a>
-                <a href="{% url 'signup' %}" class="btn btn-primary small">ثبت نام</a>
+                <a href="{% url 'login' %}" class="btn btn-primary small">ورود / ثبت نام</a>
             {% endif %}
         </div>
     </div>

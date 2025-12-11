@@ -8,6 +8,7 @@ urlpatterns = [
     # صفحات عمومی
     path('contact/', views.contact, name='contact'),
     path('news/', views.news_list, name='news_list'),
+    path('news/<int:pk>/', views.news_detail, name='news_detail'),
     path('faq/', views.faq, name='faq'),
 
     # چت کاربر (ویجت و صفحه)

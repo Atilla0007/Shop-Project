@@ -79,10 +79,32 @@ def home(request):
 
 def contact(request):
     """Handle contact form submission and render the contact page."""
+    def _admin_emails():
+        return list(
+            User.objects.filter(is_superuser=True, email__isnull=False)
+            .exclude(email="")
+            .values_list("email", flat=True)
+        )
+
     if request.method == "POST":
         form = ContactForm(request.POST)
         if form.is_valid():
-            form.save()
+            message = form.save()
+            # Send notification email to superusers
+            admin_emails = _admin_emails()
+            if admin_emails:
+                try:
+                    send_mail(
+                        subject=f"پیام جدید از فرم تماس: {message.name}",
+                        message=f"فرستنده: {message.name}\nایمیل: {message.email}\n\nمتن پیام:\n{message.message}",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=admin_emails,
+                        fail_silently=True,
+                    )
+                except Exception:
+                    # Avoid breaking user flow if email sending fails
+                    logger.exception("Failed to send contact email to admins")
+
             return render(request, "contact.html", {
                 "form": ContactForm(),
                 "success": True,
@@ -97,6 +119,13 @@ def news_list(request):
     """List news items."""
     news = News.objects.all()
     return render(request, "news_list.html", {"news": news})
+
+
+def news_detail(request, pk):
+    """Show a single news item."""
+    item = get_object_or_404(News, pk=pk)
+    latest = News.objects.exclude(pk=pk)[:4]
+    return render(request, "news_detail.html", {"item": item, "latest": latest})
 
 
 def faq(request):

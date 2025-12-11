@@ -1,20 +1,19 @@
-
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}فروشگاه آنلاین آیدین{% endblock %}
+{% block title %}آیدین شاپ | فروشگاه آنلاین{% endblock %}
 
 {% block content %}
 <section class="hero-section">
     <div class="container hero-container">
         <div class="hero-text">
-            <p class="hero-badge">فروشگاه آنلاین</p>
-            <h1>فروشگاه آنلاین <span>تجهیزات صنعتی آشپزخانه</span></h1>
+            <p class="hero-badge">فروشگاه آنلاین تجهیزات</p>
+            <h1>تجربه خرید سریع و امن در <span>آیدین شاپ</span></h1>
             <p class="hero-subtitle">
-                خرید آسان، سریع و مطمئن محصولات متنوع تجهیزات آشپزخانه صنعتی با بهترین قیمت و پشتیبانی ۲۴ ساعته.
+                جدیدترین تجهیزات و لوازم فروشگاهی را با ارسال سریع و پشتیبانی دائمی تهیه کنید. قیمت شفاف، ضمانت اصالت و مشاوره رایگان برای انتخاب بهتر در دسترس شماست.
             </p>
             <div class="hero-actions">
-                <a href="{% url 'shop' %}" class="btn btn-primary">مشاهده محصولات</a>
+                <a href="{% url 'shop' %}" class="btn btn-primary">مشاهده فروشگاه</a>
                 <a href="{% url 'contact' %}" class="btn btn-outline">تماس با ما</a>
                 <button type="button" class="btn btn-light small" id="open-category-popup">
                     دسته‌بندی‌ها
@@ -22,50 +21,51 @@
 
             </div>
             <div class="hero-meta">
-                <span>ارسال رایگان برای سفارش‌های بالای ۱۰۰ میلیون تومان</span>
+                <span>بیش از ۱۰۰۰ کالای آماده ارسال</span>
                 <span class="dot"></span>
-                <span>بیش از ۱,۰۰۰ مشتری راضی</span>
+                <span>ارسال سریع به سراسر کشور</span>
             </div>
         </div>
         <div class="hero-image">
             <div class="hero-image-main">
-                <img src="{% static 'img/hero-shop.jpg' %}" alt="خرید آنلاین" />
+                <img src="{% static 'img/hero-shop.jpg' %}" alt="فروشگاه آیدین شاپ" />
                 <div class="hero-floating-card">
-                    <span class="card-label">مشتری راضی</span>
+                    <span class="card-label">موجودی فعال</span>
                     <strong>1,000+</strong>
                 </div>
             </div>
         </div>
     </div>
+    <div class="hero-bg-overlay"></div>
 </section>
 
 <section class="section why-us">
     <div class="container">
-        <h2 class="section-title">چرا فروشگاه ما را انتخاب کنید؟</h2>
+        <h2 class="section-title">چرا آیدین شاپ را انتخاب کنیم؟</h2>
         <p class="section-subtitle">
-            تجربه خریدی مطمئن با خدمات ویژه، پشتیبانی دائمی و امکان مرجوعی آسان.
+            کیفیت، سرعت و پشتیبانی واقعی؛ هر چه برای خرید مطمئن نیاز دارید در یک فروشگاه جمع شده است.
         </p>
 
         <div class="features-grid">
             <div class="feature-card">
                 <div class="feature-icon circle navy"></div>
-                <h3>ارسال سریع</h3>
-                <p>ارسال به سراسر کشور در کمترین زمان با بسته‌بندی مطمئن.</p>
+                <h3>تنوع محصولات</h3>
+                <p>از تجهیزات فروشگاهی تا لوازم مصرفی را در یک جا مقایسه و خرید کنید.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon circle green"></div>
-                <h3>خرید مطمئن</h3>
-                <p>ضمانت اصالت کالا و بازگشت وجه در صورت نارضایتی.</p>
+                <h3>ارسال سریع</h3>
+                <p>تحویل سریع به سراسر کشور با بسته‌بندی ایمن و امکان پیگیری سفارش.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon circle yellow"></div>
                 <h3>پشتیبانی ۲۴/۷</h3>
-                <p>تیم پشتیبانی حرفه‌ای در تمامی ساعات شبانه‌روز کنار شماست.</p>
+                <p>تیم پشتیبانی همیشه آماده پاسخ‌گویی و راهنمایی انتخاب محصول مناسب است.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon circle orange"></div>
-                <h3>ضمانت بازگشت</h3>
-                <p>امکان بازگشت کالا تا ۷ روز بدون هیچ‌گونه هزینه اضافی.</p>
+                <h3>ضمانت اصالت</h3>
+                <p>تمام محصولات با ضمانت اصالت و امکان مرجوعی طبق شرایط فروش ارائه می‌شوند.</p>
             </div>
         </div>
     </div>
@@ -73,9 +73,9 @@
 
 <section class="section best-products">
     <div class="container">
-        <h2 class="section-title">محصولات پرفروش</h2>
+        <h2 class="section-title">پرفروش‌ترین‌ها</h2>
         <p class="section-subtitle">
-            بهترین محصولات ما با کیفیت برتر و قیمت مناسب.
+            محبوب‌ترین کالاهای انتخاب‌شده توسط مشتریان ما را ببینید و سریع خرید کنید.
         </p>
 
         <div class="products-grid">
@@ -93,8 +93,8 @@
                     <h3>{{ product.name }}</h3>
                     <p class="product-domain">{{ product.domain }}</p>
                     <p class="product-price">{{ product.price|floatformat:0 }} تومان</p>
-                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline small">مشاهده</a>
-                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary small">خرید</a>
+                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline small">جزئیات محصول</a>
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary small">افزودن به سبد</a>
                 </div>
             </div>
             {% empty %}
@@ -110,31 +110,31 @@
 
 <section class="section steps">
     <div class="container">
-        <h2 class="section-title">نحوه خرید از فروشگاه</h2>
+        <h2 class="section-title">مراحل خرید آسان</h2>
         <p class="section-subtitle">
-            تنها با ۴ مرحله ساده، محصول مورد نظر خود را تهیه کنید.
+            در چند گام ساده محصول را انتخاب، پرداخت و درب منزل تحویل بگیرید.
         </p>
 
         <div class="steps-line">
             <div class="step-item">
                 <div class="step-circle">1</div>
-                <h3>جستجوی محصول</h3>
-                <p>محصول مورد نظر خود را از بین محصولات متنوع جستجو کنید.</p>
+                <h3>انتخاب محصول</h3>
+                <p>محصول مورد نظر را جستجو و ویژگی‌ها و قیمت‌ها را مقایسه کنید.</p>
             </div>
             <div class="step-item">
                 <div class="step-circle">2</div>
                 <h3>افزودن به سبد</h3>
-                <p>محصولات را به سبد خرید خود اضافه کنید.</p>
+                <p>کالاهای انتخابی را به سبد اضافه کنید و آدرس و ارسال را تعیین نمایید.</p>
             </div>
             <div class="step-item">
                 <div class="step-circle">3</div>
                 <h3>پرداخت امن</h3>
-                <p>پرداخت آنلاین امن از طریق درگاه‌های معتبر بانکی.</p>
+                <p>پرداخت آنلاین مطمئن و دریافت فاکتور الکترونیک پس از تکمیل سفارش.</p>
             </div>
             <div class="step-item">
                 <div class="step-circle">4</div>
-                <h3>دریافت سفارش</h3>
-                <p>سفارش شما در کوتاه‌ترین زمان به دست‌تان می‌رسد.</p>
+                <h3>تحویل سریع</h3>
+                <p>ارسال سریع و امکان پیگیری لحظه‌ای تا تحویل در آدرس شما.</p>
             </div>
         </div>
     </div>
@@ -143,8 +143,8 @@
 <section class="section cta-banner">
     <div class="container cta-inner">
         <div>
-            <h2>آماده شروع خرید هستید؟</h2>
-            <p>همین حالا از تخفیف‌های ویژه ما استفاده کنید و بهترین‌ها را انتخاب کنید.</p>
+            <h2>برای دریافت مشاوره رایگان تماس بگیرید</h2>
+            <p>کارشناسان ما آماده‌اند تا بهترین تجهیزات را متناسب با نیاز شما پیشنهاد دهند.</p>
         </div>
         <div>
             <a href="{% url 'shop' %}" class="btn btn-light">شروع خرید</a>
@@ -155,47 +155,50 @@
 <section class="section support">
     <div class="container support-container">
         <div class="support-image">
-            <img src="{% static 'img/support.jpg' %}" alt="پشتیبانی">
+            <img src="{% static 'img/support.jpg' %}" alt="پشتیبانی مشتریان">
         </div>
         <div class="support-content">
-            <h2 class="section-title right">پشتیبانی حرفه‌ای در هر مرحله</h2>
+            <h2 class="section-title right">پشتیبانی واقعی کنار شماست</h2>
             <p class="section-subtitle right">
-                تیم متخصص ما آماده است تا در هر مرحله از خرید، شما را راهنمایی کند؛ از انتخاب محصول تا پیگیری سفارش.
+                هر زمان سوالی داشتید، تیم پشتیبانی ما از طریق چت، تماس یا ایمیل پاسخ‌گوست.
             </p>
             <div class="support-options">
                 <div class="support-card green">
-                    <h3>تماس تلفنی</h3>
-                    <p>پاسخگویی تلفنی در تمام ساعات شبانه‌روز.</p>
+                    <h3>چت آنلاین</h3>
+                    <p>مستقیم با پشتیبان صحبت کنید و راهنمایی لحظه‌ای بگیرید.</p>
                 </div>
                 <div class="support-card yellow">
-                    <h3>گفتگوی آنلاین</h3>
-                    <p>چت زنده با کارشناسان فروش و پشتیبانی.</p>
+                    <h3>مشاوره تخصصی</h3>
+                    <p>برای انتخاب محصول مناسب، مشاوره فنی و تخصصی دریافت کنید.</p>
                 </div>
                 <div class="support-card orange">
-                    <h3>پست الکترونیک</h3>
-                    <p>پاسخ‌گویی به ایمیل‌ها در کمتر از ۲۴ ساعت.</p>
+                    <h3>تیکت و ایمیل</h3>
+                    <p>در صورت نیاز درخواست خود را ثبت کنید تا پیگیری شود.</p>
                 </div>
             </div>
             <div class="support-actions">
-                <a href="{% url 'chat' %}" class="btn btn-outline">شروع گفتگو</a>
+                <a href="{% url 'chat' %}" class="btn btn-outline">شروع گفت‌وگو</a>
                 <a href="{% url 'contact' %}" class="btn btn-primary">تماس با ما</a>
             </div>
         </div>
     </div>
 </section>
 
+
 <section class="section latest-news">
     <div class="container">
-        <h2 class="section-title">آخرین اخبار فروشگاه</h2>
+        <h2 class="section-title">آخرین اخبار</h2>
         <div class="news-grid">
             {% for item in news %}
             <article class="news-card">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.text|truncatechars:120 }}</p>
-                <span class="news-date">{{ item.created_at|date:"Y/m/d" }}</span>
+                <a href="{% url 'news_detail' item.pk %}">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.text|truncatechars:120 }}</p>
+                    <span class="news-date">{{ item.created_at|date:"Y/m/d" }}</span>
+                </a>
             </article>
             {% empty %}
-            <p class="empty-text">هنوز خبری ثبت نشده است.</p>
+            <p class="empty-text">خبر جدیدی یافت نشد.</p>
             {% endfor %}
         </div>
         <div class="section-cta-center">
@@ -203,47 +206,4 @@
         </div>
     </div>
 </section>
-
-<div id="category-overlay" class="category-overlay hidden"></div>
-<div id="category-popup" class="category-popup hidden">
-    <div class="category-popup-inner">
-        <div class="popup-header">
-            <h2>دسته‌بندی محصولات</h2>
-            <button type="button" id="close-category-popup" class="popup-close">✕</button>
-        </div>
-        <div class="popup-body">
-            {% for cat in categories %}
-                <a href="{% url 'shop' %}?category={{ cat.id }}" class="category-pill">
-                    {{ cat.name }}
-                </a>
-            {% empty %}
-                <p class="empty-text">هنوز دسته‌بندی ثبت نشده است.</p>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    const overlay = document.getElementById('category-overlay');
-    const popup = document.getElementById('category-popup');
-    const openBtn = document.getElementById('open-category-popup');
-    const closeBtn = document.getElementById('close-category-popup');
-
-    function openPopup() {
-        if (!popup) return;
-        popup.classList.remove('hidden');
-        overlay.classList.remove('hidden');
-    }
-    function closePopup() {
-        if (!popup) return;
-        popup.classList.add('hidden');
-        overlay.classList.add('hidden');
-    }
-    if (openBtn) openBtn.addEventListener('click', openPopup);
-    if (closeBtn) closeBtn.addEventListener('click', closePopup);
-    if (overlay) overlay.addEventListener('click', closePopup);
-</script>
 {% endblock %}
