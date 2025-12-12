@@ -27,7 +27,7 @@ class ShopBot:
             base_url = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
             default_headers = {
                 "Referer": os.getenv("OPENROUTER_REF", "http://localhost"),
-                "X-Title": os.getenv("OPENROUTER_TITLE", "aydinshop-chatbot"),
+                "X-Title": os.getenv("OPENROUTER_TITLE", "styra-chatbot"),
             }
             model = model or "openai/gpt-4o-mini"
         else:

@@ -3,7 +3,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}آیدین شاپ{% endblock %}</title>
+    <title>{% block title %}استیرا | فروشگاه آنلاین{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
@@ -25,8 +25,8 @@
             <span></span>
         </button>
         <a href="{% url 'home' %}" class="logo">
-            <span class="logo-icon">آی</span>
-            <span class="logo-text light">آیدین شاپ</span>
+            <img src="{% static 'img/logo-styra.png' %}" alt="لوگوی استیرا" class="logo-img" />
+            <span class="logo-text light">استیرا</span>
         </a>
         <div class="nav-actions">
             <a href="{% url 'cart' %}" class="btn btn-light small">سبد خرید</a>
@@ -34,7 +34,8 @@
                 <span class="user-name">{{ user.username }}</span>
                 <a href="{% url 'logout' %}" class="btn btn-ghost small">خروج</a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary small">ورود / ثبت نام</a>
+                <a href="{% url 'login' %}" class="btn btn-primary small">ورود</a>
+                <a href="{% url 'signup' %}" class="btn btn-outline small">ثبت نام</a>
             {% endif %}
         </div>
     </div>
@@ -73,14 +74,14 @@
         <li>
             <button type="button" onclick="gotoPage(this)" data-url="{% url 'contact' %}">
                 <i class="ai-phone"></i>
-                <p>تماس با ما</p>
+                <p>ارتباط با ما</p>
             </button>
         </li>
         {% if user.is_staff %}
         <li>
             <button type="button" onclick="gotoPage(this)" data-url="{% url 'admin_chat' %}">
                 <i class="ai-chat"></i>
-                <p>پنل چت ادمین</p>
+                <p>چت ادمین</p>
             </button>
         </li>
         {% endif %}
@@ -95,8 +96,8 @@
 <footer class="main-footer">
     <div class="container footer-top">
         <div class="footer-brand">
-            <h4>آیدین شاپ</h4>
-            <p>تجربه خرید آسان با پشتیبانی سریع، قیمت‌های به‌صرفه و ارسال مطمئن.</p>
+            <h4>استیرا</h4>
+            <p>تجربه خرید آسان با پشتیبانی سریع، قیمت‌های منصفانه و ارسال مطمئن.</p>
         </div>
         <div class="footer-column">
             <h4>لینک‌های مفید</h4>
@@ -116,13 +117,13 @@
         </div>
     </div>
     <div class="container footer-bottom">
-        <p>تمام حقوق برای آیدین شاپ محفوظ است.</p>
+        <p>تمام حقوق برای استیرا محفوظ است.</p>
     </div>
 </footer>
 
 <!-- Global chat -->
 <div id="global-chat-toggle" class="floating-chat-btn">
-    💬
+    چت
 </div>
 
 <!-- Chat widget -->

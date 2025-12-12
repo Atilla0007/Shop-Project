@@ -1,8 +1,28 @@
 {% extends 'base.html' %}
-{% block title %}Sign Up{% endblock %}
+{% block title %}ثبت نام{% endblock %}
+
 {% block content %}
-<div class="container" style="padding:2rem 0; text-align:center;">
-    <p>ثبت نام و ورود اکنون در یک صفحه انجام می‌شود.</p>
-    <a href="{% url 'login' %}?view=signup" class="btn btn-primary">رفتن به فرم ورود/ثبت نام</a>
-</div>
+<section class="auth-form-shell">
+    <form class="form" method="post">
+        {% csrf_token %}
+        <span class="input-span">
+            <label for="email" class="label">Email</label>
+            <input type="email" name="email" id="email" autocomplete="email" required>
+        </span>
+        <span class="input-span">
+            <label for="username" class="label">Username</label>
+            <input type="text" name="username" id="username" autocomplete="username" required>
+        </span>
+        <span class="input-span">
+            <label for="password" class="label">Password</label>
+            <input type="password" name="password" id="password" autocomplete="new-password" required>
+        </span>
+        <span class="input-span">
+            <label for="password2" class="label">Confirm Password</label>
+            <input type="password" name="password2" id="password2" autocomplete="new-password" required>
+        </span>
+        <input class="submit" type="submit" value="Sign up" />
+        <span class="span">حساب دارید؟ <a href="{% url 'login' %}">ورود</a></span>
+    </form>
+</section>
 {% endblock %}
