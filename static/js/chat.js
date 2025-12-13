@@ -184,7 +184,8 @@ if (widgetCloseBtn) {
     });
 }
 
-if (isAuth) {
+// Start polling only when chat is visible/needed.
+if (isAuth && (pageChatBox || pageChatForm)) {
     startPolling();
 }
 
