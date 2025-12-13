@@ -8,11 +8,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   <link rel="icon" href="{% static 'img/logo-styra.png' %}" type="image/png">
   {% block extra_css %}{% endblock %}
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/akar-icons-fonts"></script>
+  <link rel="stylesheet" href="{% static 'vendor/boxicons/css/boxicons.min.css' %}">
 </head>
 <body class="body" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
@@ -57,13 +53,13 @@
   <ul>
     <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'home' %}" class="active">
-        <i class="ai-home"></i>
+        <i class="bx bx-home"></i>
         <p>خانه</p>
       </button>
     </li>
     <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'shop' %}">
-        <i class="ai-cart"></i>
+        <i class="bx bx-cart"></i>
         <p>فروشگاه</p>
       </button>
     </li>
@@ -75,20 +71,20 @@
     </li>
     <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'faq' %}">
-        <i class="ai-question"></i>
+        <i class="bx bx-help-circle"></i>
         <p>سوالات متداول</p>
       </button>
     </li>
     <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'contact' %}">
-        <i class="ai-phone"></i>
+        <i class="bx bx-phone"></i>
         <p>ارتباط با ما</p>
       </button>
     </li>
     {% if user.is_staff %}
     <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'admin_chat' %}">
-        <i class="ai-chat"></i>
+        <i class="bx bx-chat"></i>
         <p>چت ادمین</p>
       </button>
     </li>
