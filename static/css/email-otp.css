@@ -19,7 +19,7 @@
   background: linear-gradient(to right, #3f4c6b, #606c88);
   border-radius: 10px;
   box-shadow: 0px 87px 78px -39px rgba(0, 0, 0, 0.4);
-  max-width: 320px;
+  max-width: 440px;
   width: 100%;
 }
 
@@ -47,6 +47,7 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  direction: ltr;
 }
 
 .email-otp-shell .form .inputs input {
@@ -137,4 +138,3 @@
   font-size: 0.9rem;
   text-align: center;
 }
-
