@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}OTP Verification{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/email-otp.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="email-otp-shell">
+  <form class="form" method="post" autocomplete="one-time-code">
+    {% csrf_token %}
+    <a class="close" href="{% url 'home' %}">X</a>
+    <div class="info">
+      <span class="title">OTP Verification</span>
+      <p class="description">Please enter the code we have sent you.</p>
+    </div>
+
+    {% if error %}
+      <div class="otp-error">{{ error }}</div>
+    {% endif %}
+
+    <div class="inputs" data-otp-inputs>
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d1" aria-label="Digit 1">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d2" aria-label="Digit 2">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d3" aria-label="Digit 3">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d4" aria-label="Digit 4">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d5" aria-label="Digit 5">
+      <input type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="1" name="d6" aria-label="Digit 6">
+    </div>
+
+    {% if next %}
+      <input type="hidden" name="next" value="{{ next }}">
+    {% endif %}
+
+    <button class="validate" type="submit">Verify</button>
+
+    <p class="resend">
+      You don't receive the code ?
+      <a class="resend-action" href="?resend=1{% if next %}&next={{ next|urlencode }}{% endif %}">resend</a>
+    </p>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/email-otp.js' %}"></script>
+{% endblock %}
+

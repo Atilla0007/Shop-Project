@@ -1,12 +1,14 @@
 import json
 
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 from django.db import transaction
 from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from django_otp import login as otp_login
+from django.utils import timezone
 
 from .models import EmailOTPDevice
 
@@ -21,6 +23,15 @@ def _request_data(request):
     return request.POST
 
 
+def _get_or_create_device_for_user(user, email: str) -> EmailOTPDevice:
+    device, _created = EmailOTPDevice.objects.get_or_create(
+        user=user,
+        email=email,
+        defaults={"name": "Email", "confirmed": True},
+    )
+    return device
+
+
 @login_required
 @require_POST
 def request_otp(request):
@@ -33,11 +44,13 @@ def request_otp(request):
         return JsonResponse({"detail": _("Email does not match your account.")}, status=400)
 
     with transaction.atomic():
-        device, _created = EmailOTPDevice.objects.select_for_update().get_or_create(
-            user=request.user,
-            email=email,
-            defaults={"name": "Email", "confirmed": True},
+        device = (
+            EmailOTPDevice.objects.select_for_update()
+            .filter(user=request.user, email=email)
+            .first()
         )
+        if not device:
+            device = _get_or_create_device_for_user(request.user, email)
 
         allowed, info = device.generate_is_allowed()
         if not allowed:
@@ -88,3 +101,66 @@ def verify_otp(request):
 
     return JsonResponse({"detail": _("OTP verified.")}, status=200)
 
+
+@login_required
+def verify_page(request):
+    email = (request.user.email or "").strip().lower()
+    next_url = (request.GET.get("next") or "").strip()
+
+    if not email:
+        return render(
+            request,
+            "otp_email/verify.html",
+            {"error": _("Please set an email on your account first."), "next": next_url},
+            status=400,
+        )
+
+    with transaction.atomic():
+        device = (
+            EmailOTPDevice.objects.select_for_update()
+            .filter(user=request.user, email=email)
+            .first()
+        )
+        if not device:
+            device = _get_or_create_device_for_user(request.user, email)
+
+        if request.method == "POST":
+            digits = [(request.POST.get(f"d{i}") or "").strip() for i in range(1, 7)]
+            token = "".join(digits)
+
+            allowed, _info = device.verify_is_allowed()
+            if not allowed:
+                return render(
+                    request,
+                    "otp_email/verify.html",
+                    {
+                        "error": _("Too many failed attempts. Please request a new code."),
+                        "next": next_url,
+                    },
+                    status=429,
+                )
+
+            if device.verify_token(token):
+                otp_login(request, device)
+                return redirect(next_url or "home")
+
+            return render(
+                request,
+                "otp_email/verify.html",
+                {"error": _("Invalid or expired code."), "next": next_url},
+                status=400,
+            )
+
+        should_resend = request.GET.get("resend") == "1"
+        is_expired = (not device.valid_until) or timezone.now() >= device.valid_until
+        if should_resend or (not device.token_hash) or is_expired:
+            try:
+                device.send_challenge()
+            except PermissionError:
+                pass
+
+    return render(
+        request,
+        "otp_email/verify.html",
+        {"email": email, "next": next_url},
+    )
