@@ -201,10 +201,12 @@ class EmailOTPDevice(Device):
 
         try:
             message.send(fail_silently=False)
-        except OSError:
+            return
+        except Exception:
             if not getattr(settings, "DEBUG", False):
                 raise
 
+            # Fallback to filebased backend in DEBUG to avoid console/stdout issues on Windows.
             base_dir = Path(getattr(settings, "BASE_DIR", Path.cwd()))
             file_path = base_dir / "tmp" / "emails"
             file_path.mkdir(parents=True, exist_ok=True)
