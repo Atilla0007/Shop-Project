@@ -3419,3 +3419,15 @@ select {
 .user-menu.open .user-menu-dropdown {
     display: block;
 }
+
+/* Inputs: darker background when filled/idle (except submit buttons) */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+    background: rgba(0, 0, 0, 0.16);
+    color: var(--text);
+}

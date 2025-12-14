@@ -12,6 +12,16 @@ def send_sms(to: str, message: str) -> None:
     backend = getattr(settings, 'SMS_BACKEND', 'console')
     if backend == 'console':
         logger.info('SMS(to=%s): %s', to, message)
+        try:
+            base_dir = getattr(settings, 'BASE_DIR', None)
+            if base_dir:
+                out_dir = os.path.join(base_dir, 'tmp', 'sms')
+                os.makedirs(out_dir, exist_ok=True)
+                filename = os.path.join(out_dir, 'sms.log')
+                with open(filename, 'a', encoding='utf-8') as f:
+                    f.write(f"TO: {to}\n{message}\n{'-'*40}\n")
+        except Exception:
+            logger.exception("Failed to write SMS to tmp log")
         return
 
     if backend == 'kavenegar':
