@@ -181,6 +181,7 @@ if (widgetCloseBtn) {
     widgetCloseBtn.addEventListener('click', () => {
         widgetContainer.classList.add('hidden');
         widgetToggleBtn.classList.remove('hidden');
+        if (pollTimer) clearInterval(pollTimer);
     });
 }
 
