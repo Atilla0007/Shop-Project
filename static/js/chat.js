@@ -95,15 +95,46 @@ function sendMessage(text, btnElement, inputElement) {
     btnElement.disabled = true;
     btnElement.textContent = '...';
 
-    const formData = new FormData();
-    formData.append('message', text);
+    const sendData = new FormData();
+    sendData.append('message', text);
 
-    fetch('/chat/bot/', {
+    // 1) Send user message fast, so it shows up immediately.
+    fetch('/chat/send/', {
         method: 'POST',
         headers: { 'X-CSRFToken': csrftoken },
-        body: formData,
+        body: sendData,
     })
         .then(async (res) => {
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                throw new Error('invalid_json');
+            }
+            if (!res.ok || !data || data.status !== 'ok') {
+                const errMsg = (data && data.error) || 'ارسال پیام انجام نشد.';
+                throw new Error(errMsg);
+            }
+
+            loadMessages();
+            btnElement.disabled = false;
+            btnElement.textContent = originalText;
+            inputElement.value = '';
+            inputElement.focus();
+
+            // 2) Ask bot (slow). Pass message_id to avoid saving the user message twice.
+            const botData = new FormData();
+            if (data.message_id) botData.append('message_id', data.message_id);
+            else botData.append('message', text);
+
+            return fetch('/chat/bot/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken },
+                body: botData,
+            });
+        })
+        .then(async (res) => {
+            if (!res) return;
             let data;
             try {
                 data = await res.json();
@@ -126,8 +157,7 @@ function sendMessage(text, btnElement, inputElement) {
         .finally(() => {
             btnElement.disabled = false;
             btnElement.textContent = originalText;
-            inputElement.value = '';
-            inputElement.focus();
+            inputElement && inputElement.focus();
         });
 }
 
@@ -172,6 +202,7 @@ if (widgetToggleBtn) {
         if (!isAuth) return alertAuth();
         widgetContainer.classList.remove('hidden');
         widgetToggleBtn.classList.add('hidden');
+        widgetToggleBtn.style.display = 'none';
         startPolling();
         widgetInput && widgetInput.focus();
     });
@@ -181,6 +212,7 @@ if (widgetCloseBtn) {
     widgetCloseBtn.addEventListener('click', () => {
         widgetContainer.classList.add('hidden');
         widgetToggleBtn.classList.remove('hidden');
+        widgetToggleBtn.style.display = '';
         if (pollTimer) clearInterval(pollTimer);
     });
 }

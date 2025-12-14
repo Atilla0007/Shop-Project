@@ -3359,6 +3359,11 @@ select {
     padding: 0;
 }
 
+/* ensure toggle hides even when icon-only styles apply */
+.floating-chat-btn.hidden {
+    display: none !important;
+}
+
 
 /* User dropdown */
 .user-menu {

@@ -157,7 +157,7 @@ def chat_messages(request):
             "id": m.id,
             "text": m.text,
             "is_admin": m.is_admin,
-            "sender": m.sender.username if m.sender else ("ط¸آ¾ط·آ´ط·ع¾ط؛إ’ط·آ¨ط·آ§ط¸â€ " if m.is_admin else "ط·آ´ط¸â€¦ط·آ§"),
+            "sender": m.sender.username if m.sender else ("پشتیبانی" if m.is_admin else "شما"),
             "created_at": timezone.localtime(m.created_at).strftime("%H:%M"),
         })
 
@@ -175,13 +175,13 @@ def chat_send(request):
     """Send a user chat message via AJAX."""
     text = (request.POST.get("message") or "").strip()
     if not text:
-        return JsonResponse({"status": "error", "error": "ط¸آ¾ط؛إ’ط·آ§ط¸â€¦ ط·آ®ط·آ§ط¸â€‍ط؛إ’ ط·آ§ط·آ³ط·ع¾"}, status=400)
+        return JsonResponse({"status": "error", "error": "متن پیام نمی‌تواند خالی باشد."}, status=400)
 
     thread, _ = ChatThread.objects.get_or_create(user=request.user)
 
     receiver = _get_first_staff()
 
-    ChatMessage.objects.create(
+    msg = ChatMessage.objects.create(
         thread=thread,
         sender=request.user,
         receiver=receiver,
@@ -191,7 +191,11 @@ def chat_send(request):
         is_read_by_admin=False,
     )
 
-    return JsonResponse({"status": "ok"})
+    return JsonResponse({
+        "status": "ok",
+        "message_id": msg.id,
+        "created_at": timezone.localtime(msg.created_at).strftime("%H:%M"),
+    })
 
 
 @login_required
@@ -282,7 +286,7 @@ def admin_chat_messages(request, user_id):
             "id": m.id,
             "text": m.text,
             "is_admin": m.is_admin,
-            "sender": m.sender.username if m.sender else ("ط¸آ¾ط·آ´ط·ع¾ط؛إ’ط·آ¨ط·آ§ط¸â€ " if m.is_admin else "ط¹آ©ط·آ§ط·آ±ط·آ¨ط·آ±"),
+            "sender": m.sender.username if m.sender else ("پشتیبانی" if m.is_admin else "کاربر"),
             "created_at": timezone.localtime(m.created_at).strftime("%H:%M"),
         })
 
@@ -300,7 +304,7 @@ def admin_chat_send(request, user_id):
     """Admin sends a chat message to a user."""
     text = (request.POST.get("message") or "").strip()
     if not text:
-        return JsonResponse({"status": "error", "error": "ط¸آ¾ط؛إ’ط·آ§ط¸â€¦ ط·آ®ط·آ§ط¸â€‍ط؛إ’ ط·آ§ط·آ³ط·ع¾"}, status=400)
+        return JsonResponse({"status": "error", "error": "متن پیام نمی‌تواند خالی باشد."}, status=400)
 
     thread = get_object_or_404(ChatThread, user_id=user_id)
 
@@ -355,22 +359,39 @@ def chat_bot(request):
     if not request.user.is_authenticated:
         return JsonResponse({"status": "error", "error": "login_required"}, status=401)
 
-    text = (request.POST.get("message") or "").strip()
-    if not text:
-        return JsonResponse({"status": "error", "error": "ظ…طھظ† ظ¾ظٹط§ظ… ط®ط§ظ„ظٹ ط§ط³طھ"}, status=400)
+    message_id = (request.POST.get("message_id") or "").strip()
+    msg_obj = None
+    if message_id:
+        try:
+            msg_obj = ChatMessage.objects.select_related("thread").get(
+                id=message_id,
+                thread__user=request.user,
+                is_admin=False,
+            )
+        except ChatMessage.DoesNotExist:
+            msg_obj = None
 
-    thread, _ = ChatThread.objects.get_or_create(user=request.user)
+    if msg_obj:
+        text = (msg_obj.text or "").strip()
+        thread = msg_obj.thread
+    else:
+        text = (request.POST.get("message") or "").strip()
+        if not text:
+            return JsonResponse({"status": "error", "error": "متن پیام نمی‌تواند خالی باشد."}, status=400)
+
+        thread, _ = ChatThread.objects.get_or_create(user=request.user)
+
     receiver = _get_first_staff()
-
-    ChatMessage.objects.create(
-        thread=thread,
-        sender=request.user,
-        receiver=receiver,
-        text=text,
-        is_admin=False,
-        is_read_by_user=True,
-        is_read_by_admin=False,
-    )
+    if not msg_obj:
+        ChatMessage.objects.create(
+            thread=thread,
+            sender=request.user,
+            receiver=receiver,
+            text=text,
+            is_admin=False,
+            is_read_by_user=True,
+            is_read_by_admin=False,
+        )
 
     faq_text = _load_faq_text()
     contact_text = format_contact_info(
@@ -388,7 +409,7 @@ def chat_bot(request):
         handoff = resp.handoff
     except Exception:
         logger.exception("chatbot error")
-        bot_reply = "ط¯ط± ط­ط§ظ„ ط­ط§ط¶ط± ط±ط¨ط§طھ ط¯ط± ط¯ط³طھط±ط³ ظ†غŒط³طھ. ظ„ط·ظپط§ظ‹ ط¨ط¹ط¯ط§ظ‹ طھظ„ط§ط´ ع©ظ†غŒط¯."
+        bot_reply = "در حال حاضر ربات در دسترس نیست. لطفاً بعداً تلاش کنید."
         handoff = True
 
     ChatMessage.objects.create(
@@ -405,7 +426,7 @@ def chat_bot(request):
         support_email = getattr(settings, "SUPPORT_EMAIL", None)
         if support_email:
             send_mail(
-                subject="ط¯ط±ط®ظˆط§ط³طھ ظ¾ط´طھظٹط¨ط§ظ†ظٹ ع†طھ",
+                subject="درخواست پشتیبانی جدید",
                 message=f"User {request.user.username} asked: {text}\nReply: {bot_reply}",
                 from_email=getattr(settings, "DEFAULT_FROM_EMAIL", support_email),
                 recipient_list=[support_email],
@@ -413,4 +434,3 @@ def chat_bot(request):
             )
 
     return JsonResponse({"status": "ok", "reply": bot_reply, "handoff": handoff})
-
