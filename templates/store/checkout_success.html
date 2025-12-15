@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load jalali %}
 {% block title %}ثبت سفارش{% endblock %}
 
 {% block content %}
@@ -9,19 +10,19 @@
       <p>شماره سفارش: <strong>{{ order.id }}</strong></p>
 
       <div class="checkout-success-summary">
-        <p>جمع کالاها: <strong>{{ items_subtotal|floatformat:0 }}</strong> تومان</p>
+        <p>جمع کالاها: <strong>{{ items_subtotal|money }}</strong> تومان</p>
         {% if discount_amount %}
-          <p>تخفیف{% if discount_percent %} ({{ discount_percent }}٪){% endif %}: <strong dir="ltr">-{{ discount_amount|floatformat:0 }}</strong> تومان</p>
-          <p>جمع بعد از تخفیف: <strong>{{ subtotal|floatformat:0 }}</strong> تومان</p>
+          <p>تخفیف{% if discount_percent %} ({{ discount_percent }}٪){% endif %}: <strong dir="ltr">-{{ discount_amount|money }}</strong> تومان</p>
+          <p>جمع بعد از تخفیف: <strong>{{ subtotal|money }}</strong> تومان</p>
         {% endif %}
         {% if shipping_is_free %}
-          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong><s>{{ shipping_total_full|floatformat:0 }}</s> رایگان</strong></p>
+          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong><s>{{ shipping_total_full|money }}</s> رایگان</strong></p>
         {% elif shipping_applicable %}
-          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong>{{ shipping_applied|floatformat:0 }}</strong> تومان</p>
+          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong>{{ shipping_applied|money }}</strong> تومان</p>
         {% else %}
           <p>هزینه ارسال: <strong>0</strong> تومان</p>
         {% endif %}
-        <p>مبلغ قابل پرداخت: <strong>{{ total_payable|floatformat:0 }}</strong> تومان</p>
+        <p>مبلغ قابل پرداخت: <strong>{{ total_payable|money }}</strong> تومان</p>
       </div>
 
       <div class="checkout-success-actions">

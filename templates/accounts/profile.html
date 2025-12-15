@@ -83,7 +83,7 @@
                   <div class="order-title">سفارش #{{ o.id }}</div>
                   <div class="order-meta">تاریخ: {{ o.created_at|jalali:"Y/m/d" }} | وضعیت: {{ o.get_status_display }}</div>
                 </div>
-                <div class="order-price">{{ o.total_price }} تومان</div>
+                <div class="order-price">{{ o.total_price|money }} تومان</div>
               </div>
 
               <div class="tracking">

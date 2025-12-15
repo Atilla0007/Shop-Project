@@ -8,6 +8,7 @@ urlpatterns = [
     path('add-to-cart/<int:pk>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart, name='cart'),
     path('cart/preview/', views.cart_preview, name='cart_preview'),
+    path('cart/remove/', views.cart_remove, name='cart_remove'),
     path('checkout/', views.checkout, name='checkout'),
     path('checkout/discount-preview/', views.discount_preview, name='discount_preview'),
     path('payment/<int:order_id>/', views.payment, name='payment'),

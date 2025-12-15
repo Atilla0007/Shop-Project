@@ -92,7 +92,7 @@
                 <div class="product-info">
                     <h3>{{ product.name }}</h3>
                     <p class="product-domain">{{ product.domain }}</p>
-                    <p class="product-price">{{ product.price|floatformat:0 }} تومان</p>
+                    <p class="product-price">{{ product.price|money }} تومان</p>
                     <a href="{% url 'product_detail' product.id %}" class="btn btn-outline small">جزئیات محصول</a>
                     <a href="{% url 'add_to_cart' product.id %}?next={{ request.get_full_path|urlencode }}" class="btn btn-primary small">افزودن به سبد</a>
                 </div>

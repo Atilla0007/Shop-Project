@@ -59,3 +59,40 @@ class CartDrawerTests(TestCase):
         session = self.client.session
         self.assertEqual(session.get("cart", {}), {})
 
+    def test_guest_can_remove_item_from_session_cart(self):
+        add_url = reverse("add_to_cart", args=[self.product.id])
+        self.client.get(add_url)
+
+        remove_url = reverse("cart_remove")
+        response = self.client.post(
+            remove_url,
+            data={"product_id": self.product.id},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get("ok"))
+        self.assertEqual(data.get("total"), 0)
+        self.assertEqual(data.get("items"), [])
+
+        session = self.client.session
+        self.assertEqual(session.get("cart", {}), {})
+
+    def test_user_can_remove_item_from_db_cart(self):
+        user = User.objects.create_user(username="u1", password="pass12345")
+        self.client.force_login(user)
+        CartItem.objects.create(user=user, product=self.product, quantity=2)
+
+        remove_url = reverse("cart_remove")
+        response = self.client.post(
+            remove_url,
+            data={"product_id": self.product.id},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data.get("ok"))
+        self.assertEqual(data.get("total"), 0)
+        self.assertEqual(data.get("items"), [])
+
+        self.assertFalse(CartItem.objects.filter(user=user).exists())

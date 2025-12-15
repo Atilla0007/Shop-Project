@@ -40,7 +40,7 @@
     const numberValue = Number(value);
     if (!Number.isFinite(numberValue)) return String(value ?? '');
     try {
-      return numberValue.toLocaleString('fa-IR');
+      return numberValue.toLocaleString('fa-IR').replaceAll('٬', '،').replaceAll(',', '،');
     } catch {
       return String(numberValue);
     }

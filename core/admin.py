@@ -34,7 +34,9 @@ class ChatMessageAdmin(admin.ModelAdmin):
 
 @admin.register(ShippingSettings)
 class ShippingSettingsAdmin(admin.ModelAdmin):
-    list_display = ("shipping_fee", "free_shipping_min_total", "updated_at")
+    list_display = ("id", "shipping_fee", "free_shipping_min_total", "updated_at")
+    list_display_links = ("id",)
+    list_editable = ("shipping_fee", "free_shipping_min_total")
 
     def has_add_permission(self, request):
         return not ShippingSettings.objects.exists()

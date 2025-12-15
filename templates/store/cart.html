@@ -1,6 +1,7 @@
 
 {% extends 'base.html' %}
 {% load static %}
+{% load jalali %}
 {% block title %}سبد خرید{% endblock %}
 
 {% block content %}
@@ -15,6 +16,7 @@
                     <th>تعداد</th>
                     <th>قیمت واحد</th>
                     <th>مجموع</th>
+                    <th>حذف</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,14 +24,22 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.product.price|floatformat:0 }} تومان</td>
-                    <td>{{ item.total_price|floatformat:0 }} تومان</td>
+                    <td>{{ item.product.price|money }} تومان</td>
+                    <td>{{ item.total_price|money }} تومان</td>
+                    <td class="cart-remove-cell">
+                        <form method="post" action="{% url 'cart_remove' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="cart-remove-btn" aria-label="حذف از سبد خرید">×</button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         <div class="cart-summary">
-            <p>جمع کل: <strong>{{ total|floatformat:0 }} تومان</strong></p>
+            <p>جمع کل: <strong>{{ total|money }} تومان</strong></p>
             <a href="{% url 'checkout' %}" class="btn btn-primary">ادامه به پرداخت</a>
         </div>
         {% else %}

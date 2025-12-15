@@ -11,9 +11,19 @@ from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .models import Product, CartItem, Order, OrderItem, Category
 from accounts.models import UserProfile
 from core.models import DiscountCode, ShippingSettings
+from core.utils.jalali import PERSIAN_DIGITS_TRANS
 
 
 SESSION_CART_KEY = 'cart'
+
+
+def _format_money(value) -> str:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return str(value) if value is not None else ""
+
+    return f"{number:,}".replace(",", "،").translate(PERSIAN_DIGITS_TRANS)
 
 
 def _get_session_cart(request) -> dict[str, int]:
@@ -551,7 +561,11 @@ def proforma_pdf(request, order_id: int):
     c.setFont("Vazirmatn", 10)
     for it in order.items.all():
         line_total = int(it.unit_price) * int(it.quantity)
-        c.drawRightString(width - 40, y, rtl(f"{it.product.name} | تعداد: {it.quantity} | مبلغ: {line_total:,} تومان"))
+        c.drawRightString(
+            width - 40,
+            y,
+            rtl(f"{it.product.name} | تعداد: {it.quantity} | مبلغ: {_format_money(line_total)} تومان"),
+        )
         y -= 16
         if y < 120:
             c.showPage()
@@ -560,24 +574,32 @@ def proforma_pdf(request, order_id: int):
 
     y -= 10
     c.setFont("Vazirmatn", 11)
-    c.drawRightString(width - 40, y, rtl(f"جمع کالاها: {order.items_subtotal:,} تومان"))
+    c.drawRightString(width - 40, y, rtl(f"جمع کالاها: {_format_money(order.items_subtotal)} تومان"))
     y -= 16
     if order.discount_amount:
-        c.drawRightString(width - 40, y, rtl(f"تخفیف ({order.discount_percent}٪): -{order.discount_amount:,} تومان"))
+        c.drawRightString(
+            width - 40,
+            y,
+            rtl(f"تخفیف ({order.discount_percent}٪): -{_format_money(order.discount_amount)} تومان"),
+        )
         y -= 16
         after_discount = int(order.items_subtotal) - int(order.discount_amount)
-        c.drawRightString(width - 40, y, rtl(f"جمع بعد از تخفیف: {after_discount:,} تومان"))
+        c.drawRightString(width - 40, y, rtl(f"جمع بعد از تخفیف: {_format_money(after_discount)} تومان"))
         y -= 16
 
     if order.shipping_item_count and order.shipping_fee_per_item:
         if order.shipping_is_free and order.shipping_total_full:
-            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {order.shipping_total_full:,} تومان (رایگان شد)"))
+            c.drawRightString(
+                width - 40,
+                y,
+                rtl(f"هزینه ارسال: {_format_money(order.shipping_total_full)} تومان (رایگان شد)"),
+            )
         else:
-            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {order.shipping_total:,} تومان"))
+            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {_format_money(order.shipping_total)} تومان"))
         y -= 16
 
     c.setFont("Vazirmatn", 12)
-    c.drawRightString(width - 40, y, rtl(f"مبلغ قابل پرداخت: {order.total_price:,} تومان"))
+    c.drawRightString(width - 40, y, rtl(f"مبلغ قابل پرداخت: {_format_money(order.total_price)} تومان"))
 
     c.showPage()
     c.save()
@@ -586,10 +608,15 @@ def proforma_pdf(request, order_id: int):
 
 @require_GET
 def cart_preview(request):
+    items, total = _build_cart_preview_data(request)
+    return JsonResponse({'items': items, 'total': total})
+
+
+def _build_cart_preview_data(request) -> tuple[list[dict], int]:
     if request.user.is_authenticated:
         _merge_session_cart_into_user(request)
         cart_items = list(CartItem.objects.filter(user=request.user).select_related('product'))
-        items = []
+        items: list[dict] = []
         total = 0
         for item in cart_items:
             item_total = int(item.total_price())
@@ -601,12 +628,12 @@ def cart_preview(request):
                 'total_price': item_total,
             })
             total += item_total
-        return JsonResponse({'items': items, 'total': total})
+        return items, total
 
     session_cart = _get_session_cart(request)
     products = list(Product.objects.filter(id__in=list(session_cart.keys())))
     products_by_id = {str(p.id): p for p in products}
-    items = []
+    items: list[dict] = []
     total = 0
     for product_id, quantity in session_cart.items():
         product = products_by_id.get(product_id)
@@ -621,7 +648,37 @@ def cart_preview(request):
             'total_price': item_total,
         })
         total += item_total
-    return JsonResponse({'items': items, 'total': total})
+    return items, total
+
+
+@require_POST
+def cart_remove(request):
+    raw_product_id = (request.POST.get('product_id') or '').strip()
+    try:
+        product_id = int(raw_product_id)
+    except (TypeError, ValueError):
+        product_id = 0
+
+    if product_id <= 0:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            items, total = _build_cart_preview_data(request)
+            return JsonResponse({'ok': False, 'message': 'آیتم نامعتبر است.', 'items': items, 'total': total}, status=400)
+        return redirect(reverse('cart'))
+
+    if request.user.is_authenticated:
+        _merge_session_cart_into_user(request)
+        CartItem.objects.filter(user=request.user, product_id=product_id).delete()
+    else:
+        cart = _get_session_cart(request)
+        cart.pop(str(product_id), None)
+        _set_session_cart(request, cart)
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        items, total = _build_cart_preview_data(request)
+        return JsonResponse({'ok': True, 'items': items, 'total': total})
+
+    next_url = _safe_next_url(request, request.POST.get('next')) or reverse('cart')
+    return redirect(next_url)
 
 def add_to_compare(request, pk):
     ids = _get_compare_list(request)
@@ -662,7 +719,7 @@ def compare(request):
     # ردیف‌های پایه
     rows.append({
         "label": "قیمت",
-        "values": [f"{p.price:,.0f} تومان" for p in products],
+        "values": [f"{_format_money(p.price)} تومان" for p in products],
     })
     rows.append({
         "label": "برند",

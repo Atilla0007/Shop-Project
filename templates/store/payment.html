@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load jalali %}
 {% block title %}پرداخت سفارش{% endblock %}
 
 {% block content %}
@@ -30,7 +31,7 @@
             <h3>کارت به کارت</h3>
 
             {% if payment_settings.card_number %}
-              <p class="muted">مبلغ قابل پرداخت: <strong dir="ltr">{{ order.total_price|floatformat:0 }}</strong> تومان</p>
+              <p class="muted">مبلغ قابل پرداخت: <strong dir="ltr">{{ order.total_price|money }}</strong> تومان</p>
               <p class="muted">شماره کارت: <strong dir="ltr">{{ payment_settings.card_number }}</strong></p>
               {% if payment_settings.card_holder %}
                 <p class="muted">به نام: <strong>{{ payment_settings.card_holder }}</strong></p>
@@ -74,45 +75,45 @@
         </div>
       </div>
 
-      <div class="checkout-summary">
-        <h2>خلاصه سفارش</h2>
-        <div class="summary-row">
-          <span>جمع کالاها</span>
-          <strong>{{ order.items_subtotal|floatformat:0 }}</strong>
+        <div class="checkout-summary">
+          <h2>خلاصه سفارش</h2>
+          <div class="summary-row">
+            <span>جمع کالاها</span>
+          <strong>{{ order.items_subtotal|money }}</strong>
           <span>تومان</span>
-        </div>
-        {% if order.discount_amount %}
+          </div>
+          {% if order.discount_amount %}
           <div class="summary-row">
             <span>تخفیف{% if order.discount_percent %} ({{ order.discount_percent }}٪){% endif %}</span>
-            <strong dir="ltr">-{{ order.discount_amount|floatformat:0 }}</strong>
+            <strong dir="ltr">-{{ order.discount_amount|money }}</strong>
             <span>تومان</span>
           </div>
           <div class="summary-row">
             <span>جمع بعد از تخفیف</span>
-            <strong>{{ items_after_discount|floatformat:0 }}</strong>
+            <strong>{{ items_after_discount|money }}</strong>
             <span>تومان</span>
           </div>
-        {% endif %}
-        <div class="summary-row">
-          <span>هزینه ارسال</span>
-          {% if order.shipping_is_free and order.shipping_total_full %}
+          {% endif %}
+          <div class="summary-row">
+            <span>هزینه ارسال</span>
+            {% if order.shipping_is_free and order.shipping_total_full %}
             <div class="summary-price">
-              <span class="summary-strike">{{ order.shipping_total_full|floatformat:0 }}</span>
+              <span class="summary-strike">{{ order.shipping_total_full|money }}</span>
               <strong>0</strong>
               <span class="summary-currency">تومان</span>
               <span class="summary-badge">ارسال رایگان شد</span>
             </div>
-          {% else %}
-            <strong>{{ order.shipping_total|floatformat:0 }}</strong>
+            {% else %}
+            <strong>{{ order.shipping_total|money }}</strong>
             <span>تومان</span>
-          {% endif %}
-        </div>
-        <div class="summary-row total">
-          <span>مبلغ قابل پرداخت</span>
-          <strong>{{ order.total_price|floatformat:0 }}</strong>
+            {% endif %}
+          </div>
+          <div class="summary-row total">
+            <span>مبلغ قابل پرداخت</span>
+          <strong>{{ order.total_price|money }}</strong>
           <span>تومان</span>
+          </div>
         </div>
-      </div>
     </div>
   </div>
 </section>

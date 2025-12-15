@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load jalali %}
 {% block title %}تسویه حساب{% endblock %}
 
 {% block content %}
@@ -112,9 +113,9 @@
               <li class="checkout-item">
                 <div class="checkout-item-main">
                   <div class="checkout-item-name">{{ item.product.name }}</div>
-                  <div class="checkout-item-meta">{{ item.quantity }} × {{ item.product.price|floatformat:0 }} تومان</div>
+                  <div class="checkout-item-meta">{{ item.quantity }} × {{ item.product.price|money }} تومان</div>
                 </div>
-                <div class="checkout-item-total">{{ item.total_price|floatformat:0 }} تومان</div>
+                <div class="checkout-item-total">{{ item.total_price|money }} تومان</div>
               </li>
             {% endfor %}
           </ul>
@@ -123,27 +124,27 @@
 
           <div class="summary-row">
             <span>جمع کالاها</span>
-            <strong>{{ items_subtotal|floatformat:0 }}</strong>
+            <strong>{{ items_subtotal|money }}</strong>
             <span>تومان</span>
           </div>
 
           <div id="discount-row" class="summary-row {% if not discount_amount %}hidden{% endif %}">
             <span>تخفیف (<span id="discount-percent">{{ discount_percent|default_if_none:0 }}</span>٪)</span>
-            <strong id="discount-amount" dir="ltr">-{{ discount_amount|floatformat:0 }}</strong>
+            <strong id="discount-amount" dir="ltr">-{{ discount_amount|money }}</strong>
             <span>تومان</span>
           </div>
 
           <div class="summary-row">
             <span id="subtotal-label">{% if discount_amount %}جمع بعد از تخفیف{% else %}جمع قابل پرداخت کالاها{% endif %}</span>
-            <strong id="checkout-subtotal">{{ subtotal|floatformat:0 }}</strong>
+            <strong id="checkout-subtotal">{{ subtotal|money }}</strong>
             <span>تومان</span>
           </div>
 
           <div class="summary-row">
-            <span>هزینه ارسال ({{ shipping_item_count }} کالا × {{ shipping_fee_per_item|floatformat:0 }} تومان)</span>
+            <span>هزینه ارسال ({{ shipping_item_count }} کالا × {{ shipping_fee_per_item|money }} تومان)</span>
             <div class="summary-price">
-              <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_total_full|floatformat:0 }}</span>
-              <strong id="shipping-fee">{{ shipping_applied|floatformat:0 }}</strong>
+              <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_total_full|money }}</span>
+              <strong id="shipping-fee">{{ shipping_applied|money }}</strong>
               <span class="summary-currency">تومان</span>
               <span id="shipping-free-badge" class="summary-badge {% if not shipping_is_free %}hidden{% endif %}">ارسال رایگان شد</span>
             </div>
@@ -153,7 +154,7 @@
 
           <div class="summary-row total">
             <span>مبلغ قابل پرداخت</span>
-            <strong id="final-total">{{ total_payable|floatformat:0 }}</strong>
+            <strong id="final-total">{{ total_payable|money }}</strong>
             <span>تومان</span>
           </div>
         {% else %}

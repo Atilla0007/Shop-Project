@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load jalali %}
 {% block title %}مقایسه محصولات{% endblock %}
 
 {% block content %}
@@ -88,7 +89,7 @@
                             <div class="product-option-meta">
                                 <span class="product-option-price">
                                     {% if p.price %}
-                                        {{ p.price|floatformat:0 }} تومان
+                                        {{ p.price|money }} تومان
                                     {% else %}
                                         قیمت ثبت نشده
                                     {% endif %}
@@ -119,7 +120,7 @@
                             <div class="product-option-meta">
                                 <span class="product-option-price">
                                     {% if p.price %}
-                                        {{ p.price|floatformat:0 }} تومان
+                                        {{ p.price|money }} تومان
                                     {% else %}
                                         قیمت ثبت نشده
                                     {% endif %}

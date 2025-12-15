@@ -121,7 +121,7 @@
                                 </div>
                                 <div class="order-meta">
                                     <span>{{ order.created_at|jalali:"j F Y - H:i" }}</span>
-                                    <span>{{ order.total_price|floatformat:0 }} تومان</span>
+                                    <span>{{ order.total_price|money }} تومان</span>
                                 </div>
                             </div>
                         {% endfor %}
