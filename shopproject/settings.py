@@ -4,6 +4,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY='test'
 DEBUG=True
 ALLOWED_HOSTS=[]
+
+# Localization
+LANGUAGE_CODE='fa'
+TIME_ZONE='Asia/Tehran'
+USE_I18N=True
+USE_TZ=True
+
 INSTALLED_APPS=[
     'django.contrib.admin',
     'django.contrib.auth',
