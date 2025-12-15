@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, ContactMessage, ChatMessage, ChatThread
+from .models import News, ContactMessage, ChatMessage, ChatThread, ShippingSettings
 
 
 @admin.register(News)
@@ -30,3 +30,14 @@ class ChatMessageAdmin(admin.ModelAdmin):
     def short_text(self, obj):
         return obj.text[:40]
     short_text.short_description = "متن"
+
+
+@admin.register(ShippingSettings)
+class ShippingSettingsAdmin(admin.ModelAdmin):
+    list_display = ("shipping_fee", "free_shipping_min_total", "updated_at")
+
+    def has_add_permission(self, request):
+        return not ShippingSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False

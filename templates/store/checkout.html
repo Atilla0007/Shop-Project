@@ -1,48 +1,148 @@
-
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}تکمیل خرید{% endblock %}
+{% block title %}تسویه حساب{% endblock %}
 
 {% block content %}
 <section class="section">
-    <div class="container">
-        <h1>تکمیل سفارش</h1>
-        <p>در این مرحله صرفاً شبیه‌سازی پرداخت انجام می‌شود و اتصال به درگاه واقعی وجود ندارد.</p>
+  <div class="container">
+    <h1>تسویه حساب</h1>
 
-        <div class="checkout-layout">
-            <div class="checkout-form">
-                <h2>اطلاعات تماس و ارسال</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    <label>نام و نام خانوادگی</label>
-                    <input type="text" name="full_name" required>
+    {% if errors and errors.phone_verified %}
+      <div class="form-error">{{ errors.phone_verified }}</div>
+    {% endif %}
 
-                    <label>ایمیل</label>
-                    <input type="email" name="email" required>
+    <div class="checkout-layout">
+      <div class="checkout-form">
+        <h2>اطلاعات گیرنده</h2>
 
-                    <label>آدرس کامل</label>
-                    <textarea name="address" rows="3" required></textarea>
+        <form method="post" novalidate>
+          {% csrf_token %}
 
-                    <label>توضیحات سفارش</label>
-                    <textarea name="note" rows="3"></textarea>
-
-                    <button type="submit" class="btn btn-primary">ثبت نهایی سفارش</button>
-                </form>
+          <div class="checkout-grid">
+            <div class="checkout-field">
+              <label for="first_name">نام <span class="field-tag required">اجباری</span></label>
+              <input id="first_name" type="text" name="first_name" value="{{ values.first_name }}" required>
+              {% if errors.first_name %}<div class="field-error">{{ errors.first_name }}</div>{% endif %}
             </div>
-            <div class="checkout-summary">
-                <h2>خلاصه سفارش</h2>
-                {% if items %}
-                    <ul>
-                        {% for item in items %}
-                        <li>{{ item.product.name }} × {{ item.quantity }} — {{ item.total_price|floatformat:0 }} تومان</li>
-                        {% endfor %}
-                    </ul>
-                    <p>جمع کل: <strong>{{ total|floatformat:0 }} تومان</strong></p>
-                {% else %}
-                    <p class="empty-text">سبد خرید خالی است.</p>
-                {% endif %}
+
+            <div class="checkout-field">
+              <label for="last_name">نام خانوادگی <span class="field-tag required">اجباری</span></label>
+              <input id="last_name" type="text" name="last_name" value="{{ values.last_name }}" required>
+              {% if errors.last_name %}<div class="field-error">{{ errors.last_name }}</div>{% endif %}
             </div>
-        </div>
+
+            <div class="checkout-field">
+              <label for="phone">شماره موبایل <span class="field-tag required">اجباری</span></label>
+              <input id="phone" type="tel" name="phone" value="{{ values.phone }}" inputmode="tel" required>
+              {% if errors.phone %}<div class="field-error">{{ errors.phone }}</div>{% endif %}
+            </div>
+
+            <div class="checkout-field">
+              <label for="email">ایمیل <span class="field-tag optional">اختیاری</span></label>
+              <input id="email" type="email" name="email" value="{{ values.email }}" autocomplete="email">
+            </div>
+          </div>
+
+          <h2 class="checkout-section-title">آدرس ارسال</h2>
+
+          <div class="checkout-grid">
+            <div class="checkout-field">
+              <label for="province-select">استان <span class="field-tag optional">اختیاری</span></label>
+              <select id="province-select" name="province" data-selected="{{ values.province }}">
+                <option value="">انتخاب کنید</option>
+              </select>
+            </div>
+
+            <div class="checkout-field">
+              <label for="city-select">شهرستان <span class="field-tag optional">اختیاری</span></label>
+              <select id="city-select" name="city" data-selected="{{ values.city }}" disabled>
+                <option value="">ابتدا استان را انتخاب کنید</option>
+              </select>
+            </div>
+
+            <div class="checkout-field full">
+              <label for="address">آدرس دقیق <span class="field-tag optional">اختیاری</span></label>
+              <textarea id="address" name="address" rows="3">{{ values.address }}</textarea>
+            </div>
+
+            <div class="checkout-field full">
+              <label for="note">یادداشت سفارش <span class="field-tag optional">اختیاری</span></label>
+              <textarea id="note" name="note" rows="3">{{ values.note }}</textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">ثبت سفارش</button>
+        </form>
+      </div>
+
+      <div
+        class="checkout-summary"
+        id="checkout-summary"
+        data-subtotal="{{ subtotal }}"
+        data-shipping-fee="{{ shipping_fee }}"
+        data-free-threshold="{{ free_shipping_min_total }}"
+      >
+        <h2>خلاصه سفارش</h2>
+
+        {% if cart_items %}
+          <ul class="checkout-items">
+            {% for item in cart_items %}
+              <li class="checkout-item">
+                <div class="checkout-item-main">
+                  <div class="checkout-item-name">{{ item.product.name }}</div>
+                  <div class="checkout-item-meta">{{ item.quantity }} × {{ item.product.price|floatformat:0 }} تومان</div>
+                </div>
+                <div class="checkout-item-total">{{ item.total_price|floatformat:0 }} تومان</div>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row">
+            <span>جمع کالاها</span>
+            <strong id="checkout-subtotal">{{ subtotal|floatformat:0 }}</strong>
+            <span>تومان</span>
+          </div>
+
+          <div class="summary-row">
+            <span>هزینه ارسال</span>
+            <div class="summary-price">
+              <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_fee|floatformat:0 }}</span>
+              <strong id="shipping-fee">{{ shipping_applied|floatformat:0 }}</strong>
+              <span class="summary-currency">تومان</span>
+              <span id="shipping-free-badge" class="summary-badge {% if not shipping_is_free %}hidden{% endif %}">ارسال رایگان شد</span>
+            </div>
+          </div>
+
+          <div id="shipping-hint" class="shipping-hint {% if shipping_applicable %}hidden{% endif %}">برای محاسبه هزینه ارسال، استان را انتخاب کنید.</div>
+
+          <div class="summary-row total">
+            <span>مبلغ قابل پرداخت</span>
+            <strong id="final-total">{{ total_payable|floatformat:0 }}</strong>
+            <span>تومان</span>
+          </div>
+        {% else %}
+          <p class="empty-text">سبد خرید شما خالی است.</p>
+        {% endif %}
+      </div>
     </div>
+  </div>
 </section>
+
+{% if show_phone_verify_modal %}
+  <div id="phone-verify-modal" class="modal-overlay open" data-open="1" aria-hidden="false">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="تایید شماره موبایل">
+      <button type="button" class="modal-close" data-modal-close aria-label="بستن">×</button>
+      <h3>شماره موبایل تایید نشده است</h3>
+      <p>برای ثبت سفارش، لطفاً ابتدا شماره موبایل خود را تایید کنید.</p>
+      <a class="btn btn-primary" href="{% url 'phone_otp_verify_page' %}?next={{ request.get_full_path|urlencode }}">رفتن به تایید شماره موبایل</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/iran-locations.js' %}"></script>
+  <script src="{% static 'js/checkout.js' %}"></script>
 {% endblock %}

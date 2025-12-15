@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}ثبت سفارش{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="checkout-success">
+      <h1>سفارش شما با موفقیت ثبت شد</h1>
+      <p>شماره سفارش: <strong>{{ order.id }}</strong></p>
+
+      <div class="checkout-success-summary">
+        <p>جمع کالاها: <strong>{{ subtotal|floatformat:0 }}</strong> تومان</p>
+        {% if shipping_is_free %}
+          <p>هزینه ارسال: <strong><s>{{ shipping_fee|floatformat:0 }}</s> رایگان</strong></p>
+        {% elif shipping_applicable %}
+          <p>هزینه ارسال: <strong>{{ shipping_applied|floatformat:0 }}</strong> تومان</p>
+        {% else %}
+          <p>هزینه ارسال: <strong>0</strong> تومان</p>
+        {% endif %}
+        <p>مبلغ قابل پرداخت: <strong>{{ total_payable|floatformat:0 }}</strong> تومان</p>
+      </div>
+
+      <div class="checkout-success-actions">
+        <a class="btn btn-primary" href="{% url 'profile' %}">مشاهده سفارش‌ها</a>
+        <a class="btn btn-outline" href="{% url 'shop' %}">ادامه خرید</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+

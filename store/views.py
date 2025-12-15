@@ -8,6 +8,7 @@ from django.views.decorators.http import require_GET
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .models import Product, CartItem, Order, OrderItem, Category
 from accounts.models import UserProfile
+from core.models import ShippingSettings
 
 
 SESSION_CART_KEY = 'cart'
@@ -186,29 +187,134 @@ def checkout(request):
         return redirect(f"{verify_url}?next={quote(request.get_full_path())}")
 
     _merge_session_cart_into_user(request)
-    cart_items = CartItem.objects.filter(user=request.user)
-    total = sum(item.total_price() for item in cart_items)
+    cart_items = CartItem.objects.filter(user=request.user).select_related('product')
+    subtotal = sum(item.total_price() for item in cart_items)
+
+    shipping_settings = ShippingSettings.get_solo()
+    shipping_fee = int(shipping_settings.shipping_fee or 0)
+    free_shipping_min_total = int(shipping_settings.free_shipping_min_total or 0)
+
+    def normalize_digits(value: str) -> str:
+        if not value:
+            return value
+        return value.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+
+    def compute_shipping(province_value: str | None) -> tuple[int, bool, bool]:
+        province_selected = bool((province_value or "").strip())
+        if not province_selected:
+            return 0, False, False
+        is_free = bool(free_shipping_min_total) and subtotal >= free_shipping_min_total
+        applied_fee = 0 if is_free else shipping_fee
+        return applied_fee, True, is_free
 
     if request.method == 'POST':
-        if cart_items.exists():
-            order = Order.objects.create(
-                user=request.user,
-                total_price=total,
-                status='paid'
+        values = {
+            'first_name': (request.POST.get('first_name') or '').strip(),
+            'last_name': (request.POST.get('last_name') or '').strip(),
+            'phone': normalize_digits((request.POST.get('phone') or '').strip()),
+            'email': (request.POST.get('email') or '').strip(),
+            'province': (request.POST.get('province') or '').strip(),
+            'city': (request.POST.get('city') or '').strip(),
+            'address': (request.POST.get('address') or '').strip(),
+            'note': (request.POST.get('note') or '').strip(),
+        }
+
+        errors: dict[str, str] = {}
+        if not values['first_name']:
+            errors['first_name'] = 'نام را وارد کنید.'
+        if not values['last_name']:
+            errors['last_name'] = 'نام خانوادگی را وارد کنید.'
+        if not values['phone']:
+            errors['phone'] = 'شماره موبایل را وارد کنید.'
+
+        if values['phone']:
+            new_phone = values['phone'].replace(' ', '').replace('-', '')
+            values['phone'] = new_phone
+            if new_phone != (profile.phone or ''):
+                profile.phone = new_phone
+                profile.phone_verified = False
+                profile.phone_verified_at = None
+                profile.save(update_fields=['phone', 'phone_verified', 'phone_verified_at'])
+
+        if values['phone'] and not profile.phone_verified:
+            errors['phone_verified'] = 'شماره موبایل شما تایید نشده است.'
+
+        if not errors:
+            if values['first_name'] != (request.user.first_name or ''):
+                request.user.first_name = values['first_name']
+            if values['last_name'] != (request.user.last_name or ''):
+                request.user.last_name = values['last_name']
+            request.user.save(update_fields=['first_name', 'last_name'])
+
+        shipping_applied, shipping_applicable, shipping_is_free = compute_shipping(values['province'])
+        total_payable = int(subtotal) + int(shipping_applied)
+
+        if not cart_items.exists():
+            errors['cart'] = 'سبد خرید شما خالی است.'
+
+        if errors:
+            return render(request, 'store/checkout.html', {
+                'cart_items': cart_items,
+                'subtotal': subtotal,
+                'shipping_fee': shipping_fee,
+                'free_shipping_min_total': free_shipping_min_total,
+                'shipping_applicable': shipping_applicable,
+                'shipping_is_free': shipping_is_free,
+                'shipping_applied': shipping_applied,
+                'total_payable': total_payable,
+                'values': values,
+                'errors': errors,
+                'show_phone_verify_modal': bool(errors.get('phone_verified')),
+            })
+
+        order = Order.objects.create(
+            user=request.user,
+            total_price=total_payable,
+            status='paid'
+        )
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                unit_price=item.product.price,
             )
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    unit_price=item.product.price,
-                )
-            cart_items.delete()
-        return render(request, 'store/checkout_success.html', {'total': total})
+        cart_items.delete()
+        return render(request, 'store/checkout_success.html', {
+            'order': order,
+            'subtotal': subtotal,
+            'shipping_fee': shipping_fee,
+            'shipping_applicable': shipping_applicable,
+            'shipping_is_free': shipping_is_free,
+            'shipping_applied': shipping_applied,
+            'total_payable': total_payable,
+        })
+
+    values = {
+        'first_name': (request.user.first_name or '').strip(),
+        'last_name': (request.user.last_name or '').strip(),
+        'phone': (profile.phone or '').strip(),
+        'email': (request.user.email or '').strip(),
+        'province': '',
+        'city': '',
+        'address': '',
+        'note': '',
+    }
+    shipping_applied, shipping_applicable, shipping_is_free = compute_shipping(values['province'])
+    total_payable = int(subtotal) + int(shipping_applied)
 
     return render(request, 'store/checkout.html', {
         'cart_items': cart_items,
-        'total': total
+        'subtotal': subtotal,
+        'shipping_fee': shipping_fee,
+        'free_shipping_min_total': free_shipping_min_total,
+        'shipping_applicable': shipping_applicable,
+        'shipping_is_free': shipping_is_free,
+        'shipping_applied': shipping_applied,
+        'total_payable': total_payable,
+        'values': values,
+        'errors': {},
+        'show_phone_verify_modal': bool(values['phone'] and not profile.phone_verified),
     })
 
 

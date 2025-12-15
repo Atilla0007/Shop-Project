@@ -61,3 +61,21 @@ class ChatMessage(models.Model):
     def __str__(self):
         who = "ادمین" if self.is_admin else (self.sender.username if self.sender else "کاربر")
         return f"{who}: {self.text[:30]}"
+
+
+class ShippingSettings(models.Model):
+    shipping_fee = models.PositiveIntegerField(default=0, verbose_name="هزینه ارسال (تومان)")
+    free_shipping_min_total = models.PositiveIntegerField(default=0, verbose_name="حداقل مبلغ برای ارسال رایگان (تومان)")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "تنظیمات ارسال"
+        verbose_name_plural = "تنظیمات ارسال"
+
+    def __str__(self):
+        return "تنظیمات ارسال"
+
+    @classmethod
+    def get_solo(cls) -> "ShippingSettings":
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
