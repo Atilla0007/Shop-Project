@@ -1,0 +1,44 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+  <p style="margin:0 0 10px 0; font-size:14px; color:#F4F4F9;">
+    پرداخت شما برای سفارش <strong>#{{ order_id }}</strong> تایید شد و سفارش شما نهایی شد.
+  </p>
+
+  <p style="margin:0 0 14px 0; font-size:13px; color:#D8DCE5;">
+    تاریخ تایید: {{ approved_at }}
+  </p>
+
+  <div style="margin:0 0 14px 0; padding:12px 14px; border-radius:14px; background:rgba(0,0,0,0.18); border:1px solid rgba(244,244,249,0.12);">
+    <div style="font-size:13px; font-weight:800; margin:0 0 10px 0; color:#F4F4F9;">خلاصه سفارش</div>
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+      {% for it in items %}
+        <tr>
+          <td style="padding:6px 0; color:#F4F4F9; font-size:13px;">{{ it.name }}</td>
+          <td style="padding:6px 0; color:#D8DCE5; font-size:13px; text-align:left;" dir="ltr">{{ it.qty }}×</td>
+          <td style="padding:6px 0; color:#F4F4F9; font-size:13px; text-align:left;" dir="ltr">{{ it.total }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+
+    <div style="height:1px; background:rgba(244,244,249,0.14); margin:10px 0;"></div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+      <tr>
+        <td style="padding:4px 0; color:#D8DCE5; font-size:13px;">مبلغ نهایی</td>
+        <td style="padding:4px 0; color:#F4F4F9; font-size:13px; text-align:left;" dir="ltr">{{ total_price }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <p style="margin:0 0 14px 0; font-size:13px; color:#D8DCE5;">
+    فیش/فاکتور سفارش به صورت فایل PDF به همین ایمیل پیوست شده است.
+  </p>
+
+  {% if cta_url %}
+    <a href="{{ cta_url }}" style="display:inline-block; padding:10px 16px; border-radius:999px; background:#586F7C; color:#000000; font-weight:800; font-size:13px; text-decoration:none;">
+      مشاهده سفارش‌ها
+    </a>
+  {% endif %}
+{% endblock %}
+

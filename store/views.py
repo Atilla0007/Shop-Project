@@ -8,22 +8,14 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
+from .invoice import render_order_invoice_pdf
 from .models import Product, CartItem, Order, OrderItem, Category
 from accounts.models import UserProfile
 from core.models import DiscountCode, ShippingSettings
-from core.utils.jalali import PERSIAN_DIGITS_TRANS
+from core.utils.formatting import format_money
 
 
 SESSION_CART_KEY = 'cart'
-
-
-def _format_money(value) -> str:
-    try:
-        number = int(value)
-    except (TypeError, ValueError):
-        return str(value) if value is not None else ""
-
-    return f"{number:,}".replace(",", "،").translate(PERSIAN_DIGITS_TRANS)
 
 
 def _get_session_cart(request) -> dict[str, int]:
@@ -455,6 +447,7 @@ def checkout(request):
 @login_required
 def payment(request, order_id: int):
     from core.models import PaymentSettings
+    from store.emails import send_order_payment_submitted_email
 
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     settings = PaymentSettings.get_solo()
@@ -475,6 +468,7 @@ def payment(request, order_id: int):
     submitted = request.GET.get('submitted') == '1'
 
     if request.method == 'POST' and order.status != 'canceled' and order.payment_status not in ('approved',):
+        already_submitted = order.payment_status == 'submitted'
         method = (request.POST.get('method') or '').strip()
         if method not in ('card_to_card', 'contact_admin'):
             error = 'لطفاً روش پرداخت را انتخاب کنید.'
@@ -491,6 +485,12 @@ def payment(request, order_id: int):
                 order.payment_status = 'submitted'
                 order.payment_submitted_at = timezone.now()
                 order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
+
+                if not already_submitted:
+                    try:
+                        send_order_payment_submitted_email(order=order, request=request)
+                    except Exception:
+                        pass
                 return redirect(f"{reverse('payment', args=[order.id])}?submitted=1")
 
     return render(request, 'store/payment.html', {
@@ -506,16 +506,12 @@ def payment(request, order_id: int):
 
 @login_required
 def proforma_pdf(request, order_id: int):
-    import arabic_reshaper
-    from bidi.algorithm import get_display
-    from django.conf import settings as django_settings
-    from reportlab.lib.pagesizes import A4
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.pdfgen import canvas
-    from core.utils.jalali import format_jalali
-
     order = get_object_or_404(Order, pk=order_id, user=request.user)
+
+    pdf_bytes = render_order_invoice_pdf(order=order, title="پیش‌فاکتور استیرا")
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="proforma-{order.id}.pdf"'
+    return response
 
     def rtl(text: str) -> str:
         text = text or ''
@@ -564,7 +560,7 @@ def proforma_pdf(request, order_id: int):
         c.drawRightString(
             width - 40,
             y,
-            rtl(f"{it.product.name} | تعداد: {it.quantity} | مبلغ: {_format_money(line_total)} تومان"),
+            rtl(f"{it.product.name} | تعداد: {it.quantity} | مبلغ: {format_money(line_total)} تومان"),
         )
         y -= 16
         if y < 120:
@@ -574,17 +570,17 @@ def proforma_pdf(request, order_id: int):
 
     y -= 10
     c.setFont("Vazirmatn", 11)
-    c.drawRightString(width - 40, y, rtl(f"جمع کالاها: {_format_money(order.items_subtotal)} تومان"))
+    c.drawRightString(width - 40, y, rtl(f"جمع کالاها: {format_money(order.items_subtotal)} تومان"))
     y -= 16
     if order.discount_amount:
         c.drawRightString(
             width - 40,
             y,
-            rtl(f"تخفیف ({order.discount_percent}٪): -{_format_money(order.discount_amount)} تومان"),
+            rtl(f"تخفیف ({order.discount_percent}٪): -{format_money(order.discount_amount)} تومان"),
         )
         y -= 16
         after_discount = int(order.items_subtotal) - int(order.discount_amount)
-        c.drawRightString(width - 40, y, rtl(f"جمع بعد از تخفیف: {_format_money(after_discount)} تومان"))
+        c.drawRightString(width - 40, y, rtl(f"جمع بعد از تخفیف: {format_money(after_discount)} تومان"))
         y -= 16
 
     if order.shipping_item_count and order.shipping_fee_per_item:
@@ -592,14 +588,14 @@ def proforma_pdf(request, order_id: int):
             c.drawRightString(
                 width - 40,
                 y,
-                rtl(f"هزینه ارسال: {_format_money(order.shipping_total_full)} تومان (رایگان شد)"),
+                rtl(f"هزینه ارسال: {format_money(order.shipping_total_full)} تومان (رایگان شد)"),
             )
         else:
-            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {_format_money(order.shipping_total)} تومان"))
+            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {format_money(order.shipping_total)} تومان"))
         y -= 16
 
     c.setFont("Vazirmatn", 12)
-    c.drawRightString(width - 40, y, rtl(f"مبلغ قابل پرداخت: {_format_money(order.total_price)} تومان"))
+    c.drawRightString(width - 40, y, rtl(f"مبلغ قابل پرداخت: {format_money(order.total_price)} تومان"))
 
     c.showPage()
     c.save()
@@ -719,7 +715,7 @@ def compare(request):
     # ردیف‌های پایه
     rows.append({
         "label": "قیمت",
-        "values": [f"{_format_money(p.price)} تومان" for p in products],
+        "values": [f"{format_money(p.price)} تومان" for p in products],
     })
     rows.append({
         "label": "برند",

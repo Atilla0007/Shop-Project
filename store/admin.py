@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from accounts.sms import send_sms
+from .emails import send_order_payment_approved_email
 from .models import CartItem, Category, Order, OrderItem, Product
 
 
@@ -34,13 +35,19 @@ class OrderItemInline(admin.TabularInline):
 def _notify_order(order: Order, subject: str, message: str) -> None:
     to_email = (order.email or (order.user.email if order.user else "")).strip()
     if to_email:
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=None,
-            recipient_list=[to_email],
-            fail_silently=True,
-        )
+        if order.payment_status == "approved":
+            try:
+                send_order_payment_approved_email(order=order)
+            except Exception:
+                pass
+        else:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=None,
+                recipient_list=[to_email],
+                fail_silently=True,
+            )
     if order.phone:
         send_sms(order.phone, message)
 
@@ -50,6 +57,8 @@ def approve_payment(modeladmin, request, queryset):
     now = timezone.now()
     for order in queryset:
         if order.status == "canceled":
+            continue
+        if order.payment_status == "approved":
             continue
         order.payment_status = "approved"
         order.status = "paid"

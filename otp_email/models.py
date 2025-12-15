@@ -4,8 +4,9 @@ from datetime import timedelta
 from pathlib import Path
 
 from django.conf import settings
-from django.core.mail import EmailMessage, get_connection
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 
@@ -185,19 +186,32 @@ class EmailOTPDevice(Device):
 
         ttl_seconds = _settings_int("EMAIL_OTP_TTL_SECONDS", 300)
         minutes = max(1, int(ttl_seconds // 60))
-        subject = getattr(settings, "EMAIL_OTP_SUBJECT", "Your Styra login code")
-        body = getattr(
+        subject = getattr(settings, "EMAIL_OTP_SUBJECT", "کد تایید استیرا")
+        body_text = getattr(
             settings,
             "EMAIL_OTP_BODY_TEMPLATE",
-            "Your verification code is {token}. It expires in {minutes} minutes.",
+            "کد تایید شما: {token}\nاین کد تا {minutes} دقیقه معتبر است.\nاگر شما این درخواست را نداده‌اید، این پیام را نادیده بگیرید.",
         ).format(token=token, minutes=minutes)
 
-        message = EmailMessage(
+        html_body = render_to_string(
+            "otp_email/email_otp.html",
+            {
+                "title": "کد تایید استیرا",
+                "preheader": f"کد تایید شما: {token}",
+                "brand": getattr(settings, "SITE_NAME", "استیرا"),
+                "subtitle": "تایید ایمیل",
+                "token": token,
+                "minutes": minutes,
+            },
+        )
+
+        message = EmailMultiAlternatives(
             subject=subject,
-            body=body,
+            body=body_text,
             from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
             to=[self.email],
         )
+        message.attach_alternative(html_body, "text/html")
 
         try:
             message.send(fail_silently=False)
