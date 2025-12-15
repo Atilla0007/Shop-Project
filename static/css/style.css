@@ -4527,3 +4527,48 @@ body.mini-cart-open #global-chat-toggle {
     flex: 1;
     justify-content: center;
 }
+
+/* Shop + cart: better contrast on light surfaces */
+.products-grid .product-card {
+    background: #F4F4F9;
+    color: #2F4550;
+    border-color: rgba(47, 69, 80, 0.22);
+}
+
+.products-grid .product-info h3 {
+    color: #000000;
+}
+
+.products-grid .product-domain {
+    color: #586F7C;
+}
+
+.products-grid .product-price {
+    color: #000000;
+}
+
+.cart-table {
+    background: #F4F4F9;
+    color: #2F4550;
+    border: 1px solid rgba(47, 69, 80, 0.18);
+}
+
+.cart-table th,
+.cart-table td {
+    color: #2F4550;
+}
+
+.cart-table thead {
+    background: rgba(88, 111, 124, 0.14);
+    color: #000000;
+}
+
+.cart-table tbody tr:nth-child(even) {
+    background: #FFFFFF;
+}
+
+.cart-remove-btn {
+    color: #2F4550;
+    border-color: rgba(47, 69, 80, 0.35);
+    background: rgba(47, 69, 80, 0.08);
+}
