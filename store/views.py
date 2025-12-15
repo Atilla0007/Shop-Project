@@ -1,14 +1,15 @@
 
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .models import Product, CartItem, Order, OrderItem, Category
 from accounts.models import UserProfile
-from core.models import ShippingSettings
+from core.models import DiscountCode, ShippingSettings
 
 
 SESSION_CART_KEY = 'cart'
@@ -188,10 +189,12 @@ def checkout(request):
 
     _merge_session_cart_into_user(request)
     cart_items = CartItem.objects.filter(user=request.user).select_related('product')
-    subtotal = sum(item.total_price() for item in cart_items)
+    items_subtotal = sum(item.total_price() for item in cart_items)
+    subtotal = int(items_subtotal)
+    item_count = sum(int(item.quantity) for item in cart_items)
 
     shipping_settings = ShippingSettings.get_solo()
-    shipping_fee = int(shipping_settings.shipping_fee or 0)
+    shipping_fee_per_item = int(shipping_settings.shipping_fee or 0)
     free_shipping_min_total = int(shipping_settings.free_shipping_min_total or 0)
 
     def normalize_digits(value: str) -> str:
@@ -199,13 +202,22 @@ def checkout(request):
             return value
         return value.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
 
-    def compute_shipping(province_value: str | None) -> tuple[int, bool, bool]:
+    def compute_shipping(province_value: str | None, effective_subtotal: int) -> tuple[int, bool, bool, int]:
         province_selected = bool((province_value or "").strip())
         if not province_selected:
-            return 0, False, False
-        is_free = bool(free_shipping_min_total) and subtotal >= free_shipping_min_total
-        applied_fee = 0 if is_free else shipping_fee
-        return applied_fee, True, is_free
+            return 0, False, False, 0
+
+        shipping_total_full = int(shipping_fee_per_item) * int(item_count)
+        is_free = bool(free_shipping_min_total) and int(effective_subtotal) >= int(free_shipping_min_total)
+        applied_fee = 0 if is_free else shipping_total_full
+        return applied_fee, True, is_free, shipping_total_full
+
+    discount_code = ""
+    discount_percent = 0
+    discount_amount = 0
+
+    def _normalize_discount_code(raw: str) -> str:
+        return (raw or "").strip().upper().replace(" ", "")
 
     if request.method == 'POST':
         values = {
@@ -217,6 +229,7 @@ def checkout(request):
             'city': (request.POST.get('city') or '').strip(),
             'address': (request.POST.get('address') or '').strip(),
             'note': (request.POST.get('note') or '').strip(),
+            'discount_code': _normalize_discount_code(request.POST.get('discount_code') or ''),
         }
 
         errors: dict[str, str] = {}
@@ -243,6 +256,21 @@ def checkout(request):
         if values['phone'] and not profile.phone_verified:
             errors['phone_verified'] = 'شماره موبایل شما تایید نشده است.'
 
+        discount_code = values.get('discount_code') or ""
+        if discount_code:
+            discount = (
+                DiscountCode.objects.filter(code=discount_code, is_active=True)
+                .order_by('-updated_at')
+                .first()
+            )
+            if not discount:
+                errors['discount_code'] = 'کد تخفیف نامعتبر است.'
+                discount_code = ""
+            else:
+                discount_percent = int(discount.percent)
+                discount_amount = int(items_subtotal) * discount_percent // 100
+                subtotal = int(items_subtotal) - int(discount_amount)
+
         if not errors:
             if values['first_name'] != (request.user.first_name or ''):
                 request.user.first_name = values['first_name']
@@ -250,7 +278,10 @@ def checkout(request):
                 request.user.last_name = values['last_name']
             request.user.save(update_fields=['first_name', 'last_name'])
 
-        shipping_applied, shipping_applicable, shipping_is_free = compute_shipping(values['province'])
+        shipping_applied, shipping_applicable, shipping_is_free, shipping_total_full = compute_shipping(
+            values['province'],
+            int(subtotal),
+        )
         total_payable = int(subtotal) + int(shipping_applied)
 
         if not cart_items.exists():
@@ -259,8 +290,14 @@ def checkout(request):
         if errors:
             return render(request, 'store/checkout.html', {
                 'cart_items': cart_items,
+                'items_subtotal': items_subtotal,
                 'subtotal': subtotal,
-                'shipping_fee': shipping_fee,
+                'discount_code': discount_code,
+                'discount_percent': discount_percent,
+                'discount_amount': discount_amount,
+                'shipping_fee_per_item': shipping_fee_per_item,
+                'shipping_item_count': item_count,
+                'shipping_total_full': shipping_total_full,
                 'free_shipping_min_total': free_shipping_min_total,
                 'shipping_applicable': shipping_applicable,
                 'shipping_is_free': shipping_is_free,
@@ -274,7 +311,26 @@ def checkout(request):
         order = Order.objects.create(
             user=request.user,
             total_price=total_payable,
-            status='paid'
+            status='unpaid',
+            first_name=values['first_name'],
+            last_name=values['last_name'],
+            phone=values['phone'],
+            email=values['email'] or (request.user.email or ''),
+            province=values['province'],
+            city=values['city'],
+            address=values['address'],
+            note=values['note'],
+            items_subtotal=int(items_subtotal),
+            discount_code=discount_code,
+            discount_percent=discount_percent,
+            discount_amount=discount_amount,
+            shipping_fee_per_item=shipping_fee_per_item,
+            shipping_item_count=item_count,
+            shipping_total_full=shipping_total_full,
+            shipping_total=shipping_applied,
+            shipping_is_free=shipping_is_free,
+            free_shipping_min_total=free_shipping_min_total,
+            payment_status='unpaid',
         )
         for item in cart_items:
             OrderItem.objects.create(
@@ -284,15 +340,7 @@ def checkout(request):
                 unit_price=item.product.price,
             )
         cart_items.delete()
-        return render(request, 'store/checkout_success.html', {
-            'order': order,
-            'subtotal': subtotal,
-            'shipping_fee': shipping_fee,
-            'shipping_applicable': shipping_applicable,
-            'shipping_is_free': shipping_is_free,
-            'shipping_applied': shipping_applied,
-            'total_payable': total_payable,
-        })
+        return redirect(reverse('payment', args=[order.id]))
 
     values = {
         'first_name': (request.user.first_name or '').strip(),
@@ -303,14 +351,24 @@ def checkout(request):
         'city': '',
         'address': '',
         'note': '',
+        'discount_code': '',
     }
-    shipping_applied, shipping_applicable, shipping_is_free = compute_shipping(values['province'])
+    shipping_applied, shipping_applicable, shipping_is_free, shipping_total_full = compute_shipping(
+        values['province'],
+        int(subtotal),
+    )
     total_payable = int(subtotal) + int(shipping_applied)
 
     return render(request, 'store/checkout.html', {
         'cart_items': cart_items,
+        'items_subtotal': items_subtotal,
         'subtotal': subtotal,
-        'shipping_fee': shipping_fee,
+        'discount_code': discount_code,
+        'discount_percent': discount_percent,
+        'discount_amount': discount_amount,
+        'shipping_fee_per_item': shipping_fee_per_item,
+        'shipping_item_count': item_count,
+        'shipping_total_full': shipping_total_full,
         'free_shipping_min_total': free_shipping_min_total,
         'shipping_applicable': shipping_applicable,
         'shipping_is_free': shipping_is_free,
@@ -320,6 +378,147 @@ def checkout(request):
         'errors': {},
         'show_phone_verify_modal': bool(values['phone'] and not profile.phone_verified),
     })
+
+
+@login_required
+def payment(request, order_id: int):
+    from core.models import PaymentSettings
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    settings = PaymentSettings.get_solo()
+    items_after_discount = int(order.items_subtotal) - int(order.discount_amount or 0)
+
+    telegram_link = ''
+    if settings.telegram_username:
+        telegram_link = f"https://t.me/{settings.telegram_username.lstrip('@')}"
+
+    whatsapp_link = ''
+    if settings.whatsapp_number:
+        number = ''.join(ch for ch in settings.whatsapp_number if ch.isdigit() or ch == '+')
+        number = number.lstrip('+')
+        if number:
+            whatsapp_link = f"https://wa.me/{number}"
+
+    error = None
+    submitted = request.GET.get('submitted') == '1'
+
+    if request.method == 'POST' and order.status != 'canceled' and order.payment_status not in ('approved',):
+        method = (request.POST.get('method') or '').strip()
+        if method not in ('card_to_card', 'contact_admin'):
+            error = 'لطفاً روش پرداخت را انتخاب کنید.'
+        else:
+            if method == 'card_to_card':
+                receipt = request.FILES.get('receipt')
+                if not receipt:
+                    error = 'لطفاً تصویر فیش واریزی را بارگذاری کنید.'
+                else:
+                    order.receipt_file = receipt
+
+            if not error:
+                order.payment_method = method
+                order.payment_status = 'submitted'
+                order.payment_submitted_at = timezone.now()
+                order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
+                return redirect(f"{reverse('payment', args=[order.id])}?submitted=1")
+
+    return render(request, 'store/payment.html', {
+        'order': order,
+        'items_after_discount': items_after_discount,
+        'payment_settings': settings,
+        'telegram_link': telegram_link,
+        'whatsapp_link': whatsapp_link,
+        'submitted': submitted,
+        'error': error,
+    })
+
+
+@login_required
+def proforma_pdf(request, order_id: int):
+    import arabic_reshaper
+    from bidi.algorithm import get_display
+    from django.conf import settings as django_settings
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfgen import canvas
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+
+    def rtl(text: str) -> str:
+        text = text or ''
+        return get_display(arabic_reshaper.reshape(text))
+
+    font_path = str(django_settings.BASE_DIR / 'static' / 'fonts' / 'Vazirmatn-Regular.ttf')
+    try:
+        pdfmetrics.registerFont(TTFont("Vazirmatn", font_path))
+    except Exception:
+        # Font already registered or missing; fall back to default.
+        pass
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="proforma-{order.id}.pdf"'
+
+    c = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+    c.setTitle(f"proforma-{order.id}")
+
+    c.setFont("Vazirmatn", 16)
+    c.drawRightString(width - 40, height - 60, rtl("پیش‌فاکتور"))
+    c.setFont("Vazirmatn", 11)
+    c.drawRightString(width - 40, height - 85, rtl(f"شماره سفارش: {order.id}"))
+    c.drawRightString(width - 40, height - 105, rtl(f"تاریخ: {timezone.localtime(order.created_at).strftime('%Y/%m/%d %H:%M')}"))
+
+    y = height - 140
+    c.setFont("Vazirmatn", 11)
+    c.drawRightString(width - 40, y, rtl(f"نام: {order.first_name} {order.last_name}".strip()))
+    y -= 18
+    c.drawRightString(width - 40, y, rtl(f"موبایل: {order.phone}"))
+    y -= 18
+    c.drawRightString(width - 40, y, rtl(f"استان/شهر: {order.province} - {order.city}"))
+    y -= 18
+    if order.address:
+        c.drawRightString(width - 40, y, rtl(f"آدرس: {order.address}"))
+        y -= 18
+
+    y -= 10
+    c.setFont("Vazirmatn", 12)
+    c.drawRightString(width - 40, y, rtl("اقلام سفارش"))
+    y -= 22
+
+    c.setFont("Vazirmatn", 10)
+    for it in order.items.all():
+        line_total = int(it.unit_price) * int(it.quantity)
+        c.drawRightString(width - 40, y, rtl(f"{it.product.name} | تعداد: {it.quantity} | مبلغ: {line_total:,} تومان"))
+        y -= 16
+        if y < 120:
+            c.showPage()
+            c.setFont("Vazirmatn", 10)
+            y = height - 60
+
+    y -= 10
+    c.setFont("Vazirmatn", 11)
+    c.drawRightString(width - 40, y, rtl(f"جمع کالاها: {order.items_subtotal:,} تومان"))
+    y -= 16
+    if order.discount_amount:
+        c.drawRightString(width - 40, y, rtl(f"تخفیف ({order.discount_percent}٪): -{order.discount_amount:,} تومان"))
+        y -= 16
+        after_discount = int(order.items_subtotal) - int(order.discount_amount)
+        c.drawRightString(width - 40, y, rtl(f"جمع بعد از تخفیف: {after_discount:,} تومان"))
+        y -= 16
+
+    if order.shipping_item_count and order.shipping_fee_per_item:
+        if order.shipping_is_free and order.shipping_total_full:
+            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {order.shipping_total_full:,} تومان (رایگان شد)"))
+        else:
+            c.drawRightString(width - 40, y, rtl(f"هزینه ارسال: {order.shipping_total:,} تومان"))
+        y -= 16
+
+    c.setFont("Vazirmatn", 12)
+    c.drawRightString(width - 40, y, rtl(f"مبلغ قابل پرداخت: {order.total_price:,} تومان"))
+
+    c.showPage()
+    c.save()
+    return response
 
 
 @require_GET

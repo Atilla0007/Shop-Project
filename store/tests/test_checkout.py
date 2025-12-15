@@ -3,6 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from accounts.models import UserProfile
+from core.models import DiscountCode
 from core.models import ShippingSettings
 from store.models import CartItem, Category, Order, OrderItem, Product
 
@@ -70,10 +71,12 @@ class CheckoutTests(TestCase):
                 "city": "تهران",
             },
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Order.objects.filter(user=self.user).count(), 1)
         order = Order.objects.get(user=self.user)
         self.assertEqual(OrderItem.objects.filter(order=order).count(), 2)
+        self.assertEqual(response["Location"], reverse("payment", args=[order.id]))
+        self.assertFalse(CartItem.objects.filter(user=self.user).exists())
 
     def test_shipping_fee_applies_when_province_selected(self):
         self.profile.phone = "09120000000"
@@ -91,9 +94,12 @@ class CheckoutTests(TestCase):
                 "city": "تهران",
             },
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         order = Order.objects.get(user=self.user)
         self.assertEqual(order.total_price, 160000)
+        self.assertEqual(order.shipping_fee_per_item, 10000)
+        self.assertEqual(order.shipping_item_count, 1)
+        self.assertEqual(order.shipping_total, 10000)
         self.assertFalse(CartItem.objects.filter(user=self.user).exists())
 
     def test_free_shipping_when_subtotal_over_threshold(self):
@@ -112,9 +118,11 @@ class CheckoutTests(TestCase):
                 "city": "تهران",
             },
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         order = Order.objects.get(user=self.user)
         self.assertEqual(order.total_price, 300000)
+        self.assertEqual(order.shipping_total, 0)
+        self.assertTrue(order.shipping_is_free)
         self.assertFalse(CartItem.objects.filter(user=self.user).exists())
 
     def test_unverified_phone_blocks_checkout_and_shows_modal(self):
@@ -140,3 +148,29 @@ class CheckoutTests(TestCase):
         content = response.content.decode("utf-8")
         self.assertIn("شماره موبایل تایید نشده است", content)
         self.assertIn(reverse("phone_otp_verify_page"), content)
+
+    def test_discount_code_applies_to_items_only(self):
+        DiscountCode.objects.create(code="OFF10", percent=10, is_active=True, is_public=False)
+
+        self.profile.phone = "09120000000"
+        self.profile.phone_verified = True
+        self.profile.save(update_fields=["phone", "phone_verified"])
+        self._login_and_seed_cart(quantity=1)  # 150000
+
+        response = self.client.post(
+            reverse("checkout"),
+            data={
+                "first_name": "علی",
+                "last_name": "رضایی",
+                "phone": "09120000000",
+                "province": "تهران",
+                "city": "تهران",
+                "discount_code": "OFF10",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        order = Order.objects.get(user=self.user)
+        self.assertEqual(order.total_price, 145000)
+        self.assertEqual(order.items_subtotal, 150000)
+        self.assertEqual(order.discount_amount, 15000)
+        self.assertEqual(order.shipping_total, 10000)

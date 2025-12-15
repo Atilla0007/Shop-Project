@@ -9,11 +9,15 @@
       <p>شماره سفارش: <strong>{{ order.id }}</strong></p>
 
       <div class="checkout-success-summary">
-        <p>جمع کالاها: <strong>{{ subtotal|floatformat:0 }}</strong> تومان</p>
+        <p>جمع کالاها: <strong>{{ items_subtotal|floatformat:0 }}</strong> تومان</p>
+        {% if discount_amount %}
+          <p>تخفیف{% if discount_percent %} ({{ discount_percent }}٪){% endif %}: <strong dir="ltr">-{{ discount_amount|floatformat:0 }}</strong> تومان</p>
+          <p>جمع بعد از تخفیف: <strong>{{ subtotal|floatformat:0 }}</strong> تومان</p>
+        {% endif %}
         {% if shipping_is_free %}
-          <p>هزینه ارسال: <strong><s>{{ shipping_fee|floatformat:0 }}</s> رایگان</strong></p>
+          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong><s>{{ shipping_total_full|floatformat:0 }}</s> رایگان</strong></p>
         {% elif shipping_applicable %}
-          <p>هزینه ارسال: <strong>{{ shipping_applied|floatformat:0 }}</strong> تومان</p>
+          <p>هزینه ارسال ({{ shipping_item_count }} کالا): <strong>{{ shipping_applied|floatformat:0 }}</strong> تومان</p>
         {% else %}
           <p>هزینه ارسال: <strong>0</strong> تومان</p>
         {% endif %}
@@ -28,4 +32,3 @@
   </div>
 </section>
 {% endblock %}
-

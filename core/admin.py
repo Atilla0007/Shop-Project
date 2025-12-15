@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import News, ContactMessage, ChatMessage, ChatThread, ShippingSettings
+from .models import News, ContactMessage, ChatMessage, ChatThread, ShippingSettings, DiscountCode, PaymentSettings
 
 
 @admin.register(News)
@@ -38,6 +38,25 @@ class ShippingSettingsAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return not ShippingSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(DiscountCode)
+class DiscountCodeAdmin(admin.ModelAdmin):
+    list_display = ("code", "percent", "is_active", "is_public", "updated_at")
+    list_editable = ("is_active", "is_public")
+    search_fields = ("code",)
+    list_filter = ("is_active", "is_public")
+
+
+@admin.register(PaymentSettings)
+class PaymentSettingsAdmin(admin.ModelAdmin):
+    list_display = ("card_number", "telegram_username", "whatsapp_number", "updated_at")
+
+    def has_add_permission(self, request):
+        return not PaymentSettings.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
         return False

@@ -71,9 +71,18 @@
               <label for="note">یادداشت سفارش <span class="field-tag optional">اختیاری</span></label>
               <textarea id="note" name="note" rows="3">{{ values.note }}</textarea>
             </div>
+
+            <div class="checkout-field full">
+              <label for="discount_code">کد تخفیف <span class="field-tag optional">اختیاری</span></label>
+              <input id="discount_code" type="text" name="discount_code" value="{{ values.discount_code }}" autocomplete="off">
+              {% if errors.discount_code %}<div class="field-error">{{ errors.discount_code }}</div>{% endif %}
+              {% if discount_code and discount_percent %}
+                <div class="shipping-hint">کد <strong dir="ltr">{{ discount_code }}</strong> اعمال شد ({{ discount_percent }}٪).</div>
+              {% endif %}
+            </div>
           </div>
 
-          <button type="submit" class="btn btn-primary">ثبت سفارش</button>
+          <button type="submit" class="btn btn-primary">ادامه به پرداخت</button>
         </form>
       </div>
 
@@ -81,7 +90,8 @@
         class="checkout-summary"
         id="checkout-summary"
         data-subtotal="{{ subtotal }}"
-        data-shipping-fee="{{ shipping_fee }}"
+        data-shipping-fee-per-item="{{ shipping_fee_per_item }}"
+        data-item-count="{{ shipping_item_count }}"
         data-free-threshold="{{ free_shipping_min_total }}"
       >
         <h2>خلاصه سفارش</h2>
@@ -103,14 +113,33 @@
 
           <div class="summary-row">
             <span>جمع کالاها</span>
-            <strong id="checkout-subtotal">{{ subtotal|floatformat:0 }}</strong>
+            <strong>{{ items_subtotal|floatformat:0 }}</strong>
             <span>تومان</span>
           </div>
 
+          {% if discount_amount %}
+            <div class="summary-row">
+              <span>تخفیف{% if discount_percent %} ({{ discount_percent }}٪){% endif %}</span>
+              <strong dir="ltr">-{{ discount_amount|floatformat:0 }}</strong>
+              <span>تومان</span>
+            </div>
+            <div class="summary-row">
+              <span>جمع بعد از تخفیف</span>
+              <strong id="checkout-subtotal">{{ subtotal|floatformat:0 }}</strong>
+              <span>تومان</span>
+            </div>
+          {% else %}
+            <div class="summary-row">
+              <span>جمع قابل پرداخت کالاها</span>
+              <strong id="checkout-subtotal">{{ subtotal|floatformat:0 }}</strong>
+              <span>تومان</span>
+            </div>
+          {% endif %}
+
           <div class="summary-row">
-            <span>هزینه ارسال</span>
+            <span>هزینه ارسال ({{ shipping_item_count }} کالا × {{ shipping_fee_per_item|floatformat:0 }} تومان)</span>
             <div class="summary-price">
-              <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_fee|floatformat:0 }}</span>
+              <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_total_full|floatformat:0 }}</span>
               <strong id="shipping-fee">{{ shipping_applied|floatformat:0 }}</strong>
               <span class="summary-currency">تومان</span>
               <span id="shipping-free-badge" class="summary-badge {% if not shipping_is_free %}hidden{% endif %}">ارسال رایگان شد</span>

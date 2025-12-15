@@ -103,15 +103,18 @@
     const provinceSelected = Boolean(provinceSelect && provinceSelect.value);
 
     const subtotal = parseNumber(summaryEl.dataset.subtotal);
-    const shippingFee = parseNumber(summaryEl.dataset.shippingFee);
+    const shippingFeePerItem = parseNumber(summaryEl.dataset.shippingFeePerItem);
+    const itemCount = parseNumber(summaryEl.dataset.itemCount);
     const freeThreshold = parseNumber(summaryEl.dataset.freeThreshold);
 
     let shippingApplied = 0;
+    let shippingTotalFull = 0;
     let isFree = false;
 
     if (provinceSelected) {
       isFree = freeThreshold > 0 && subtotal >= freeThreshold;
-      shippingApplied = isFree ? 0 : shippingFee;
+      shippingTotalFull = shippingFeePerItem * itemCount;
+      shippingApplied = isFree ? 0 : shippingTotalFull;
     }
 
     const finalTotal = subtotal + shippingApplied;
@@ -122,7 +125,7 @@
     if (shippingHintEl) shippingHintEl.classList.toggle('hidden', provinceSelected);
 
     if (shippingFeeOriginalEl) {
-      shippingFeeOriginalEl.textContent = formatNumber(shippingFee);
+      shippingFeeOriginalEl.textContent = formatNumber(shippingTotalFull);
       shippingFeeOriginalEl.classList.toggle('hidden', !isFree);
     }
     if (shippingFreeBadgeEl) {
@@ -142,4 +145,3 @@
     });
   }
 })();
-

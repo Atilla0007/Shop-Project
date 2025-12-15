@@ -12,6 +12,15 @@
 </head>
 <body class="body" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
+{% if request.resolver_match.url_name == 'home' and public_promo %}
+<div class="top-banner" data-banner-code="{{ public_promo.code }}">
+  <div class="container top-banner-inner">
+    <div class="top-banner-text">{{ public_promo.banner_text }}</div>
+    <button type="button" class="top-banner-copy" data-banner-copy>کپی کد</button>
+  </div>
+</div>
+{% endif %}
+
 <header class="main-header">
   <div class="container nav-container">
     <button id="sidebar-toggle" class="sidebar-toggle" aria-label="باز کردن منو">
@@ -176,6 +185,7 @@
 
 <script src="{% static 'js/chat.js' %}"></script>
 <script src="{% static 'js/mini-cart.js' %}"></script>
+<script src="{% static 'js/banner.js' %}"></script>
 <script src="{% static 'js/sidebar.js' %}"></script>
 <script src="{% static 'js/theme.js' %}"></script>
 <script src="{% static 'js/user-menu.js' %}"></script>
