@@ -727,7 +727,7 @@ input::placeholder {
 /* Hero */
 .hero-section {
     padding: 3rem 0 3.5rem;
-    background: linear-gradient(135deg, #000000 0%, #2F4550 60%, #586F7C 100%);
+    background: linear-gradient(to left, #0F3D35 0%, #3B2F23 100%);
 }
 
 .hero-container {
@@ -735,9 +735,6 @@ input::placeholder {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
     align-items: center;
     gap: 2.8rem;
-    background: linear-gradient(to left, #0F3D35 0%, #3B2F23 100%);
-    border-radius: 32px;
-    padding: 2rem;
 }
 
 .hero-text h1 {

@@ -31,6 +31,11 @@
             <input type="password" name="password2" id="password2" autocomplete="new-password" required>
         </span>
         <input class="submit" type="submit" value="ثبت نام" />
+        <span class="terms">
+          با ثبت‌نام در استیرا، با
+          <a href="{% url 'terms' %}">قوانین و مقررات</a>
+          موافقت می‌کنید.
+        </span>
         <span class="span">حساب دارید؟ <a href="{% url 'login' %}">ورود</a></span>
     </form>
 </section>

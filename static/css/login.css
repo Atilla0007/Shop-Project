@@ -313,6 +313,19 @@
   color: var(--clr);
 }
 
+.terms {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--font-color-sub, #05334A);
+  text-align: center;
+}
+
+.terms a {
+  color: var(--clr);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
 .auth-form-shell {
   min-height: calc(100vh - 140px);
   display: flex;

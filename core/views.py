@@ -133,6 +133,11 @@ def faq(request):
     return render(request, "faq.html")
 
 
+def terms(request):
+    """Render Terms & Conditions page."""
+    return render(request, "terms.html")
+
+
 # ----------------------------
 #             User Chat
 # ----------------------------

@@ -143,6 +143,14 @@ def verify_page(request):
             digits = [(request.POST.get(f"d{i}") or "").strip() for i in range(1, 7)]
             token = "".join(digits)
 
+            if len(token) != 6 or not token.isdigit():
+                return render(
+                    request,
+                    "otp_email/verify.html",
+                    {"error": "رمز غلط است.", "next": next_url},
+                    status=400,
+                )
+
             allowed, _info = device.verify_is_allowed()
             if not allowed:
                 return render(
