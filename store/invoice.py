@@ -20,29 +20,62 @@ def _rtl(text: str) -> str:
     return get_display(arabic_reshaper.reshape(text or ""))
 
 
+def _register_invoice_font() -> str:
+    fonts_dir = Path(settings.BASE_DIR) / "static" / "fonts"
+    preferred_path = fonts_dir / "IRAN-Kharazmi.ttf"
+    fallback_path = fonts_dir / "Vazirmatn-Regular.ttf"
+
+    if preferred_path.exists():
+        try:
+            pdfmetrics.registerFont(TTFont("IranKharazmi", str(preferred_path)))
+        except Exception:
+            pass
+        return "IranKharazmi"
+
+    if fallback_path.exists():
+        try:
+            pdfmetrics.registerFont(TTFont("Vazirmatn", str(fallback_path)))
+        except Exception:
+            pass
+        return "Vazirmatn"
+
+    return "Helvetica"
+
+
 def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استیرا") -> bytes:
     """Generate a styled PDF invoice/receipt for an order and return bytes."""
-    font_path = Path(settings.BASE_DIR) / "static" / "fonts" / "Vazirmatn-Regular.ttf"
-    try:
-        pdfmetrics.registerFont(TTFont("Vazirmatn", str(font_path)))
-    except Exception:
-        # Font already registered or missing; fall back to default.
-        pass
+    font_name = _register_invoice_font()
 
     buffer = BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
     # Header bar
-    header_h = 92
+    header_h = 128
     c.setFillColor(colors.HexColor("#2F4550"))
     c.rect(0, height - header_h, width, header_h, stroke=0, fill=1)
     c.setFillColor(colors.HexColor("#F4F4F9"))
 
-    c.setFont("Vazirmatn", 18)
+    logo_path = Path(settings.BASE_DIR) / "static" / "img" / "logo-styra.png"
+    if logo_path.exists():
+        try:
+            logo_box = 46
+            c.drawImage(
+                str(logo_path),
+                40,
+                height - header_h + (header_h - logo_box) / 2,
+                width=logo_box,
+                height=logo_box,
+                preserveAspectRatio=True,
+                mask="auto",
+            )
+        except Exception:
+            pass
+
+    c.setFont(font_name, 18)
     c.drawRightString(width - 40, height - 52, _rtl(title))
 
-    c.setFont("Vazirmatn", 11)
+    c.setFont(font_name, 11)
     c.drawRightString(width - 40, height - 74, _rtl(f"شماره سفارش: {order.id}"))
     c.drawRightString(
         width - 40,
@@ -54,7 +87,7 @@ def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استی�
     y = height - header_h - 28
     c.setFillColor(colors.HexColor("#000000"))
 
-    c.setFont("Vazirmatn", 11)
+    c.setFont(font_name, 11)
     full_name = f"{order.first_name} {order.last_name}".strip()
     if full_name:
         c.drawRightString(width - 40, y, _rtl(f"نام: {full_name}"))
@@ -76,11 +109,11 @@ def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استی�
     y -= 18
 
     # Items header
-    c.setFont("Vazirmatn", 12)
+    c.setFont(font_name, 12)
     c.drawRightString(width - 40, y, _rtl("اقلام سفارش"))
     y -= 18
 
-    c.setFont("Vazirmatn", 10)
+    c.setFont(font_name, 10)
     for it in order.items.all():
         line_total = int(it.unit_price) * int(it.quantity)
         c.drawRightString(
@@ -91,7 +124,7 @@ def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استی�
         y -= 16
         if y < 140:
             c.showPage()
-            c.setFont("Vazirmatn", 10)
+            c.setFont(font_name, 10)
             y = height - 60
 
     y -= 6
@@ -100,7 +133,7 @@ def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استی�
     y -= 18
 
     # Totals
-    c.setFont("Vazirmatn", 11)
+    c.setFont(font_name, 11)
     c.drawRightString(width - 40, y, _rtl(f"جمع کالاها: {format_money(order.items_subtotal)} تومان"))
     y -= 16
     if order.discount_amount:
@@ -125,10 +158,9 @@ def render_order_invoice_pdf(*, order, title: str = "فیش سفارش استی�
             c.drawRightString(width - 40, y, _rtl(f"هزینه ارسال: {format_money(order.shipping_total)} تومان"))
         y -= 16
 
-    c.setFont("Vazirmatn", 13)
+    c.setFont(font_name, 13)
     c.drawRightString(width - 40, y, _rtl(f"مبلغ قابل پرداخت: {format_money(order.total_price)} تومان"))
 
     c.showPage()
     c.save()
     return buffer.getvalue()
-
