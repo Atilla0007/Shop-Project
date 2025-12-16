@@ -1,3 +1,11 @@
+@font-face {
+    font-family: "IranKharazmi";
+    src: url("../fonts/IRAN%20Kharazmi.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Theme tokens */
 :root {
     /* Palette: 000000, 2F4550, 586F7C, F4F4F9 */
@@ -66,7 +74,7 @@ html {
 
 body.body {
     margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "IranKharazmi", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: var(--bg);
     color: var(--text);
     direction: rtl;
