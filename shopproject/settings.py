@@ -94,6 +94,12 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', '1').strip().lower() in ('1', 'true', 'yes', 'on')
 
+# Branding / Invoice company info
+SITE_NAME = os.getenv('SITE_NAME', 'استیرا')
+COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS', '').replace('\\n', '\n')
+COMPANY_PHONE = os.getenv('COMPANY_PHONE', '')
+COMPANY_EMAIL = os.getenv('COMPANY_EMAIL', '')
+
 # Email OTP settings
 EMAIL_OTP_LENGTH = int(os.getenv('EMAIL_OTP_LENGTH', '6'))
 EMAIL_OTP_TTL_SECONDS = int(os.getenv('EMAIL_OTP_TTL_SECONDS', '300'))
