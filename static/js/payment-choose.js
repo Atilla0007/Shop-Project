@@ -3,19 +3,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const continueButton = document.querySelector("[data-payment-continue]");
   if (!choiceRoot || !continueButton) return;
 
-  const radios = Array.from(
-    choiceRoot.querySelectorAll('input[type="radio"][name="payment_method"]')
-  );
+  const inputs = Array.from(choiceRoot.querySelectorAll('input[name="payment_method"]'));
 
   const sync = () => {
-    const selected = radios.find((r) => r.checked && !r.disabled);
+    const selected = inputs.find((r) => r.checked && !r.disabled);
     const url = selected?.dataset?.url || "";
     continueButton.disabled = !url;
     continueButton.dataset.url = url;
   };
 
-  for (const radio of radios) {
-    radio.addEventListener("change", sync);
+  for (const input of inputs) {
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        for (const other of inputs) {
+          if (other !== input) other.checked = false;
+        }
+      }
+      sync();
+    });
   }
 
   continueButton.addEventListener("click", () => {
@@ -26,4 +31,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   sync();
 });
-

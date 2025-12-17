@@ -1897,12 +1897,16 @@ textarea:focus {
 .payment-option {
     display: block;
     position: relative;
+    cursor: pointer;
+    user-select: none;
 }
 
 .payment-option-input {
     position: absolute;
     opacity: 0;
-    pointer-events: none;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
 .payment-card--select {
@@ -1911,50 +1915,79 @@ textarea:focus {
     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.payment-card--select::before {
-    content: "";
+.payment-checkmark {
+    --clr: #586F7C;
     position: absolute;
-    inset-inline-start: 14px;
     top: 14px;
-    width: 22px;
-    height: 22px;
-    border-radius: 8px;
-    border: 2px solid rgba(47, 69, 80, 0.22);
-    background: rgba(0, 0, 0, 0.02);
+    inset-inline-end: 14px;
+    height: 1.3em;
+    width: 1.3em;
+    background-color: rgba(47, 69, 80, 0.22);
+    border-radius: 50%;
+    transition: 300ms;
+    pointer-events: none;
+    z-index: 2;
 }
 
-.payment-option-input:checked + .payment-card--select {
+.payment-option-input:checked ~ .payment-checkmark {
+    background-color: var(--clr);
+    border-radius: 0.5rem;
+    animation: payment-pulse 500ms ease-in-out;
+}
+
+.payment-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.payment-option-input:checked ~ .payment-checkmark:after {
+    display: block;
+}
+
+.payment-checkmark:after {
+    left: 0.45em;
+    top: 0.25em;
+    width: 0.25em;
+    height: 0.5em;
+    border: solid rgba(244, 244, 249, 0.95);
+    border-width: 0 0.15em 0.15em 0;
+    transform: rotate(45deg);
+}
+
+@keyframes payment-pulse {
+    0% {
+        box-shadow: 0 0 0 rgba(88, 111, 124, 0.56);
+        transform: rotate(20deg);
+    }
+
+    50% {
+        transform: rotate(-20deg);
+    }
+
+    75% {
+        box-shadow: 0 0 0 10px rgba(88, 111, 124, 0.38);
+    }
+
+    100% {
+        box-shadow: 0 0 0 13px rgba(88, 111, 124, 0.22);
+        transform: rotate(0deg);
+    }
+}
+
+.payment-option-input:checked ~ .payment-card--select {
     border-color: rgba(88, 111, 124, 0.55);
     background: rgba(88, 111, 124, 0.14);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
     transform: translateY(-2px);
 }
 
-.payment-option-input:checked + .payment-card--select::before {
-    border-color: rgba(88, 111, 124, 0.85);
-    background: #586F7C;
-}
-
-.payment-option-input:checked + .payment-card--select::after {
-    content: "✓";
-    position: absolute;
-    inset-inline-start: 14px;
-    top: 14px;
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-    color: #000000;
-    font-weight: 900;
-    font-size: 14px;
-}
-
-.payment-option-input:focus-visible + .payment-card--select {
+.payment-option-input:focus-visible ~ .payment-card--select {
     outline: 2px solid rgba(88, 111, 124, 0.75);
     outline-offset: 3px;
 }
 
-.payment-option-input:disabled + .payment-card--select {
+.payment-option-input:disabled ~ .payment-card--select {
     opacity: 0.6;
     cursor: not-allowed;
 }

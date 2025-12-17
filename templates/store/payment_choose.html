@@ -32,12 +32,13 @@
           <label class="payment-option">
             <input
               class="payment-option-input"
-              type="radio"
+              type="checkbox"
               name="payment_method"
               value="card_to_card"
               data-url="{% url 'payment_card_to_card' order.id %}"
               {% if not can_submit or not payment_settings.card_number %}disabled{% endif %}
             >
+            <div class="payment-checkmark" aria-hidden="true"></div>
             <div class="payment-card payment-card--select">
             <h3>کارت به کارت</h3>
             <p class="muted">مبلغ را واریز کنید و تصویر فیش واریزی را در سایت بارگذاری کنید.</p>
@@ -58,12 +59,13 @@
           <label class="payment-option">
             <input
               class="payment-option-input"
-              type="radio"
+              type="checkbox"
               name="payment_method"
               value="contact_admin"
               data-url="{% url 'payment_contact_admin' order.id %}"
               {% if not can_submit %}disabled{% endif %}
             >
+            <div class="payment-checkmark" aria-hidden="true"></div>
             <div class="payment-card payment-card--select">
             <h3>ارتباط با ادمین</h3>
             <p class="muted">پیش‌فاکتور را دانلود کنید و برای هماهنگی پرداخت با ادمین تماس بگیرید.</p>
