@@ -1,0 +1,44 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+  <h2 style="margin:0 0 10px 0; font-size:18px; color:#F4F4F9;">فیش‌های پرداختی کارت‌به‌کارت</h2>
+  <p style="margin:0 0 14px 0; color:#D8DCE5;">
+    تاریخ: <strong style="color:#F4F4F9;">{{ day }}</strong>
+  </p>
+
+  <div style="margin:0 0 14px 0; padding:12px; background:rgba(0,0,0,0.18); border:1px solid rgba(244,244,249,0.12); border-radius:14px;">
+    <p style="margin:0; color:#D8DCE5;">
+      تعداد فیش‌های جدید: <strong style="color:#F4F4F9;">{{ items|length }}</strong>
+    </p>
+  </div>
+
+  {% for it in items %}
+    <div style="margin:0 0 12px 0; padding:14px; background:rgba(244,244,249,0.06); border:1px solid rgba(244,244,249,0.10); border-radius:14px;">
+      <div style="font-size:14px; font-weight:800; color:#F4F4F9; margin-bottom:6px;">
+        سفارش #{{ it.id }}
+      </div>
+      <div style="font-size:13px; color:#D8DCE5; line-height:1.9;">
+        <div>نام: <strong style="color:#F4F4F9;">{{ it.full_name }}</strong></div>
+        {% if it.phone %}<div>موبایل: <span dir="ltr">{{ it.phone }}</span></div>{% endif %}
+        {% if it.email %}<div>ایمیل: <span dir="ltr">{{ it.email }}</span></div>{% endif %}
+        <div>مبلغ: <strong style="color:#F4F4F9;">{{ it.total }}</strong></div>
+        <div>زمان ثبت: <span dir="ltr">{{ it.submitted_at }}</span></div>
+        {% if it.receipt_name %}<div>نام فایل فیش: <span dir="ltr">{{ it.receipt_name }}</span></div>{% endif %}
+      </div>
+
+      {% if it.admin_url %}
+        <div style="margin-top:10px;">
+          <a href="{{ it.admin_url }}"
+             style="display:inline-block; text-decoration:none; background:#586F7C; color:#000000; padding:10px 14px; border-radius:12px; font-weight:800;">
+            مشاهده در پنل ادمین
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <p style="margin:14px 0 0 0; color:#D8DCE5;">
+    نکته: فایل‌های فیش سفارش‌های تاییدشده، پس از گذشت زمان مشخص (پیش‌فرض ۲ ساعت) به صورت خودکار پاکسازی می‌شوند.
+  </p>
+{% endblock %}
+

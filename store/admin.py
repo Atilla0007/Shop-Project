@@ -93,6 +93,37 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     actions = [approve_payment, reject_payment]
 
+    def save_model(self, request, obj, form, change):
+        payment_status_changed = bool(
+            change and form and "payment_status" in getattr(form, "changed_data", [])
+        )
+        previous_payment_status = form.initial.get("payment_status") if payment_status_changed else None
+
+        if payment_status_changed and previous_payment_status != obj.payment_status:
+            now = timezone.now()
+            obj.payment_reviewed_at = now
+            if obj.payment_status == "approved":
+                if obj.status != "canceled":
+                    obj.status = "paid"
+            elif obj.payment_status == "rejected":
+                obj.status = "canceled"
+
+        super().save_model(request, obj, form, change)
+
+        if payment_status_changed and previous_payment_status != obj.payment_status:
+            if obj.payment_status == "approved":
+                _notify_order(
+                    obj,
+                    "تایید پرداخت سفارش شما",
+                    f"پرداخت سفارش شماره {obj.id} تایید شد. سفارش شما در حال پردازش است.",
+                )
+            elif obj.payment_status == "rejected":
+                _notify_order(
+                    obj,
+                    "رد پرداخت سفارش شما",
+                    f"پرداخت سفارش شماره {obj.id} رد شد و سفارش لغو گردید. لطفاً برای بررسی با پشتیبانی هماهنگ کنید.",
+                )
+
     def receipt_preview(self, obj: Order):
         if not obj.receipt_file:
             return "—"

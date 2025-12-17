@@ -121,6 +121,7 @@ class Order(models.Model):
     receipt_file = models.FileField(upload_to='payments/receipts/', null=True, blank=True)
     payment_submitted_at = models.DateTimeField(null=True, blank=True)
     payment_reviewed_at = models.DateTimeField(null=True, blank=True)
+    receipt_digest_sent_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = "سفارش"
