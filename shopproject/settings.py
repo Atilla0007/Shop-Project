@@ -49,6 +49,7 @@ INSTALLED_APPS=[
     'store',
     'accounts',
     'otp_email',
+    'otp_sms',
 ]
 MIDDLEWARE=[
     'django.middleware.security.SecurityMiddleware',
@@ -99,6 +100,12 @@ COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS', '').replace('\\n', '\n')
 COMPANY_PHONE = os.getenv('COMPANY_PHONE', '')
 COMPANY_EMAIL = os.getenv('COMPANY_EMAIL', '')
 
+# Base URL (optional) - used for links in admin digest emails (e.g. https://styra.ir)
+SITE_BASE_URL = os.getenv('SITE_BASE_URL', '')
+
+# Receipt maintenance
+RECEIPT_PURGE_DELAY_SECONDS = int(os.getenv('RECEIPT_PURGE_DELAY_SECONDS', '7200'))
+
 # Email OTP settings
 EMAIL_OTP_LENGTH = int(os.getenv('EMAIL_OTP_LENGTH', '6'))
 EMAIL_OTP_TTL_SECONDS = int(os.getenv('EMAIL_OTP_TTL_SECONDS', '300'))
@@ -106,3 +113,11 @@ EMAIL_OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv('EMAIL_OTP_RESEND_COOLDOWN_SEC
 EMAIL_OTP_MAX_SEND_PER_WINDOW = int(os.getenv('EMAIL_OTP_MAX_SEND_PER_WINDOW', '3'))
 EMAIL_OTP_SEND_WINDOW_SECONDS = int(os.getenv('EMAIL_OTP_SEND_WINDOW_SECONDS', '600'))
 EMAIL_OTP_MAX_VERIFY_ATTEMPTS = int(os.getenv('EMAIL_OTP_MAX_VERIFY_ATTEMPTS', '5'))
+
+# SMS OTP settings (provider can be configured via SMS_BACKEND)
+SMS_OTP_LENGTH = int(os.getenv('SMS_OTP_LENGTH', '6'))
+SMS_OTP_TTL_SECONDS = int(os.getenv('SMS_OTP_TTL_SECONDS', '300'))
+SMS_OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv('SMS_OTP_RESEND_COOLDOWN_SECONDS', '60'))
+SMS_OTP_MAX_SEND_PER_WINDOW = int(os.getenv('SMS_OTP_MAX_SEND_PER_WINDOW', '3'))
+SMS_OTP_SEND_WINDOW_SECONDS = int(os.getenv('SMS_OTP_SEND_WINDOW_SECONDS', '600'))
+SMS_OTP_MAX_VERIFY_ATTEMPTS = int(os.getenv('SMS_OTP_MAX_VERIFY_ATTEMPTS', '5'))

@@ -23,14 +23,3 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f'Profile({self.user_id})'
-
-
-class PhoneOTP(models.Model):
-    profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='otp')
-    code_hash = models.CharField(max_length=128)
-    created_at = models.DateTimeField(auto_now_add=True)
-    last_sent_at = models.DateTimeField(null=True, blank=True)
-    resend_count = models.PositiveIntegerField(default=0)
-
-    def __str__(self):
-        return f'PhoneOTP({self.profile_id})'
