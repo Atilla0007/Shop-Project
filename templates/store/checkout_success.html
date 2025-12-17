@@ -7,7 +7,7 @@
   <div class="container">
     <div class="checkout-success">
       <h1>سفارش شما با موفقیت ثبت شد</h1>
-      <p>شماره سفارش: <strong>{{ order.id }}</strong></p>
+      <p>شماره سفارش: <strong>#{{ order.id|order_number }}</strong></p>
 
       <div class="checkout-success-summary">
         <p>جمع کالاها: <strong>{{ items_subtotal|money }}</strong> تومان</p>

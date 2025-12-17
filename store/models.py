@@ -8,7 +8,7 @@ from django.db import models
 def order_receipt_upload_to(instance, filename: str) -> str:
     """Store payment receipt files using the order number as the filename.
 
-    Example: payments/receipts/0000014.png
+    Example: payments/receipts/000014.png
     """
     ext = (Path(filename).suffix or "").lower()
     if not ext:
@@ -18,7 +18,7 @@ def order_receipt_upload_to(instance, filename: str) -> str:
         ext = ".bin"
 
     if getattr(instance, "pk", None):
-        order_number = str(instance.pk).zfill(7)
+        order_number = str(instance.pk).zfill(6)
     else:
         order_number = uuid.uuid4().hex[:12]
 

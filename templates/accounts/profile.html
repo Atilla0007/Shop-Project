@@ -80,7 +80,7 @@
             <div class="order-item">
               <div class="order-top">
                 <div>
-                  <div class="order-title">سفارش #{{ o.id }}</div>
+                  <div class="order-title">سفارش #{{ o.id|order_number }}</div>
                   <div class="order-meta">تاریخ: {{ o.created_at|jalali:"Y/m/d" }} | وضعیت: {{ o.get_status_display }}</div>
                 </div>
                 <div class="order-price">{{ o.total_price|money }} تومان</div>
@@ -88,7 +88,7 @@
 
               <div class="tracking">
                 <span>کد رهگیری:</span>
-                <code>{{ o.id }}</code>
+                <code>{{ o.id|order_number }}</code>
               </div>
 
               {% if o.items.all %}

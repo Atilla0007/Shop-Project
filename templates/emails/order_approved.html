@@ -1,8 +1,9 @@
 {% extends "emails/base.html" %}
+{% load jalali %}
 
 {% block content %}
   <p style="margin:0 0 10px 0; font-size:14px; color:#F4F4F9;">
-    پرداخت شما برای سفارش <strong>#{{ order_id }}</strong> تایید شد و سفارش شما نهایی شد.
+    پرداخت شما برای سفارش <strong>#{{ order_id|order_number }}</strong> تایید شد و سفارش شما نهایی شد.
   </p>
 
   <p style="margin:0 0 14px 0; font-size:13px; color:#D8DCE5;">
@@ -41,4 +42,3 @@
     </a>
   {% endif %}
 {% endblock %}
-

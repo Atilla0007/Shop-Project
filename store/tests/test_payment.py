@@ -85,7 +85,7 @@ class PaymentFlowTests(TestCase):
         self.assertEqual(self.order.payment_method, "card_to_card")
         self.assertEqual(self.order.payment_status, "submitted")
         self.assertTrue(bool(self.order.receipt_file))
-        self.assertEqual(Path(self.order.receipt_file.name).name, f"{self.order.id:07d}.png")
+        self.assertEqual(Path(self.order.receipt_file.name).name, f"{self.order.id:06d}.png")
         self.assertEqual(len(mail.outbox), 1)
         attachments = mail.outbox[0].attachments
         self.assertTrue(any(name.endswith(".pdf") for (name, _content, _mime) in attachments))

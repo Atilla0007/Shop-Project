@@ -6,7 +6,7 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <h1>پرداخت سفارش #{{ order.id }}</h1>
+    <h1>پرداخت سفارش #{{ order.id|order_number }}</h1>
 
     {% if order.status == 'canceled' %}
       <div class="form-error">این سفارش لغو شده است.</div>

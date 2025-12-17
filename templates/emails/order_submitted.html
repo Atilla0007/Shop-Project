@@ -1,8 +1,9 @@
 {% extends "emails/base.html" %}
+{% load jalali %}
 
 {% block content %}
   <p style="margin:0 0 10px 0; font-size:14px; color:#F4F4F9;">
-    درخواست پرداخت شما برای سفارش <strong>#{{ order_id }}</strong> ثبت شد و در انتظار بررسی ادمین است.
+    درخواست پرداخت شما برای سفارش <strong>#{{ order_id|order_number }}</strong> ثبت شد و در انتظار بررسی ادمین است.
   </p>
 
   <p style="margin:0 0 14px 0; font-size:13px; color:#D8DCE5;">
@@ -55,4 +56,3 @@
     </a>
   {% endif %}
 {% endblock %}
-

@@ -1,4 +1,5 @@
 {% extends "emails/base.html" %}
+{% load jalali %}
 
 {% block content %}
   <h2 style="margin:0 0 10px 0; font-size:18px; color:#F4F4F9;">فیش‌های پرداختی کارت‌به‌کارت</h2>
@@ -15,7 +16,7 @@
   {% for it in items %}
     <div style="margin:0 0 12px 0; padding:14px; background:rgba(244,244,249,0.06); border:1px solid rgba(244,244,249,0.10); border-radius:14px;">
       <div style="font-size:14px; font-weight:800; color:#F4F4F9; margin-bottom:6px;">
-        سفارش #{{ it.id }}
+        سفارش #{{ it.id|order_number }}
       </div>
       <div style="font-size:13px; color:#D8DCE5; line-height:1.9;">
         <div>نام: <strong style="color:#F4F4F9;">{{ it.full_name }}</strong></div>
@@ -41,4 +42,3 @@
     نکته: فایل‌های فیش سفارش‌های تاییدشده، پس از گذشت زمان مشخص (پیش‌فرض ۲ ساعت) به صورت خودکار پاکسازی می‌شوند.
   </p>
 {% endblock %}
-

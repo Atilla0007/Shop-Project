@@ -114,7 +114,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
     c.setTitle(f"invoice-{getattr(order, 'id', '')}")
 
     raw_order_id = str(getattr(order, "id", "")).strip()
-    order_id_text = raw_order_id.zfill(7).translate(PERSIAN_DIGITS_TRANS) if raw_order_id else ""
+    order_id_text = raw_order_id.zfill(6).translate(PERSIAN_DIGITS_TRANS) if raw_order_id else ""
     invoice_title = f"{title} #{order_id_text}".strip()
 
     # Title box

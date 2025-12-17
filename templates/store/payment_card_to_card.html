@@ -6,7 +6,7 @@
 {% block content %}
 <section class="section">
   <div class="container">
-    <h1>پرداخت سفارش #{{ order.id }}</h1>
+    <h1>پرداخت سفارش #{{ order.id|order_number }}</h1>
 
     <div class="inline-actions">
       <a href="{% url 'payment' order.id %}" class="btn btn-outline small">بازگشت به انتخاب روش</a>
@@ -171,4 +171,3 @@
   })();
 </script>
 {% endblock %}
-
