@@ -52,43 +52,6 @@
         <div class="product-card" data-product-card data-href="{% url 'product_detail' product.id %}">
           <div class="product-image">
             <img src="{% static 'img/product-placeholder.jpg' %}" alt="{{ product.name }}">
-
-            <div class="product-card-cart" data-no-card-nav>
-              <div class="checkbox-container">
-                <div class="checkbox-wrapper">
-                  <input
-                    class="checkbox"
-                    id="cart-toggle-{{ product.id }}"
-                    type="checkbox"
-                    data-cart-toggle
-                    data-product-id="{{ product.id }}"
-                    data-add-url="{% url 'add_to_cart' product.id %}?next={{ request.get_full_path|urlencode }}&qty=1"
-                    data-remove-url="{% url 'cart_remove' %}"
-                    {% if product.id in cart_product_ids %}checked{% endif %}
-                  />
-                  <label class="checkbox-label" for="cart-toggle-{{ product.id }}">
-                    <div class="checkbox-flip">
-                      <div class="checkbox-front" aria-hidden="true">
-                        <svg fill="white" height="28" width="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M19 13H12V19H11V13H5V12H11V6H12V12H19V13Z"
-                            class="icon-path"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div class="checkbox-back" aria-hidden="true">
-                        <svg fill="white" height="28" width="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M9 19l-7-7 1.41-1.41L9 16.17l11.29-11.3L22 6l-13 13z"
-                            class="icon-path"
-                          ></path>
-                        </svg>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div class="product-info">
@@ -98,6 +61,43 @@
 
             <div class="product-actions" data-no-card-nav>
               <a href="{% url 'add_to_compare' product.id %}" class="btn btn-outline small">مقایسه</a>
+            </div>
+          </div>
+
+          <div class="product-card-cart" data-no-card-nav>
+            <div class="checkbox-container">
+              <div class="checkbox-wrapper">
+                <input
+                  class="checkbox"
+                  id="cart-toggle-{{ product.id }}"
+                  type="checkbox"
+                  data-cart-toggle
+                  data-product-id="{{ product.id }}"
+                  data-add-url="{% url 'add_to_cart' product.id %}?next={{ request.get_full_path|urlencode }}&qty=1"
+                  data-remove-url="{% url 'cart_remove' %}"
+                  {% if product.id in cart_product_ids %}checked{% endif %}
+                />
+                <label class="checkbox-label" for="cart-toggle-{{ product.id }}">
+                  <div class="checkbox-flip">
+                    <div class="checkbox-front" aria-hidden="true">
+                      <svg fill="white" height="28" width="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M19 13H12V19H11V13H5V12H11V6H12V12H19V13Z"
+                          class="icon-path"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div class="checkbox-back" aria-hidden="true">
+                      <svg fill="white" height="28" width="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M9 19l-7-7 1.41-1.41L9 16.17l11.29-11.3L22 6l-13 13z"
+                          class="icon-path"
+                        ></path>
+                      </svg>
+                    </div>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -122,4 +122,3 @@
 </script>
 <script src="{% static 'js/shop.js' %}"></script>
 {% endblock %}
-
