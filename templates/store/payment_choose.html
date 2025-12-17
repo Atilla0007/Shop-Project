@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load jalali %}
+{% load jalali static %}
 
 {% block title %}انتخاب روش پرداخت{% endblock %}
 
@@ -23,8 +23,22 @@
         <h2>انتخاب روش پرداخت</h2>
         <p class="muted">ابتدا روش پرداخت را انتخاب کنید، سپس به صفحه همان روش هدایت می‌شوید.</p>
 
-        <div class="payment-cards">
-          <div class="payment-card">
+        <div class="payment-choice-hint" role="note" aria-live="polite">
+          <div class="payment-choice-hint-title">فقط یک روش را می‌توانید انتخاب کنید</div>
+          <div class="payment-choice-hint-subtitle">بعد از انتخاب، روی «ادامه» بزنید.</div>
+        </div>
+
+        <div class="payment-cards payment-cards--select" data-payment-choice>
+          <label class="payment-option">
+            <input
+              class="payment-option-input"
+              type="radio"
+              name="payment_method"
+              value="card_to_card"
+              data-url="{% url 'payment_card_to_card' order.id %}"
+              {% if not can_submit or not payment_settings.card_number %}disabled{% endif %}
+            >
+            <div class="payment-card payment-card--select">
             <h3>کارت به کارت</h3>
             <p class="muted">مبلغ را واریز کنید و تصویر فیش واریزی را در سایت بارگذاری کنید.</p>
 
@@ -34,26 +48,35 @@
                 <p class="muted">به نام: <strong>{{ payment_settings.card_holder }}</strong></p>
               {% endif %}
             {% else %}
-              <p class="muted">شماره کارت هنوز توسط ادمین تنظیم نشده است.</p>
-            {% endif %}
-
-            {% if can_submit %}
-              <a href="{% url 'payment_card_to_card' order.id %}" class="btn btn-primary">ادامه</a>
-            {% else %}
-              <button type="button" class="btn btn-primary" disabled>ادامه</button>
+              <p class="muted">شماره کارت هنوز توسط ادمین تنظیم نشده است (این روش فعلاً غیرفعال است).</p>
             {% endif %}
           </div>
+          </label>
 
-          <div class="payment-card">
+          <div class="payment-divider" aria-hidden="true"><span>یا</span></div>
+
+          <label class="payment-option">
+            <input
+              class="payment-option-input"
+              type="radio"
+              name="payment_method"
+              value="contact_admin"
+              data-url="{% url 'payment_contact_admin' order.id %}"
+              {% if not can_submit %}disabled{% endif %}
+            >
+            <div class="payment-card payment-card--select">
             <h3>ارتباط با ادمین</h3>
             <p class="muted">پیش‌فاکتور را دانلود کنید و برای هماهنگی پرداخت با ادمین تماس بگیرید.</p>
-
-            {% if can_submit %}
-              <a href="{% url 'payment_contact_admin' order.id %}" class="btn btn-primary">ادامه</a>
-            {% else %}
-              <button type="button" class="btn btn-primary" disabled>ادامه</button>
-            {% endif %}
           </div>
+          </label>
+        </div>
+
+        <div class="payment-choice-actions">
+          {% if can_submit %}
+            <button type="button" class="btn btn-primary" data-payment-continue disabled>ادامه</button>
+          {% else %}
+            <button type="button" class="btn btn-primary" disabled>ادامه</button>
+          {% endif %}
         </div>
       </div>
 
@@ -101,3 +124,6 @@
 </section>
 {% endblock %}
 
+{% block extra_js %}
+  <script src="{% static 'js/payment-choose.js' %}"></script>
+{% endblock %}
