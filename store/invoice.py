@@ -113,8 +113,9 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
 
     c.setTitle(f"invoice-{getattr(order, 'id', '')}")
 
-    order_id_text = str(getattr(order, "id", "")).translate(PERSIAN_DIGITS_TRANS)
-    invoice_title = f"{title} شماره {order_id_text}".strip()
+    raw_order_id = str(getattr(order, "id", "")).strip()
+    order_id_text = raw_order_id.zfill(7).translate(PERSIAN_DIGITS_TRANS) if raw_order_id else ""
+    invoice_title = f"{title} #{order_id_text}".strip()
 
     # Title box
     title_box_h = 34
@@ -148,7 +149,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
 
     # Header (seller/buyer + summary table)
     gap = 18
-    summary_w = content_w * 0.32
+    summary_w = content_w * 0.38
     details_w = content_w - summary_w - gap
     x_summary = margin_x
     x_details = margin_x + summary_w + gap
@@ -169,7 +170,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
     table_h = row_h * len(summary_rows)
     c.setStrokeColor(BORDER_COLOR)
     c.rect(x_summary, y - table_h, summary_w, table_h, stroke=1, fill=0)
-    split = summary_w * 0.58
+    split = summary_w * 0.46
     c.line(x_summary + (summary_w - split), y, x_summary + (summary_w - split), y - table_h)
     for i in range(1, len(summary_rows)):
         c.line(x_summary, y - (row_h * i), x_summary + summary_w, y - (row_h * i))
