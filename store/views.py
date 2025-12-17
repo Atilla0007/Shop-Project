@@ -1,4 +1,8 @@
 
+from threading import Thread
+
+from django.conf import settings
+from django.db import close_old_connections
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -16,6 +20,30 @@ from core.utils.formatting import format_money
 
 
 SESSION_CART_KEY = 'cart'
+
+
+def _send_order_payment_submitted_email_nonblocking(*, order_id: int, request=None) -> None:
+    def _send(req=None) -> None:
+        close_old_connections()
+        try:
+            from store.emails import send_order_payment_submitted_email
+
+            order = (
+                Order.objects.select_related("user")
+                .prefetch_related("items__product")
+                .get(pk=order_id)
+            )
+            send_order_payment_submitted_email(order=order, request=req)
+        except Exception:
+            pass
+        finally:
+            close_old_connections()
+
+    backend = (getattr(settings, "EMAIL_BACKEND", "") or "").lower()
+    if "smtp" in backend:
+        Thread(target=lambda: _send(None), daemon=True).start()
+    else:
+        _send(request)
 
 
 def _get_session_cart(request) -> dict[str, int]:
@@ -486,7 +514,6 @@ def payment(request, order_id: int):
 @login_required
 def payment_card_to_card(request, order_id: int):
     from core.models import PaymentSettings
-    from store.emails import send_order_payment_submitted_email
 
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     payment_settings = PaymentSettings.get_solo()
@@ -527,12 +554,9 @@ def payment_card_to_card(request, order_id: int):
                 order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
 
                 if not already_submitted:
-                    try:
-                        send_order_payment_submitted_email(order=order, request=request)
-                    except Exception:
-                        pass
+                    _send_order_payment_submitted_email_nonblocking(order_id=order.id, request=request)
 
-                return redirect(f"{reverse('payment_card_to_card', args=[order.id])}?submitted=1")
+                return redirect(f"{reverse('profile')}?payment_submitted=1#orders")
 
     return render(request, 'store/payment_card_to_card.html', {
         'order': order,
@@ -548,7 +572,6 @@ def payment_card_to_card(request, order_id: int):
 @login_required
 def payment_contact_admin(request, order_id: int):
     from core.models import PaymentSettings
-    from store.emails import send_order_payment_submitted_email
 
     order = get_object_or_404(Order, pk=order_id, user=request.user)
     payment_settings = PaymentSettings.get_solo()
@@ -579,10 +602,7 @@ def payment_contact_admin(request, order_id: int):
         order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
 
         if not already_submitted:
-            try:
-                send_order_payment_submitted_email(order=order, request=request)
-            except Exception:
-                pass
+            _send_order_payment_submitted_email_nonblocking(order_id=order.id, request=request)
 
         return redirect(f"{reverse('payment_contact_admin', args=[order.id])}?submitted=1")
 

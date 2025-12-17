@@ -68,11 +68,15 @@
       </div>
     </aside>
 
-    <main class="orders-card">
+    <main class="orders-card" id="orders">
       <div class="orders-header">
         <h2>سفارش‌های قبلی</h2>
         <p class="muted">کد رهگیری فعلاً همان شماره سفارش است.</p>
       </div>
+
+      {% if request.GET.payment_submitted == '1' %}
+        <div class="form-success">پرداخت شما ثبت شد و در انتظار بررسی ادمین است.</div>
+      {% endif %}
 
       {% if orders %}
         <div class="orders-list">

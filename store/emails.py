@@ -62,13 +62,18 @@ def send_order_payment_submitted_email(*, order, request=None) -> None:
     subject = f"درخواست پرداخت شما ثبت شد (سفارش #{order.id})"
 
     cta_url = None
-    if request is not None:
-        try:
-            from django.urls import reverse
+    try:
+        from django.urls import reverse
 
-            cta_url = request.build_absolute_uri(reverse("profile"))
-        except Exception:
-            cta_url = None
+        profile_path = reverse("profile")
+        if request is not None:
+            cta_url = request.build_absolute_uri(profile_path)
+        else:
+            base_url = (getattr(settings, "SITE_BASE_URL", "") or "").strip().rstrip("/")
+            if base_url:
+                cta_url = f"{base_url}{profile_path}"
+    except Exception:
+        cta_url = None
 
     created_at = format_jalali(order.created_at, "Y/m/d - H:i")
 
@@ -123,13 +128,18 @@ def send_order_payment_approved_email(*, order, request=None) -> None:
     subject = f"پرداخت تایید شد (سفارش #{order.id})"
 
     cta_url = None
-    if request is not None:
-        try:
-            from django.urls import reverse
+    try:
+        from django.urls import reverse
 
-            cta_url = request.build_absolute_uri(reverse("profile"))
-        except Exception:
-            cta_url = None
+        profile_path = reverse("profile")
+        if request is not None:
+            cta_url = request.build_absolute_uri(profile_path)
+        else:
+            base_url = (getattr(settings, "SITE_BASE_URL", "") or "").strip().rstrip("/")
+            if base_url:
+                cta_url = f"{base_url}{profile_path}"
+    except Exception:
+        cta_url = None
 
     approved_at = (
         format_jalali(order.payment_reviewed_at, "Y/m/d - H:i")
@@ -170,4 +180,3 @@ def send_order_payment_approved_email(*, order, request=None) -> None:
     message.attach(f"order-{order.id}.pdf", pdf_bytes, "application/pdf")
 
     _send_email_message(message)
-
