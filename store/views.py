@@ -518,6 +518,11 @@ def payment_card_to_card(request, order_id: int):
                 order.payment_method = 'card_to_card'
                 order.payment_status = 'submitted'
                 order.payment_submitted_at = timezone.now()
+                if order.receipt_file:
+                    try:
+                        order.receipt_file.delete(save=False)
+                    except Exception:
+                        pass
                 order.receipt_file = receipt
                 order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
 

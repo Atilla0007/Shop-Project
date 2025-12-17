@@ -1,6 +1,28 @@
+from pathlib import Path
+import uuid
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+
+
+def order_receipt_upload_to(instance, filename: str) -> str:
+    """Store payment receipt files using the order number as the filename.
+
+    Example: payments/receipts/0000014.png
+    """
+    ext = (Path(filename).suffix or "").lower()
+    if not ext:
+        ext = ".bin"
+    # Basic sanitization: keep short alnum extensions only.
+    if len(ext) > 10 or any(ch for ch in ext[1:] if not ch.isalnum()):
+        ext = ".bin"
+
+    if getattr(instance, "pk", None):
+        order_number = str(instance.pk).zfill(7)
+    else:
+        order_number = uuid.uuid4().hex[:12]
+
+    return f"payments/receipts/{order_number}{ext}"
 
 
 class Category(models.Model):
@@ -118,7 +140,7 @@ class Order(models.Model):
 
     payment_method = models.CharField(max_length=32, choices=PAYMENT_METHOD_CHOICES, blank=True)
     payment_status = models.CharField(max_length=32, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
-    receipt_file = models.FileField(upload_to='payments/receipts/', null=True, blank=True)
+    receipt_file = models.FileField(upload_to=order_receipt_upload_to, null=True, blank=True)
     payment_submitted_at = models.DateTimeField(null=True, blank=True)
     payment_reviewed_at = models.DateTimeField(null=True, blank=True)
     receipt_digest_sent_at = models.DateTimeField(null=True, blank=True)
