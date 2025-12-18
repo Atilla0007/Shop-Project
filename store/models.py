@@ -165,3 +165,22 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+
+
+class ManualInvoiceSequence(models.Model):
+    """A simple counter to generate sequential numbers for manually issued invoices."""
+
+    last_number = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "شماره‌گذار پیش‌فاکتور دستی"
+        verbose_name_plural = "شماره‌گذار پیش‌فاکتور دستی"
+
+    def __str__(self):
+        return f"Manual invoice sequence ({self.last_number})"
+
+    @classmethod
+    def get_solo(cls) -> "ManualInvoiceSequence":
+        obj, _ = cls.objects.get_or_create(pk=1, defaults={"last_number": 0})
+        return obj

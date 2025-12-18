@@ -1,9 +1,10 @@
 
 from datetime import timedelta
+import re
 from threading import Thread
 
 from django.conf import settings
-from django.db import close_old_connections
+from django.db import close_old_connections, transaction
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -14,7 +15,7 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .invoice import render_order_invoice_pdf
-from .models import Product, CartItem, Order, OrderItem, Category
+from .models import Product, CartItem, Order, OrderItem, Category, ManualInvoiceSequence
 from accounts.models import UserProfile
 from core.models import DiscountCode, ShippingSettings
 from core.utils.formatting import format_money
@@ -657,6 +658,29 @@ def manual_invoice(request):
     shipping_fee_per_item = int(shipping_settings.shipping_fee or 0)
     free_shipping_min_total = int(shipping_settings.free_shipping_min_total or 0)
 
+    products = list(Product.objects.order_by("name").values("id", "name", "price"))
+
+    raw_invoice_number = (request.GET.get("invoice_number") or "").strip()
+    invoice_number = "#000000"
+    match = re.fullmatch(r"#?(\d{1,12})", raw_invoice_number)
+    if match:
+        digits = match.group(1).lstrip("0") or "0"
+        if digits != "0":
+            invoice_number = f"#{int(match.group(1)):06d}"
+
+    if invoice_number == "#000000":
+        try:
+            with transaction.atomic():
+                seq, _created = ManualInvoiceSequence.objects.select_for_update().get_or_create(
+                    pk=1,
+                    defaults={"last_number": 0},
+                )
+                seq.last_number = int(seq.last_number or 0) + 1
+                seq.save(update_fields=["last_number", "updated_at"])
+                invoice_number = f"#{seq.last_number:06d}"
+        except Exception:
+            invoice_number = "#000000"
+
     response = render(
         request,
         "store/manual_invoice.html",
@@ -666,9 +690,10 @@ def manual_invoice(request):
             "company_contact": company_contact,
             "issue_date": issue_date,
             "due_date": due_date,
-            "invoice_number": "#000000",
+            "invoice_number": invoice_number,
             "shipping_fee_per_item": shipping_fee_per_item,
             "free_shipping_min_total": free_shipping_min_total,
+            "products": products,
         },
     )
     if request.GET.get("download") == "1":

@@ -174,7 +174,7 @@ class Command(BaseCommand):
             f"سفارش #{order.id}\n"
             f"مبلغ نهایی: {format_money(order.total_price)} تومان\n"
         )
-        approved_pdf = render_order_invoice_pdf(order=order, title="فاکتور نهایی استیرا")
+        approved_pdf = render_order_invoice_pdf(order=order, title="فاکتور نهایی استیرا", include_validity=False)
 
         msg2 = EmailMultiAlternatives(
             subject=f"نمونه فاکتور نهایی - {brand}",

@@ -176,7 +176,7 @@ def send_order_payment_approved_email(*, order, request=None) -> None:
         to=[to_email],
     )
     message.attach_alternative(html_body, "text/html")
-    pdf_bytes = render_order_invoice_pdf(order=order, title="فاکتور نهایی استیرا")
+    pdf_bytes = render_order_invoice_pdf(order=order, title="فاکتور نهایی استیرا", include_validity=False)
     message.attach(f"order-{order.id}.pdf", pdf_bytes, "application/pdf")
 
     _send_email_message(message)

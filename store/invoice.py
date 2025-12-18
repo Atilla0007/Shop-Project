@@ -94,7 +94,7 @@ def _company_invoice_lines() -> list[str]:
     return [company_name, *lines]
 
 
-def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
+def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_validity: bool = True) -> bytes:
     """Generate a PDF invoice/proforma for an order and return bytes.
 
     Layout is based on the provided HTML invoice template (title box, centered logo,
@@ -159,12 +159,17 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور") -> bytes:
     issue_date = format_jalali(issue_dt, "Y/m/d - H:i") if issue_dt else ""
     due_date = format_jalali(issue_dt + timedelta(days=1), "Y/m/d - H:i") if issue_dt else ""
 
-    summary_rows = [
+    summary_rows: list[tuple[str, str]] = [
         ("تاریخ صدور", issue_date),
-        ("سررسید", due_date),
-        ("جمع کالاها", f"{format_money(getattr(order, 'items_subtotal', 0))} تومان"),
-        ("مبلغ نهایی", f"{format_money(getattr(order, 'total_price', 0))} تومان"),
     ]
+    if include_validity:
+        summary_rows.append(("مدت اعتبار", due_date))
+    summary_rows.extend(
+        [
+            ("جمع کالاها", f"{format_money(getattr(order, 'items_subtotal', 0))} تومان"),
+            ("مبلغ نهایی", f"{format_money(getattr(order, 'total_price', 0))} تومان"),
+        ]
+    )
 
     row_h = 22
     table_h = row_h * len(summary_rows)

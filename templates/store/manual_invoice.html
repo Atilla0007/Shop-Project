@@ -1,4 +1,4 @@
-{% load static %}
+{% load static %}{% load jalali %}
 <!doctype html>
 <html lang="fa" dir="rtl">
   <head>
@@ -86,12 +86,41 @@
         top: 0;
         z-index: 10;
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
+        row-gap: 10px;
         align-items: center;
         justify-content: center;
         padding: 12px 10px;
         background: linear-gradient(90deg, rgba(16, 11, 0, 0.9), rgba(61, 90, 128, 0.9));
         backdrop-filter: blur(8px);
+      }
+
+      .toolbar-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px 8px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(244, 244, 249, 0.18);
+      }
+
+      .toolbar select {
+        min-width: 260px;
+        max-width: 360px;
+        height: 40px;
+        padding: 0 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(244, 244, 249, 0.25);
+        background: rgba(0, 0, 0, 0.15);
+        color: #f4f4f9;
+        font-family: inherit;
+      }
+
+      .toolbar select option {
+        background: #100b00;
+        color: #f4f4f9;
       }
 
       .btn {
@@ -227,6 +256,17 @@
         min-height: 1.2em;
       }
 
+      [contenteditable="true"][data-placeholder]:empty:before {
+        content: attr(data-placeholder);
+        color: rgba(71, 85, 105, 0.85);
+      }
+
+      @media print {
+        .hide-in-print {
+          display: none !important;
+        }
+      }
+
       .hint {
         color: var(--muted);
         font-size: 13px;
@@ -247,10 +287,22 @@
   </head>
   <body>
     <div class="toolbar no-print">
+      <a class="btn secondary" href="{% url 'home' %}">بازگشت به صفحه اصلی</a>
       <button class="btn" type="button" id="printBtn">چاپ / خروجی PDF</button>
       <button class="btn secondary" type="button" id="calcTotalsBtn">محاسبه جمع‌ها</button>
-      <button class="btn secondary" type="button" id="addRowBtn">افزودن ردیف کالا</button>
-      <a class="btn secondary" href="?download=1" rel="nofollow">دانلود HTML</a>
+      <div class="toolbar-group">
+        <select id="productSelect" aria-label="افزودن محصول از سایت">
+          <option value="">افزودن محصول از سایت...</option>
+          {% for p in products %}
+            <option value="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.price }}">
+              {{ p.name }} — {{ p.price|money }} تومان
+            </option>
+          {% endfor %}
+        </select>
+        <button class="btn secondary" type="button" id="addProductBtn">افزودن محصول</button>
+      </div>
+      <button class="btn secondary" type="button" id="addRowBtn">افزودن ردیف خالی</button>
+      <a class="btn secondary" href="?download=1&invoice_number={{ invoice_number|urlencode }}" rel="nofollow">دانلود HTML</a>
     </div>
 
     <div
@@ -281,9 +333,9 @@
 
           <h2>خریدار / تحویل&zwnj;گیرنده</h2>
           <ul>
-            <li contenteditable="true">نام و نام خانوادگی</li>
-            <li contenteditable="true">شماره تماس</li>
-            <li contenteditable="true">آدرس کامل</li>
+            <li contenteditable="true" data-hide-empty="1" data-placeholder="نام و نام خانوادگی"></li>
+            <li contenteditable="true" data-hide-empty="1" data-placeholder="شماره تماس"></li>
+            <li contenteditable="true" data-hide-empty="1" data-placeholder="آدرس کامل"></li>
           </ul>
         </div>
 
@@ -294,7 +346,7 @@
               <td contenteditable="true" dir="ltr">{{ issue_date }}</td>
             </tr>
             <tr>
-              <th>سررسید</th>
+              <th>مدت اعتبار</th>
               <td contenteditable="true" dir="ltr">{{ due_date }}</td>
             </tr>
             <tr>
@@ -321,9 +373,15 @@
           </thead>
           <tbody id="itemsBody">
             <tr>
-              <td contenteditable="true">
-                <h4 contenteditable="true">نام کالا</h4>
-                <p contenteditable="true" style="color: var(--muted); margin-top: 4px">توضیح کوتاه (اختیاری)</p>
+              <td>
+                <h4 contenteditable="true" data-placeholder="نام کالا"></h4>
+                <p
+                  contenteditable="true"
+                  data-role="desc"
+                  data-hide-empty="1"
+                  data-placeholder="توضیح کوتاه (اختیاری)"
+                  style="color: var(--muted); margin-top: 4px"
+                ></p>
               </td>
               <td contenteditable="true" data-role="qty">۱</td>
               <td contenteditable="true" data-role="price">۰</td>
@@ -369,6 +427,8 @@
         const root = document.querySelector(".container[data-shipping-fee-per-item]");
         const itemsBody = document.getElementById("itemsBody");
         const calcTotalsBtn = document.getElementById("calcTotalsBtn");
+        const productSelect = document.getElementById("productSelect");
+        const addProductBtn = document.getElementById("addProductBtn");
 
         const printBtn = document.getElementById("printBtn");
         if (printBtn) printBtn.addEventListener("click", () => window.print());
@@ -422,9 +482,15 @@
         const newRow = () => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td contenteditable="true">
-              <h4 contenteditable="true">نام کالا</h4>
-              <p contenteditable="true" style="color: var(--muted); margin-top: 4px">توضیح کوتاه (اختیاری)</p>
+            <td>
+              <h4 contenteditable="true" data-placeholder="نام کالا"></h4>
+              <p
+                contenteditable="true"
+                data-role="desc"
+                data-hide-empty="1"
+                data-placeholder="توضیح کوتاه (اختیاری)"
+                style="color: var(--muted); margin-top: 4px"
+              ></p>
             </td>
             <td contenteditable="true" data-role="qty">۱</td>
             <td contenteditable="true" data-role="price">۰</td>
@@ -492,6 +558,64 @@
         if (calcTotalsBtn) {
           calcTotalsBtn.addEventListener("click", computeTotals);
         }
+
+        const addProductFromSelection = () => {
+          if (!itemsBody || !productSelect) return;
+          const opt = productSelect.options[productSelect.selectedIndex];
+          if (!opt || !opt.value) return;
+          const name = opt.dataset.name || opt.textContent || "";
+          const price = opt.dataset.price || "0";
+
+          const tr = newRow();
+          const nameEl = tr.querySelector("h4[contenteditable]");
+          const priceEl = tr.querySelector('[data-role="price"]');
+          const qtyEl = tr.querySelector('[data-role="qty"]');
+          if (nameEl) nameEl.textContent = String(name).trim();
+          if (qtyEl) qtyEl.textContent = "۱";
+          if (priceEl) priceEl.textContent = String(price);
+          itemsBody.appendChild(tr);
+
+          // Normalize and recompute totals
+          if (priceEl) normalizeMoneyCell(priceEl);
+          if (qtyEl) normalizeQtyCell(qtyEl);
+          computeTotals();
+
+          productSelect.value = "";
+        };
+
+        if (addProductBtn) addProductBtn.addEventListener("click", addProductFromSelection);
+        if (productSelect) {
+          productSelect.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addProductFromSelection();
+            }
+          });
+        }
+
+        const hideEmptyInPrint = () => {
+          document.querySelectorAll("[data-hide-empty]").forEach((el) => {
+            const text = (el.textContent || "").trim();
+            const empty = text.length === 0;
+            el.classList.toggle("hide-in-print", empty);
+          });
+
+          document.querySelectorAll("#itemsBody tr").forEach((row) => {
+            const name = (row.querySelector("h4[contenteditable]")?.textContent || "").trim();
+            const qtyText = (row.querySelector('[data-role=\"qty\"]')?.textContent || "").trim();
+            const priceText = (row.querySelector('[data-role=\"price\"]')?.textContent || "").trim();
+            const desc = (row.querySelector('[data-role=\"desc\"]')?.textContent || "").trim();
+
+            const qtyNum = parseNumber(qtyText);
+            const priceNum = parseNumber(priceText);
+
+            // Consider "empty row" as: no name/desc + default/zero numbers.
+            const empty = !name && !desc && priceNum === 0 && (qtyNum === 0 || qtyNum === 1);
+            row.classList.toggle("hide-in-print", empty);
+          });
+        };
+
+        window.addEventListener("beforeprint", hideEmptyInPrint);
 
         document.addEventListener("click", (e) => {
           const btn = e.target.closest && e.target.closest(".remove-row");
