@@ -651,8 +651,8 @@ def manual_invoice(request):
     company_contact = " | ".join([p for p in [phone, email] if p])
 
     now = timezone.now()
-    issue_date = format_jalali(now, "Y/m/d - H:i")
-    due_date = format_jalali(now + timedelta(days=1), "Y/m/d - H:i")
+    issue_date = format_jalali(now, "Y/m/d")
+    due_date = format_jalali(now + timedelta(days=1), "Y/m/d")
 
     shipping_settings = ShippingSettings.get_solo()
     shipping_fee_per_item = int(shipping_settings.shipping_fee or 0)

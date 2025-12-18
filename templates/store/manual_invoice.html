@@ -349,11 +349,11 @@
               <th>مدت اعتبار</th>
               <td contenteditable="true" dir="ltr">{{ due_date }}</td>
             </tr>
-            <tr>
+            <tr class="hide-in-print">
               <th>جمع کالاها</th>
               <td id="summaryItemsSubtotal" contenteditable="true">۰ تومان</td>
             </tr>
-            <tr>
+            <tr class="hide-in-print">
               <th>مبلغ نهایی</th>
               <td id="summaryGrandTotal" contenteditable="true">۰ تومان</td>
             </tr>
@@ -541,7 +541,8 @@
 
           const discount = parseNumber(discountEl?.textContent || 0);
           const shippingManual = shippingEl ? parseNumber(shippingEl.textContent) : 0;
-          const shipping = shippingEl && shippingEl.dataset.userEdited === "1" ? Math.max(0, shippingManual) : autoShipping;
+          const shippingIsManual = shippingEl && (shippingEl.dataset.userEdited === "1" || shippingManual !== 0);
+          const shipping = shippingIsManual ? Math.max(0, shippingManual) : autoShipping;
           const grandTotal = Math.max(0, itemsSubtotal - discount) + shipping;
 
           setCell("summaryItemsSubtotal", formatMoneyToman(itemsSubtotal));
