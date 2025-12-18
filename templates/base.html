@@ -43,6 +43,9 @@
           </button>
           <div class="user-menu-dropdown" role="menu">
             <a href="{% url 'profile' %}" role="menuitem"><i class='bx bx-user'></i> پروفایل</a>
+            {% if user.is_staff %}
+              <a href="{% url 'manual_invoice' %}" role="menuitem"><i class='bx bxs-receipt'></i> ساخت پیش‌فاکتور</a>
+            {% endif %}
             <a href="{% url 'logout' %}" role="menuitem"><i class='bx bx-log-out'></i> خروج</a>
           </div>
         </div>

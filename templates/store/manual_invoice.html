@@ -248,11 +248,16 @@
   <body>
     <div class="toolbar no-print">
       <button class="btn" type="button" id="printBtn">چاپ / خروجی PDF</button>
+      <button class="btn secondary" type="button" id="calcTotalsBtn">محاسبه جمع‌ها</button>
       <button class="btn secondary" type="button" id="addRowBtn">افزودن ردیف کالا</button>
       <a class="btn secondary" href="?download=1" rel="nofollow">دانلود HTML</a>
     </div>
 
-    <div class="container">
+    <div
+      class="container"
+      data-shipping-fee-per-item="{{ shipping_fee_per_item|default:0 }}"
+      data-free-shipping-min-total="{{ free_shipping_min_total|default:0 }}"
+    >
       <div class="inv-title">
         <h1>
           <span contenteditable="true">فاکتور</span>
@@ -294,11 +299,11 @@
             </tr>
             <tr>
               <th>جمع کالاها</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="summaryItemsSubtotal" contenteditable="true">۰ تومان</td>
             </tr>
             <tr>
               <th>مبلغ نهایی</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="summaryGrandTotal" contenteditable="true">۰ تومان</td>
             </tr>
           </table>
         </div>
@@ -320,8 +325,8 @@
                 <h4 contenteditable="true">نام کالا</h4>
                 <p contenteditable="true" style="color: var(--muted); margin-top: 4px">توضیح کوتاه (اختیاری)</p>
               </td>
-              <td contenteditable="true">۱</td>
-              <td contenteditable="true">۰</td>
+              <td contenteditable="true" data-role="qty">۱</td>
+              <td contenteditable="true" data-role="price">۰</td>
               <td class="no-print actions-col">
                 <button class="remove-row" type="button" title="حذف ردیف">×</button>
               </td>
@@ -340,19 +345,19 @@
           <table>
             <tr>
               <th>جمع کالاها</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="footerItemsSubtotal" contenteditable="true">۰ تومان</td>
             </tr>
             <tr>
               <th>تخفیف</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="footerDiscount" contenteditable="true">۰ تومان</td>
             </tr>
             <tr>
               <th>هزینه ارسال</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="footerShipping" contenteditable="true">۰ تومان</td>
             </tr>
             <tr>
               <th>مبلغ نهایی</th>
-              <td contenteditable="true">۰ تومان</td>
+              <td id="footerGrandTotal" contenteditable="true">۰ تومان</td>
             </tr>
           </table>
         </div>
@@ -361,11 +366,58 @@
 
     <script>
       (() => {
+        const root = document.querySelector(".container[data-shipping-fee-per-item]");
+        const itemsBody = document.getElementById("itemsBody");
+        const calcTotalsBtn = document.getElementById("calcTotalsBtn");
+
         const printBtn = document.getElementById("printBtn");
         if (printBtn) printBtn.addEventListener("click", () => window.print());
 
         const addRowBtn = document.getElementById("addRowBtn");
-        const itemsBody = document.getElementById("itemsBody");
+
+        const digitsMap = {
+          "0": "۰",
+          "1": "۱",
+          "2": "۲",
+          "3": "۳",
+          "4": "۴",
+          "5": "۵",
+          "6": "۶",
+          "7": "۷",
+          "8": "۸",
+          "9": "۹",
+        };
+
+        const toPersianDigits = (value) =>
+          String(value ?? "").replace(/[0-9]/g, (d) => digitsMap[d] || d);
+
+        const parseNumber = (raw) => {
+          if (raw == null) return 0;
+          let s = String(raw)
+            .replaceAll("تومان", "")
+            .replaceAll("٬", "")
+            .replaceAll("،", "")
+            .replace(/\s+/g, "")
+            .trim();
+          s = s
+            .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+            .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+          const n = Number(s);
+          return Number.isFinite(n) ? n : 0;
+        };
+
+        const formatMoneyToman = (n) => {
+          const num = Number(n);
+          if (!Number.isFinite(num)) return "۰ تومان";
+          const withCommas = Math.round(num).toLocaleString("en-US").replaceAll(",", "،");
+          return `${toPersianDigits(withCommas)} تومان`;
+        };
+
+        const setCell = (id, value) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.textContent = value;
+        };
 
         const newRow = () => {
           const tr = document.createElement("tr");
@@ -374,8 +426,8 @@
               <h4 contenteditable="true">نام کالا</h4>
               <p contenteditable="true" style="color: var(--muted); margin-top: 4px">توضیح کوتاه (اختیاری)</p>
             </td>
-            <td contenteditable="true">۱</td>
-            <td contenteditable="true">۰</td>
+            <td contenteditable="true" data-role="qty">۱</td>
+            <td contenteditable="true" data-role="price">۰</td>
             <td class="no-print actions-col">
               <button class="remove-row" type="button" title="حذف ردیف">×</button>
             </td>
@@ -389,14 +441,77 @@
           });
         }
 
+        const normalizeMoneyCell = (cell) => {
+          const n = parseNumber(cell.textContent);
+          cell.textContent = formatMoneyToman(n);
+        };
+
+        const normalizeQtyCell = (cell) => {
+          const n = Math.max(1, Math.round(parseNumber(cell.textContent)));
+          cell.textContent = toPersianDigits(String(n));
+        };
+
+        const computeTotals = () => {
+          if (!itemsBody) return;
+          const rows = Array.from(itemsBody.querySelectorAll("tr"));
+          let itemsSubtotal = 0;
+          let totalQty = 0;
+
+          for (const row of rows) {
+            const qtyCell = row.querySelector('[data-role="qty"]');
+            const priceCell = row.querySelector('[data-role="price"]');
+            const qty = qtyCell ? Math.max(0, Math.round(parseNumber(qtyCell.textContent))) : 0;
+            const price = priceCell ? Math.max(0, parseNumber(priceCell.textContent)) : 0;
+            totalQty += qty;
+            itemsSubtotal += qty * price;
+          }
+
+          const perItemFee = root ? parseNumber(root.dataset.shippingFeePerItem) : 0;
+          const freeThreshold = root ? parseNumber(root.dataset.freeShippingMinTotal) : 0;
+          const shippingFull = perItemFee * totalQty;
+          const shippingApplied = freeThreshold > 0 && itemsSubtotal >= freeThreshold ? 0 : shippingFull;
+
+          const discount = parseNumber(document.getElementById("footerDiscount")?.textContent || 0);
+          const grandTotal = Math.max(0, itemsSubtotal - discount) + shippingApplied;
+
+          setCell("summaryItemsSubtotal", formatMoneyToman(itemsSubtotal));
+          setCell("summaryGrandTotal", formatMoneyToman(grandTotal));
+          setCell("footerItemsSubtotal", formatMoneyToman(itemsSubtotal));
+          setCell("footerShipping", formatMoneyToman(shippingApplied));
+          setCell("footerGrandTotal", formatMoneyToman(grandTotal));
+
+          // normalize numeric cells in rows
+          for (const row of rows) {
+            const qtyCell = row.querySelector('[data-role="qty"]');
+            const priceCell = row.querySelector('[data-role="price"]');
+            if (qtyCell) normalizeQtyCell(qtyCell);
+            if (priceCell) normalizeMoneyCell(priceCell);
+          }
+        };
+
+        if (calcTotalsBtn) {
+          calcTotalsBtn.addEventListener("click", computeTotals);
+        }
+
         document.addEventListener("click", (e) => {
           const btn = e.target.closest && e.target.closest(".remove-row");
           if (!btn) return;
           const row = btn.closest("tr");
           if (row && itemsBody && itemsBody.children.length > 1) row.remove();
         });
+
+        document.addEventListener(
+          "blur",
+          (e) => {
+            const el = e.target;
+            if (!el || !(el instanceof HTMLElement)) return;
+            if (el.matches && el.matches('[data-role="price"]')) normalizeMoneyCell(el);
+            if (el.matches && el.matches('[data-role="qty"]')) normalizeQtyCell(el);
+            if (el.id === "footerDiscount") normalizeMoneyCell(el);
+          },
+          true,
+        );
       })();
     </script>
   </body>
 </html>
-

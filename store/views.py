@@ -653,6 +653,10 @@ def manual_invoice(request):
     issue_date = format_jalali(now, "Y/m/d - H:i")
     due_date = format_jalali(now + timedelta(days=1), "Y/m/d - H:i")
 
+    shipping_settings = ShippingSettings.get_solo()
+    shipping_fee_per_item = int(shipping_settings.shipping_fee or 0)
+    free_shipping_min_total = int(shipping_settings.free_shipping_min_total or 0)
+
     response = render(
         request,
         "store/manual_invoice.html",
@@ -663,6 +667,8 @@ def manual_invoice(request):
             "issue_date": issue_date,
             "due_date": due_date,
             "invoice_number": "#000000",
+            "shipping_fee_per_item": shipping_fee_per_item,
+            "free_shipping_min_total": free_shipping_min_total,
         },
     )
     if request.GET.get("download") == "1":
