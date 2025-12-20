@@ -3,7 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from accounts.models import UserProfile
-from core.models import DiscountCode
+from core.models import DiscountCode, DiscountRedemption
 from core.models import ShippingSettings
 from store.models import CartItem, Category, Order, OrderItem, Product
 
@@ -180,6 +180,116 @@ class CheckoutTests(TestCase):
         self.assertEqual(order.items_subtotal, 150000)
         self.assertEqual(order.discount_amount, 15000)
         self.assertEqual(order.shipping_total, 10000)
+
+    def test_discount_code_max_uses_rejects_when_limit_reached(self):
+        DiscountCode.objects.create(
+            code="LIMIT1",
+            percent=10,
+            is_active=True,
+            is_public=False,
+            max_uses=1,
+            uses_count=1,
+        )
+
+        self.profile.phone = "09120000000"
+        self.profile.phone_verified = True
+        self.profile.save(update_fields=["phone", "phone_verified"])
+        self._login_and_seed_cart(quantity=1)
+
+        response = self.client.post(
+            reverse("checkout"),
+            data={
+                "first_name": "تست",
+                "last_name": "کاربر",
+                "phone": "09120000000",
+                "province": "تهران",
+                "city": "تهران",
+                "discount_code": "LIMIT1",
+                "discount_code_applied": "LIMIT1",
+                "address": "خیابان تست",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Order.objects.filter(user=self.user).exists())
+        self.assertIn("ظرفیت استفاده از این کد تکمیل شده است.", response.content.decode("utf-8"))
+
+    def test_discount_code_assigned_user_only(self):
+        other = User.objects.create_user(username="u2", password="pass12345", email="u2@example.com")
+        DiscountCode.objects.create(
+            code="PRIVATE10",
+            percent=10,
+            is_active=True,
+            is_public=False,
+            assigned_user=other,
+        )
+
+        self.profile.phone = "09120000000"
+        self.profile.phone_verified = True
+        self.profile.save(update_fields=["phone", "phone_verified"])
+        self._login_and_seed_cart(quantity=1)
+
+        response = self.client.post(
+            reverse("checkout"),
+            data={
+                "first_name": "تست",
+                "last_name": "کاربر",
+                "phone": "09120000000",
+                "province": "تهران",
+                "city": "تهران",
+                "discount_code": "PRIVATE10",
+                "discount_code_applied": "PRIVATE10",
+                "address": "خیابان تست",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("فقط برای کاربر مشخص شده", response.content.decode("utf-8"))
+
+        DiscountCode.objects.filter(code="PRIVATE10").update(assigned_user=self.user)
+        response_ok = self.client.post(
+            reverse("checkout"),
+            data={
+                "first_name": "تست",
+                "last_name": "کاربر",
+                "phone": "09120000000",
+                "province": "تهران",
+                "city": "تهران",
+                "discount_code": "PRIVATE10",
+                "discount_code_applied": "PRIVATE10",
+                "address": "خیابان تست",
+            },
+        )
+        self.assertEqual(response_ok.status_code, 302)
+
+    def test_discount_code_per_user_limit(self):
+        code = DiscountCode.objects.create(
+            code="ONCE",
+            percent=10,
+            is_active=True,
+            is_public=False,
+            max_uses_per_user=1,
+        )
+        DiscountRedemption.objects.create(discount_code=code, user=self.user, order_id=1)
+
+        self.profile.phone = "09120000000"
+        self.profile.phone_verified = True
+        self.profile.save(update_fields=["phone", "phone_verified"])
+        self._login_and_seed_cart(quantity=1)
+
+        response = self.client.post(
+            reverse("checkout"),
+            data={
+                "first_name": "تست",
+                "last_name": "کاربر",
+                "phone": "09120000000",
+                "province": "تهران",
+                "city": "تهران",
+                "discount_code": "ONCE",
+                "discount_code_applied": "ONCE",
+                "address": "خیابان تست",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("قبلاً توسط شما استفاده شده است", response.content.decode("utf-8"))
 
     def test_checkout_does_not_update_account_profile_fields(self):
         self.user.first_name = "Account"

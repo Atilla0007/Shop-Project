@@ -18,7 +18,7 @@ from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .invoice import render_manual_invoice_pdf, render_order_invoice_pdf
 from .models import Product, CartItem, Order, OrderItem, Category, ManualInvoiceSequence
 from accounts.models import UserProfile
-from core.models import DiscountCode, ShippingSettings
+from core.models import DiscountCode, DiscountRedemption, ShippingSettings
 from core.utils.formatting import format_money
 from core.utils.jalali import format_jalali
 
@@ -79,6 +79,23 @@ def _get_session_cart(request) -> dict[str, int]:
 
 def _set_session_cart(request, cart: dict[str, int]) -> None:
     request.session[SESSION_CART_KEY] = cart
+
+
+def _check_discount_eligibility(discount: DiscountCode, user) -> tuple[bool, str]:
+    """Return eligibility for a discount code (limits + assigned user)."""
+
+    if discount.assigned_user_id and discount.assigned_user_id != user.id:
+        return False, 'این کد فقط برای کاربر مشخص شده قابل استفاده است.'
+
+    if discount.max_uses is not None and int(discount.uses_count or 0) >= int(discount.max_uses):
+        return False, 'ظرفیت استفاده از این کد تکمیل شده است.'
+
+    if discount.max_uses_per_user:
+        used_by_user = DiscountRedemption.objects.filter(discount_code=discount, user=user).count()
+        if used_by_user >= int(discount.max_uses_per_user):
+            return False, 'این کد قبلاً توسط شما استفاده شده است.'
+
+    return True, ""
     request.session.modified = True
 
 
@@ -267,6 +284,10 @@ def discount_preview(request):
     if not discount:
         return JsonResponse({'ok': False, 'message': 'کد تخفیف نامعتبر است.'})
 
+    is_ok, message = _check_discount_eligibility(discount, request.user)
+    if not is_ok:
+        return JsonResponse({'ok': False, 'message': message})
+
     percent = int(discount.percent)
     amount = int(items_subtotal) * percent // 100
     subtotal = int(items_subtotal) - int(amount)
@@ -381,9 +402,14 @@ def checkout(request):
                 errors['discount_code'] = 'کد تخفیف نامعتبر است.'
                 discount_code = ""
             else:
-                discount_percent = int(discount.percent)
-                discount_amount = int(items_subtotal) * discount_percent // 100
-                subtotal = int(items_subtotal) - int(discount_amount)
+                is_ok, message = _check_discount_eligibility(discount, request.user)
+                if not is_ok:
+                    errors['discount_code'] = message
+                    discount_code = ""
+                else:
+                    discount_percent = int(discount.percent)
+                    discount_amount = int(items_subtotal) * discount_percent // 100
+                    subtotal = int(items_subtotal) - int(discount_amount)
 
         shipping_applied, shipping_applicable, shipping_is_free, shipping_total_full = compute_shipping(
             values['province'],
@@ -415,38 +441,113 @@ def checkout(request):
                 'show_phone_verify_modal': bool(errors.get('phone_verified')),
             })
 
-        order = Order.objects.create(
-            user=request.user,
-            total_price=total_payable,
-            status='unpaid',
-            first_name=values['first_name'],
-            last_name=values['last_name'],
-            phone=values['phone'],
-            email=values['email'] or (request.user.email or ''),
-            province=values['province'],
-            city=values['city'],
-            address=values['address'],
-            note=values['note'],
-            items_subtotal=int(items_subtotal),
-            discount_code=discount_code,
-            discount_percent=discount_percent,
-            discount_amount=discount_amount,
-            shipping_fee_per_item=shipping_fee_per_item,
-            shipping_item_count=item_count,
-            shipping_total_full=shipping_total_full,
-            shipping_total=shipping_applied,
-            shipping_is_free=shipping_is_free,
-            free_shipping_min_total=free_shipping_min_total,
-            payment_status='unpaid',
-        )
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                unit_price=item.product.price,
-            )
-        cart_items.delete()
+        recheck_error = ""
+        order = None
+        with transaction.atomic():
+            applied_discount = None
+            if discount_code:
+                applied_discount = (
+                    DiscountCode.objects.select_for_update()
+                    .filter(code=discount_code, is_active=True)
+                    .first()
+                )
+                if not applied_discount:
+                    recheck_error = 'کد تخفیف نامعتبر است.'
+                else:
+                    is_ok, message = _check_discount_eligibility(applied_discount, request.user)
+                    if not is_ok:
+                        recheck_error = message
+                    else:
+                        discount_percent = int(applied_discount.percent)
+                        discount_amount = int(items_subtotal) * discount_percent // 100
+                        subtotal = int(items_subtotal) - int(discount_amount)
+                        (
+                            shipping_applied,
+                            shipping_applicable,
+                            shipping_is_free,
+                            shipping_total_full,
+                        ) = compute_shipping(values['province'], int(subtotal))
+                        total_payable = int(subtotal) + int(shipping_applied)
+
+            if recheck_error:
+                pass
+            else:
+                order = Order.objects.create(
+                    user=request.user,
+                    total_price=total_payable,
+                    status='unpaid',
+                    first_name=values['first_name'],
+                    last_name=values['last_name'],
+                    phone=values['phone'],
+                    email=values['email'] or (request.user.email or ''),
+                    province=values['province'],
+                    city=values['city'],
+                    address=values['address'],
+                    note=values['note'],
+                    items_subtotal=int(items_subtotal),
+                    discount_code=discount_code,
+                    discount_percent=discount_percent,
+                    discount_amount=discount_amount,
+                    shipping_fee_per_item=shipping_fee_per_item,
+                    shipping_item_count=item_count,
+                    shipping_total_full=shipping_total_full,
+                    shipping_total=shipping_applied,
+                    shipping_is_free=shipping_is_free,
+                    free_shipping_min_total=free_shipping_min_total,
+                    payment_status='unpaid',
+                )
+                for item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=item.product,
+                        quantity=item.quantity,
+                        unit_price=item.product.price,
+                    )
+
+                if applied_discount:
+                    DiscountRedemption.objects.create(
+                        discount_code=applied_discount,
+                        user=request.user,
+                        order_id=order.id,
+                    )
+                    applied_discount.uses_count = int(applied_discount.uses_count or 0) + 1
+                    applied_discount.save(update_fields=["uses_count", "updated_at"])
+
+                cart_items.delete()
+
+        if recheck_error:
+            discount_code = ""
+            discount_percent = 0
+            discount_amount = 0
+            subtotal = int(items_subtotal)
+            (
+                shipping_applied,
+                shipping_applicable,
+                shipping_is_free,
+                shipping_total_full,
+            ) = compute_shipping(values['province'], int(subtotal))
+            total_payable = int(subtotal) + int(shipping_applied)
+            errors['discount_code'] = recheck_error
+            return render(request, 'store/checkout.html', {
+                'cart_items': cart_items,
+                'items_subtotal': items_subtotal,
+                'subtotal': subtotal,
+                'discount_code': discount_code,
+                'discount_percent': discount_percent,
+                'discount_amount': discount_amount,
+                'shipping_fee_per_item': shipping_fee_per_item,
+                'shipping_item_count': item_count,
+                'shipping_total_full': shipping_total_full,
+                'free_shipping_min_total': free_shipping_min_total,
+                'shipping_applicable': shipping_applicable,
+                'shipping_is_free': shipping_is_free,
+                'shipping_applied': shipping_applied,
+                'total_payable': total_payable,
+                'values': values,
+                'errors': errors,
+                'show_phone_verify_modal': bool(errors.get('phone_verified')),
+            })
+
         return redirect(reverse('payment', args=[order.id]))
 
     values = {
