@@ -54,6 +54,7 @@ class ShippingSettings(models.Model):
 
 class DiscountCode(models.Model):
     code = models.CharField(max_length=50, unique=True, verbose_name="کد تخفیف")
+    source_code = models.CharField(max_length=50, blank=True, db_index=True, verbose_name="کد مبدا")
     percent = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)],
         verbose_name="درصد تخفیف",
