@@ -98,7 +98,10 @@ class DiscountCodeAdmin(admin.ModelAdmin):
                 audience = form.cleaned_data["audience"]
                 sms_template = form.cleaned_data["sms_template"].strip() if form.cleaned_data["sms_template"] else ""
                 if not sms_template:
-                    sms_template = "کد تخفیف اختصاصی شما: {code} ({percent}٪ تخفیف)"
+                    sms_template = (
+                        "استیرا | کد تخفیف اختصاصی شما: {code} ({percent}٪ تخفیف). "
+                        "برای خرید بعدی استفاده کنید: styra.ir"
+                    )
 
                 User = get_user_model()
                 if audience == "buyers":
@@ -152,7 +155,10 @@ class DiscountCodeAdmin(admin.ModelAdmin):
                     try:
                         message = sms_template.format(code=personal.code, percent=personal.percent)
                     except Exception:
-                        message = f"کد تخفیف اختصاصی شما: {personal.code} ({personal.percent}٪ تخفیف)"
+                        message = (
+                            f"استیرا | کد تخفیف اختصاصی شما: {personal.code} ({personal.percent}٪ تخفیف). "
+                            "برای خرید بعدی استفاده کنید: styra.ir"
+                        )
 
                     try:
                         send_sms(profile.phone, message)
@@ -173,7 +179,14 @@ class DiscountCodeAdmin(admin.ModelAdmin):
                 )
                 return
         if form is None:
-            form = self.PersonalCodeForm(initial={"sms_template": "کد تخفیف اختصاصی شما: {code} ({percent}٪ تخفیف)"})
+            form = self.PersonalCodeForm(
+                initial={
+                    "sms_template": (
+                        "استیرا | کد تخفیف اختصاصی شما: {code} ({percent}٪ تخفیف). "
+                        "برای خرید بعدی استفاده کنید: styra.ir"
+                    )
+                }
+            )
 
         return TemplateResponse(
             request,
