@@ -39,10 +39,14 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-unsafe-change-me")
 DEBUG = _env_bool("DEBUG", True)
 
 _allowed_hosts = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
-ALLOWED_HOSTS = _allowed_hosts or ["localhost", "127.0.0.1", "[::1]", "testserver"]
+ALLOWED_HOSTS = _allowed_hosts or ["localhost", "127.0.0.1", "[::1]", "testserver","*"]
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
 ]
+
+#CSRF_TRUSTED_ORIGINS = ["https://*.trycloudflare.com"]
+#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 # Localization
 LANGUAGE_CODE='fa'
