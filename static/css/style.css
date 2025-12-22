@@ -3053,10 +3053,12 @@ body.modal-open {
     font-weight: 600;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     background: #040f16;
     color: #f5f5f5;
     cursor: pointer;
-    padding: 0;
+    padding: 0 16px 0 0;
+    overflow: hidden;
 }
 
 .sidebar-toggle-button:hover {
@@ -3071,10 +3073,12 @@ body.modal-open {
     justify-content: center;
     align-items: center;
     transition: all 0.5s;
+    inset-inline-start: 0;
 }
 
 .sidebar-toggle-button .sidebar-toggle-text {
-    transform: translateX(55px);
+    padding-inline-start: 72px;
+    transform: none;
 }
 
 .sidebar-toggle-button:hover .sidebar-toggle-icon {
