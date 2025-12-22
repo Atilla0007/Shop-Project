@@ -1,45 +1,52 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 
-{% block title %}ثبت نام{% endblock %}
+{% block title %}ایجاد حساب کاربری{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
 {% block content %}
 <section class="auth-form-shell">
-    <form class="form" method="post">
-        {% csrf_token %}
-        {% if next %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {% endif %}
-        {% if form and form.errors %}
-        <div class="form-error">{{ form.errors.as_ul }}</div>
-        {% endif %}
-        <span class="input-span">
-            <label for="email" class="label">ایمیل</label>
-            <input type="email" name="email" id="email" autocomplete="email" required>
-        </span>
-        <span class="input-span">
-            <label for="username" class="label">نام کاربری</label>
-            <input type="text" name="username" id="username" autocomplete="username" required>
-        </span>
-        <span class="input-span">
-            <label for="password1" class="label">رمز عبور</label>
-            <input type="password" name="password1" id="password1" autocomplete="new-password" required>
-        </span>
-        <span class="input-span">
-            <label for="password2" class="label">تکرار رمز عبور</label>
-            <input type="password" name="password2" id="password2" autocomplete="new-password" required>
-        </span>
-        <input class="submit" type="submit" value="ثبت نام" />
-        <span class="terms">
-          با ثبت‌نام در استیرا، با
-          <a href="{% url 'terms' %}">قوانین و مقررات</a>
-          موافقت می‌کنید.
-        </span>
-        <span class="span">حساب دارید؟ <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">ورود</a></span>
-    </form>
+  <form class="form" method="post">
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+    {% if form and form.errors %}<div class="form-error">{{ form.errors.as_ul }}</div>{% endif %}
+
+    <span class="input-span">
+      <label for="email" class="label">ایمیل</label>
+      <input type="email" name="email" id="email" autocomplete="email" required>
+    </span>
+    <span class="input-span">
+      <label for="username" class="label">نام کاربری</label>
+      <input type="text" name="username" id="username" autocomplete="username" required>
+    </span>
+    <span class="input-span">
+      <label for="password1" class="label">رمز عبور</label>
+      <input type="password" name="password1" id="password1" autocomplete="new-password" required>
+    </span>
+    <span class="input-span">
+      <label for="password2" class="label">تکرار رمز عبور</label>
+      <input type="password" name="password2" id="password2" autocomplete="new-password" required>
+    </span>
+
+    <label class="terms">
+      <input type="checkbox" name="accept_terms" required>
+      <span>با <a href="{% url 'terms' %}" target="_blank">قوانین و مقررات</a> و <a href="{% url 'privacy' %}" target="_blank">حریم خصوصی</a> موافقم.</span>
+    </label>
+    <label class="terms">
+      <input type="checkbox" name="optin_email">
+      <span>دریافت خبرنامه و ایمیل‌های اطلاع‌رسانی/تبلیغاتی</span>
+    </label>
+    <label class="terms">
+      <input type="checkbox" name="optin_sms">
+      <span>دریافت پیامک‌های اطلاع‌رسانی/تبلیغاتی</span>
+    </label>
+
+    <input class="submit" type="submit" value="ثبت نام" />
+    <span class="span">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}{% if next %}?next={{ next|urlencode }}{% endif %}">ورود</a></span>
+  </form>
 </section>
 {% endblock %}

@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils import timezone
 
 from django.db.models import Q
 
@@ -54,16 +55,33 @@ def signup(request):
     if request.user.is_authenticated:
         return redirect(next_url or "home")
 
+    error = ""
     if request.method == "POST":
         form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect(next_url or "home")
-        return render(request, "accounts/signup.html", {"form": form, "next": next_url})
+            if not request.POST.get("accept_terms"):
+                error = "برای ایجاد حساب باید با قوانین و حریم خصوصی موافقت کنید."
+            else:
+                user = form.save()
+                profile = _get_profile(user)
+                profile.privacy_accepted_at = timezone.now()
+                profile.marketing_email_opt_in = bool(request.POST.get("optin_email"))
+                profile.marketing_sms_opt_in = bool(request.POST.get("optin_sms"))
+                profile.marketing_opt_in_updated_at = timezone.now()
+                profile.save(
+                    update_fields=[
+                        "privacy_accepted_at",
+                        "marketing_email_opt_in",
+                        "marketing_sms_opt_in",
+                        "marketing_opt_in_updated_at",
+                    ]
+                )
+                login(request, user)
+                return redirect(next_url or "home")
+        return render(request, "accounts/signup.html", {"form": form, "next": next_url, "error": error})
 
     form = SignupForm()
-    return render(request, "accounts/signup.html", {"form": form, "next": next_url})
+    return render(request, "accounts/signup.html", {"form": form, "next": next_url, "error": error})
 
 
 def logout_view(request):

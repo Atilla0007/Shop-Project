@@ -72,6 +72,7 @@ INSTALLED_APPS=[
 ]
 MIDDLEWARE=[
     'django.middleware.security.SecurityMiddleware',
+    'core.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -146,6 +147,10 @@ RECEIPT_PURGE_DELAY_SECONDS = int(os.getenv('RECEIPT_PURGE_DELAY_SECONDS', '7200
 
 # Authentication security (login brute-force protection)
 AUTH_SECURITY_LOGIN_PATHS = os.getenv("AUTH_SECURITY_LOGIN_PATHS", "/login/,/admin/login/")
+AUTH_SECURITY_PROTECTED_PATHS = os.getenv(
+    "AUTH_SECURITY_PROTECTED_PATHS",
+    "/auth/email-otp/verify/,/auth/phone-otp/verify/,/password-reset/,/password_reset/",
+)
 AUTH_SECURITY_TRUST_X_FORWARDED_FOR = _env_bool("AUTH_SECURITY_TRUST_X_FORWARDED_FOR", False)
 AUTH_SECURITY_LOGIN_IP_MAX_ATTEMPTS = int(os.getenv("AUTH_SECURITY_LOGIN_IP_MAX_ATTEMPTS", "10"))
 AUTH_SECURITY_LOGIN_IP_WINDOW_SECONDS = int(os.getenv("AUTH_SECURITY_LOGIN_IP_WINDOW_SECONDS", "600"))
@@ -155,6 +160,15 @@ AUTH_SECURITY_LOGIN_IP_BLOCK_AFTER_ATTEMPTS = int(
 AUTH_SECURITY_IP_BLOCK_SECONDS = int(os.getenv("AUTH_SECURITY_IP_BLOCK_SECONDS", "1800"))
 AUTH_SECURITY_LOGIN_IDENTIFIER_MAX_ATTEMPTS = int(os.getenv("AUTH_SECURITY_LOGIN_IDENTIFIER_MAX_ATTEMPTS", "5"))
 AUTH_SECURITY_LOGIN_IDENTIFIER_WINDOW_SECONDS = int(os.getenv("AUTH_SECURITY_LOGIN_IDENTIFIER_WINDOW_SECONDS", "600"))
+
+# Security headers
+CSP_DEFAULT = os.getenv(
+    "CSP_DEFAULT",
+    "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self' data:;",
+)
+SECURE_REFERRER_POLICY = os.getenv("SECURE_REFERRER_POLICY", "same-origin")
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Email OTP settings
 EMAIL_OTP_LENGTH = int(os.getenv('EMAIL_OTP_LENGTH', '6'))

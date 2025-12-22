@@ -9,5 +9,5 @@ urlpatterns = [
     path("news/<int:pk>/", views.news_detail, name="news_detail"),
     path("faq/", views.faq, name="faq"),
     path("terms/", views.terms, name="terms"),
+    path("privacy/", views.privacy, name="privacy"),
 ]
-

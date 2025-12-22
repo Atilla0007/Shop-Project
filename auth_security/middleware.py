@@ -18,9 +18,14 @@ class LoginProtectionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if request.method == "POST" and self._is_login_path(request.path):
+        if request.method == "POST" and self._is_protected_path(request.path):
             ip = get_client_ip(request)
-            identifier = normalize_identifier(request.POST.get("username") or request.POST.get("email"))
+            identifier = normalize_identifier(
+                request.POST.get("username")
+                or request.POST.get("email")
+                or request.POST.get("phone")
+                or request.POST.get("identifier")
+            )
 
             if not identifier:
                 # Do not proceed to authentication; avoid unnecessary backend work.
@@ -55,8 +60,14 @@ class LoginProtectionMiddleware:
 
         return self.get_response(request)
 
-    def _is_login_path(self, path: str) -> bool:
-        configured = getattr(settings, "AUTH_SECURITY_LOGIN_PATHS", ["/login/", "/admin/login/"])
+    def _is_protected_path(self, path: str) -> bool:
+        configured_login = getattr(settings, "AUTH_SECURITY_LOGIN_PATHS", ["/login/", "/admin/login/"])
+        extra = getattr(settings, "AUTH_SECURITY_PROTECTED_PATHS", [])
+        if isinstance(configured_login, str):
+            configured_login = [p.strip() for p in configured_login.split(",") if p.strip()]
+        if isinstance(extra, str):
+            extra = [p.strip() for p in extra.split(",") if p.strip()]
+        configured = configured_login + extra
         if isinstance(configured, str):
             configured = [p.strip() for p in configured.split(",") if p.strip()]
         return path in configured
@@ -70,4 +81,3 @@ class LoginProtectionMiddleware:
         if retry_after_seconds and status_code == 429:
             resp["Retry-After"] = str(int(retry_after_seconds))
         return resp
-

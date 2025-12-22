@@ -10,6 +10,10 @@ class UserProfile(models.Model):
     phone_verified_at = models.DateTimeField(null=True, blank=True)
     email_verified = models.BooleanField(default=False)
     email_verified_at = models.DateTimeField(null=True, blank=True)
+    privacy_accepted_at = models.DateTimeField(null=True, blank=True)
+    marketing_email_opt_in = models.BooleanField(default=False)
+    marketing_sms_opt_in = models.BooleanField(default=False)
+    marketing_opt_in_updated_at = models.DateTimeField(null=True, blank=True)
 
     def mark_phone_verified(self):
         self.phone_verified = True

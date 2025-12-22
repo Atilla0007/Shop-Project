@@ -1,4 +1,4 @@
-
+﻿
 from datetime import timedelta
 import json
 import re
@@ -85,15 +85,15 @@ def _check_discount_eligibility(discount: DiscountCode, user) -> tuple[bool, str
     """Return eligibility for a discount code (limits + assigned user)."""
 
     if discount.assigned_user_id and discount.assigned_user_id != user.id:
-        return False, 'این کد فقط برای کاربر مشخص شده قابل استفاده است.'
+        return False, 'ط§غŒظ† ع©ط¯ ظپظ‚ط· ط¨ط±ط§غŒ ع©ط§ط±ط¨ط± ظ…ط´ط®طµ ط´ط¯ظ‡ ظ‚ط§ط¨ظ„ ط§ط³طھظپط§ط¯ظ‡ ط§ط³طھ.'
 
     if discount.max_uses is not None and int(discount.uses_count or 0) >= int(discount.max_uses):
-        return False, 'ظرفیت استفاده از این کد تکمیل شده است.'
+        return False, 'ط¸ط±ظپغŒطھ ط§ط³طھظپط§ط¯ظ‡ ط§ط² ط§غŒظ† ع©ط¯ طھع©ظ…غŒظ„ ط´ط¯ظ‡ ط§ط³طھ.'
 
     if discount.max_uses_per_user:
         used_by_user = DiscountRedemption.objects.filter(discount_code=discount, user=user).count()
         if used_by_user >= int(discount.max_uses_per_user):
-            return False, 'این کد قبلاً توسط شما استفاده شده است.'
+            return False, 'ط§غŒظ† ع©ط¯ ظ‚ط¨ظ„ط§ظ‹ طھظˆط³ط· ط´ظ…ط§ ط§ط³طھظپط§ط¯ظ‡ ط´ط¯ظ‡ ط§ط³طھ.'
 
     return True, ""
     request.session.modified = True
@@ -201,7 +201,7 @@ def product_detail(request, pk):
 def add_to_cart(request, pk):
     product = get_object_or_404(Product, pk=pk)
     raw_qty = (request.POST.get('qty') or request.GET.get('qty') or '1').strip()
-    raw_qty = raw_qty.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+    raw_qty = raw_qty.translate(str.maketrans("غ°غ±غ²غ³غ´غµغ¶غ·غ¸غ¹ظ ظ،ظ¢ظ£ظ¤ظ¥ظ¦ظ§ظ¨ظ©", "01234567890123456789"))
     try:
         qty = int(raw_qty)
     except (TypeError, ValueError):
@@ -256,13 +256,13 @@ def cart(request):
 def discount_preview(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if not profile.email_verified:
-        return JsonResponse({'ok': False, 'message': 'ابتدا ایمیل خود را تایید کنید.'}, status=403)
+        return JsonResponse({'ok': False, 'message': 'ط§ط¨طھط¯ط§ ط§غŒظ…غŒظ„ ط®ظˆط¯ ط±ط§ طھط§غŒغŒط¯ ع©ظ†غŒط¯.'}, status=403)
 
     _merge_session_cart_into_user(request)
     cart_items = CartItem.objects.filter(user=request.user).select_related('product')
     items_subtotal = int(sum(item.total_price() for item in cart_items))
     if not cart_items.exists():
-        return JsonResponse({'ok': False, 'message': 'سبد خرید شما خالی است.'}, status=400)
+        return JsonResponse({'ok': False, 'message': 'ط³ط¨ط¯ ط®ط±غŒط¯ ط´ظ…ط§ ط®ط§ظ„غŒ ط§ط³طھ.'}, status=400)
 
     code = (request.POST.get('code') or '').strip().upper().replace(' ', '')
     if not code:
@@ -273,7 +273,7 @@ def discount_preview(request):
             'amount': 0,
             'items_subtotal': items_subtotal,
             'subtotal': items_subtotal,
-            'message': 'کد تخفیف حذف شد.',
+            'message': 'ع©ط¯ طھط®ظپغŒظپ ط­ط°ظپ ط´ط¯.',
         })
 
     discount = (
@@ -282,7 +282,7 @@ def discount_preview(request):
         .first()
     )
     if not discount:
-        return JsonResponse({'ok': False, 'message': 'کد تخفیف نامعتبر است.'})
+        return JsonResponse({'ok': False, 'message': 'ع©ط¯ طھط®ظپغŒظپ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ.'})
 
     is_ok, message = _check_discount_eligibility(discount, request.user)
     if not is_ok:
@@ -298,7 +298,7 @@ def discount_preview(request):
         'amount': amount,
         'items_subtotal': items_subtotal,
         'subtotal': subtotal,
-        'message': f'کد {code} اعمال شد ({percent}٪).',
+        'message': f'ع©ط¯ {code} ط§ط¹ظ…ط§ظ„ ط´ط¯ ({percent}ظھ).',
     })
 
 
@@ -326,7 +326,7 @@ def checkout(request):
     def normalize_digits(value: str) -> str:
         if not value:
             return value
-        return value.translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789"))
+        return value.translate(str.maketrans("غ°غ±غ²غ³غ´غµغ¶غ·غ¸غ¹ظ ظ،ظ¢ظ£ظ¤ظ¥ظ¦ظ§ظ¨ظ©", "01234567890123456789"))
 
     def compute_shipping(province_value: str | None, effective_subtotal: int) -> tuple[int, bool, bool, int]:
         province_selected = bool((province_value or "").strip())
@@ -365,6 +365,9 @@ def checkout(request):
             'discount_code_applied': _normalize_discount_code(request.POST.get('discount_code_applied') or ''),
             'recipient_is_other': recipient_is_other,
             'address_id': (request.POST.get('address_id') or '').strip(),
+            'accept_terms': bool(request.POST.get('accept_terms')),
+            'optin_email': bool(request.POST.get('optin_email')),
+            'optin_sms': bool(request.POST.get('optin_sms')),
         }
 
         if not recipient_is_other:
@@ -376,26 +379,29 @@ def checkout(request):
         if values['address_id'].isdigit():
             selected_address = ShippingAddress.objects.filter(user=request.user, pk=int(values['address_id'])).first()
 
-        errors: dict[str, str] = {}
+                errors: dict[str, str] = {}
         if not values['first_name']:
-            errors['first_name'] = 'نام را وارد کنید.'
+            errors['first_name'] = 'باید نام را وارد کنید.'
         if not values['last_name']:
-            errors['last_name'] = 'نام خانوادگی را وارد کنید.'
+            errors['last_name'] = 'باید نام خانوادگی را وارد کنید.'
         if not values['phone']:
-            errors['phone'] = 'شماره موبایل را وارد کنید.'
+            errors['phone'] = 'باید شماره موبایل را وارد کنید.'
         if not values['province']:
-            errors['province'] = 'استان را انتخاب کنید.'
+            errors['province'] = 'باید استان را انتخاب کنید.'
         if not values['city']:
-            errors['city'] = 'شهر را انتخاب کنید.'
+            errors['city'] = 'باید شهر را انتخاب کنید.'
         if not values['address']:
-            errors['address'] = 'آدرس دقیق را وارد کنید.'
+            errors['address'] = 'باید آدرس کامل را وارد کنید.'
+        if not values['accept_terms']:
+            errors['accept_terms'] = 'لطفاً با قوانین و حریم خصوصی موافقت کنید.'
 
         if values['phone']:
             new_phone = values['phone'].replace(' ', '').replace('-', '')
             values['phone'] = new_phone
 
         if not profile.phone_verified:
-            errors['phone_verified'] = 'شماره موبایل شما تایید نشده است.'
+            errors['phone_verified'] = 'برای ثبت سفارش باید موبایل خود را تأیید کنید.'
+            errors['phone_verified'] = 'برای ثبت سفارش باید موبایل خود را تأیید کنید.'
 
         discount_code = values.get('discount_code_applied') or ""
         if discount_code:
@@ -405,7 +411,7 @@ def checkout(request):
                 .first()
             )
             if not discount:
-                errors['discount_code'] = 'کد تخفیف نامعتبر است.'
+                errors['discount_code'] = 'ع©ط¯ طھط®ظپغŒظپ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ.'
                 discount_code = ""
             else:
                 is_ok, message = _check_discount_eligibility(discount, request.user)
@@ -424,7 +430,7 @@ def checkout(request):
         total_payable = int(subtotal) + int(shipping_applied)
 
         if not cart_items.exists():
-            errors['cart'] = 'سبد خرید شما خالی است.'
+            errors['cart'] = 'ط³ط¨ط¯ ط®ط±غŒط¯ ط´ظ…ط§ ط®ط§ظ„غŒ ط§ط³طھ.'
 
         if errors:
             return render(request, 'store/checkout.html', {
@@ -458,7 +464,7 @@ def checkout(request):
                     .first()
                 )
                 if not applied_discount:
-                    recheck_error = 'کد تخفیف نامعتبر است.'
+                    recheck_error = 'ع©ط¯ طھط®ظپغŒظپ ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ.'
                 else:
                     is_ok, message = _check_discount_eligibility(applied_discount, request.user)
                     if not is_ok:
@@ -522,6 +528,20 @@ def checkout(request):
 
                 cart_items.delete()
 
+        if not recheck_error and values.get("accept_terms"):
+            update_fields = []
+            if not getattr(profile, "privacy_accepted_at", None):
+                profile.privacy_accepted_at = timezone.now()
+                update_fields.append("privacy_accepted_at")
+            email_opt = bool(values.get("optin_email"))
+            sms_opt = bool(values.get("optin_sms"))
+            if getattr(profile, "marketing_email_opt_in", False) != email_opt or getattr(profile, "marketing_sms_opt_in", False) != sms_opt:
+                profile.marketing_email_opt_in = email_opt
+                profile.marketing_sms_opt_in = sms_opt
+                profile.marketing_opt_in_updated_at = timezone.now()
+                update_fields.extend(["marketing_email_opt_in", "marketing_sms_opt_in", "marketing_opt_in_updated_at"])
+            if update_fields:
+                profile.save(update_fields=update_fields)
         if recheck_error:
             discount_code = ""
             discount_percent = 0
@@ -569,6 +589,9 @@ def checkout(request):
         'discount_code': '',
         'recipient_is_other': bool(not account_first_name or not account_last_name),
         'address_id': str(default_address.id) if default_address else '',
+        'accept_terms': False,
+        'optin_email': bool(getattr(profile,'marketing_email_opt_in', False)),
+        'optin_sms': bool(getattr(profile,'marketing_sms_opt_in', False)),
     }
     shipping_applied, shipping_applicable, shipping_is_free, shipping_total_full = compute_shipping(
         values['province'],
@@ -653,11 +676,11 @@ def payment_card_to_card(request, order_id: int):
     if request.method == 'POST' and order.status != 'canceled' and order.payment_status not in ('approved',):
         already_submitted = order.payment_status == 'submitted'
         if not payment_settings.card_number:
-            error = 'شماره کارت هنوز توسط ادمین تنظیم نشده است.'
+            error = 'ط´ظ…ط§ط±ظ‡ ع©ط§ط±طھ ظ‡ظ†ظˆط² طھظˆط³ط· ط§ط¯ظ…غŒظ† طھظ†ط¸غŒظ… ظ†ط´ط¯ظ‡ ط§ط³طھ.'
         else:
             receipt = request.FILES.get('receipt')
             if not receipt:
-                error = 'لطفاً تصویر فیش واریزی را بارگذاری کنید.'
+                error = 'ظ„ط·ظپط§ظ‹ طھطµظˆغŒط± ظپغŒط´ ظˆط§ط±غŒط²غŒ ط±ط§ ط¨ط§ط±ع¯ط°ط§ط±غŒ ع©ظ†غŒط¯.'
             else:
                 order.payment_method = 'card_to_card'
                 order.payment_status = 'submitted'
@@ -759,7 +782,7 @@ def manual_invoice(request):
     if not request.user.is_staff:
         raise Http404
 
-    company_name = getattr(settings, "SITE_NAME", "استیرا")
+    company_name = getattr(settings, "SITE_NAME", "ط§ط³طھغŒط±ط§")
     address = (getattr(settings, "COMPANY_ADDRESS", "") or "").strip()
     phone = (getattr(settings, "COMPANY_PHONE", "") or "").strip()
     email = (getattr(settings, "COMPANY_EMAIL", "") or "").strip()
@@ -832,7 +855,7 @@ def manual_invoice_pdf(request):
         return JsonResponse({"detail": "invalid payload"}, status=400)
 
     invoice_number = str(payload.get("invoice_number") or "").strip() or "#000000"
-    title = str(payload.get("title") or "").strip() or "پیش‌فاکتور"
+    title = str(payload.get("title") or "").strip() or "ظ¾غŒط´â€Œظپط§ع©طھظˆط±"
     issue_date = str(payload.get("issue_date") or "").strip()
     due_date = str(payload.get("due_date") or "").strip()
 
@@ -955,7 +978,7 @@ def cart_remove(request):
     if product_id <= 0:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             items, total = _build_cart_preview_data(request)
-            return JsonResponse({'ok': False, 'message': 'آیتم نامعتبر است.', 'items': items, 'total': total}, status=400)
+            return JsonResponse({'ok': False, 'message': 'ط¢غŒطھظ… ظ†ط§ظ…ط¹طھط¨ط± ط§ط³طھ.', 'items': items, 'total': total}, status=400)
         return redirect(reverse('cart'))
 
     if request.user.is_authenticated:
@@ -996,38 +1019,38 @@ def compare(request):
     products_qs = Product.objects.filter(id__in=ids).select_related('category').prefetch_related('features')
     products = list(products_qs)
 
-    # مرتب‌سازی بر اساس ترتیب انتخاب در سشن
+    # ظ…ط±طھط¨â€Œط³ط§ط²غŒ ط¨ط± ط§ط³ط§ط³ طھط±طھغŒط¨ ط§ظ†طھط®ط§ط¨ ط¯ط± ط³ط´ظ†
     products.sort(key=lambda p: ids.index(p.id))
 
-    # جمع‌کردن همه نام ویژگی‌ها
+    # ط¬ظ…ط¹â€Œع©ط±ط¯ظ† ظ‡ظ…ظ‡ ظ†ط§ظ… ظˆغŒعکع¯غŒâ€Œظ‡ط§
     feature_names = set()
     for p in products:
         for f in p.features.all():
             feature_names.add(f.name)
     feature_names = sorted(feature_names)
 
-    # ساخت ردیف‌های جدول برای تمپلیت
+    # ط³ط§ط®طھ ط±ط¯غŒظپâ€Œظ‡ط§غŒ ط¬ط¯ظˆظ„ ط¨ط±ط§غŒ طھظ…ظ¾ظ„غŒطھ
     rows = []
 
-    # ردیف‌های پایه
+    # ط±ط¯غŒظپâ€Œظ‡ط§غŒ ظ¾ط§غŒظ‡
     rows.append({
-        "label": "قیمت",
-        "values": [f"{format_money(p.price)} تومان" for p in products],
+        "label": "ظ‚غŒظ…طھ",
+        "values": [f"{format_money(p.price)} طھظˆظ…ط§ظ†" for p in products],
     })
     rows.append({
-        "label": "برند",
+        "label": "ط¨ط±ظ†ط¯",
         "values": [p.brand or "-" for p in products],
     })
     rows.append({
-        "label": "دسته‌بندی",
+        "label": "ط¯ط³طھظ‡â€Œط¨ظ†ط¯غŒ",
         "values": [p.category.name for p in products],
     })
     rows.append({
-        "label": "برچسب‌ها",
+        "label": "ط¨ط±ع†ط³ط¨â€Œظ‡ط§",
         "values": [p.tags or "-" for p in products],
     })
 
-    # ردیف‌های ویژگی‌های فنی
+    # ط±ط¯غŒظپâ€Œظ‡ط§غŒ ظˆغŒعکع¯غŒâ€Œظ‡ط§غŒ ظپظ†غŒ
     for fname in feature_names:
         row_vals = []
         for p in products:
@@ -1038,7 +1061,7 @@ def compare(request):
             "values": row_vals,
         })
 
-    # داده‌های لیست انتخاب محصول (پاپ‌آپ)
+    # ط¯ط§ط¯ظ‡â€Œظ‡ط§غŒ ظ„غŒط³طھ ط§ظ†طھط®ط§ط¨ ظ…ط­طµظˆظ„ (ظ¾ط§ظ¾â€Œط¢ظ¾)
     all_products = Product.objects.all().select_related('category')
 
     if products:
@@ -1063,6 +1086,13 @@ def compare(request):
         'related_products': related_products,
         'other_products': other_products,
     })
+
+
+
+
+
+
+
 
 
 

@@ -1,12 +1,12 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% load static %}
 {% load jalali %}
-{% block title %}تسویه حساب{% endblock %}
+{% block title %}طھط³ظˆغŒظ‡ ط­ط³ط§ط¨{% endblock %}
 
 {% block content %}
 <section class="section">
   <div class="container">
-    <h1>تسویه حساب</h1>
+    <h1>طھط³ظˆغŒظ‡ ط­ط³ط§ط¨</h1>
 
     {% if errors and errors.phone_verified %}
       <div class="form-error">{{ errors.phone_verified }}</div>
@@ -14,7 +14,7 @@
 
     <div class="checkout-layout">
       <div class="checkout-form">
-        <h2>اطلاعات گیرنده</h2>
+        <h2>ط§ط·ظ„ط§ط¹ط§طھ ع¯غŒط±ظ†ط¯ظ‡</h2>
 
         <form method="post" novalidate>
           {% csrf_token %}
@@ -29,82 +29,96 @@
                   value="1"
                   {% if values.recipient_is_other %}checked{% endif %}
                 >
-                <span>تحویل&zwnj;گیرنده شخص دیگری است</span>
+                <span>طھط­ظˆغŒظ„&zwnj;ع¯غŒط±ظ†ط¯ظ‡ ط´ط®طµ ط¯غŒع¯ط±غŒ ط§ط³طھ</span>
               </label>
             </div>
 
             <div class="checkout-field">
-              <label for="first_name">نام <span class="field-tag required">اجباری</span></label>
+              <label for="first_name">ظ†ط§ظ… <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <input id="first_name" type="text" name="first_name" value="{{ values.first_name }}" {% if not values.recipient_is_other %}readonly{% endif %} required>
               {% if errors.first_name %}<div class="field-error">{{ errors.first_name }}</div>{% endif %}
             </div>
 
             <div class="checkout-field">
-              <label for="last_name">نام خانوادگی <span class="field-tag required">اجباری</span></label>
+              <label for="last_name">ظ†ط§ظ… ط®ط§ظ†ظˆط§ط¯ع¯غŒ <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <input id="last_name" type="text" name="last_name" value="{{ values.last_name }}" {% if not values.recipient_is_other %}readonly{% endif %} required>
               {% if errors.last_name %}<div class="field-error">{{ errors.last_name }}</div>{% endif %}
             </div>
 
             <div class="checkout-field">
-              <label for="phone">شماره موبایل <span class="field-tag required">اجباری</span></label>
+              <label for="phone">ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <input id="phone" type="tel" name="phone" value="{{ values.phone }}" inputmode="tel" {% if not values.recipient_is_other %}readonly{% endif %} required>
               {% if errors.phone %}<div class="field-error">{{ errors.phone }}</div>{% endif %}
             </div>
 
             <div class="checkout-field">
-              <label for="email">ایمیل <span class="field-tag optional">اختیاری</span></label>
+              <label for="email">ط§غŒظ…غŒظ„ <span class="field-tag optional">ط§ط®طھغŒط§ط±غŒ</span></label>
               <input id="email" type="email" name="email" value="{{ values.email }}" autocomplete="email">
             </div>
           </div>
 
-          <h2 class="checkout-section-title">آدرس ارسال</h2>
+          <h2 class="checkout-section-title">ط¢ط¯ط±ط³ ط§ط±ط³ط§ظ„</h2>
 
           <div class="checkout-grid">
             <div class="checkout-field">
-              <label for="province-select">استان <span class="field-tag required">اجباری</span></label>
+              <label for="province-select">ط§ط³طھط§ظ† <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <select id="province-select" name="province" data-selected="{{ values.province }}" required>
-                <option value="">انتخاب کنید</option>
+                <option value="">ط§ظ†طھط®ط§ط¨ ع©ظ†غŒط¯</option>
               </select>
               {% if errors.province %}<div class="field-error">{{ errors.province }}</div>{% endif %}
             </div>
 
             <div class="checkout-field">
-              <label for="city-select">شهر <span class="field-tag required">اجباری</span></label>
+              <label for="city-select">ط´ظ‡ط± <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <select id="city-select" name="city" data-selected="{{ values.city }}" disabled required>
-                <option value="">ابتدا استان را انتخاب کنید</option>
+                <option value="">ط§ط¨طھط¯ط§ ط§ط³طھط§ظ† ط±ط§ ط§ظ†طھط®ط§ط¨ ع©ظ†غŒط¯</option>
               </select>
               {% if errors.city %}<div class="field-error">{{ errors.city }}</div>{% endif %}
             </div>
 
             <div class="checkout-field full">
-              <label for="address">آدرس دقیق <span class="field-tag required">اجباری</span></label>
+              <label for="address">ط¢ط¯ط±ط³ ط¯ظ‚غŒظ‚ <span class="field-tag required">ط§ط¬ط¨ط§ط±غŒ</span></label>
               <textarea id="address" name="address" rows="3" required>{{ values.address }}</textarea>
               {% if errors.address %}<div class="field-error">{{ errors.address }}</div>{% endif %}
             </div>
 
             <div class="checkout-field full">
-              <label for="note">یادداشت سفارش <span class="field-tag optional">اختیاری</span></label>
+              <label for="note">غŒط§ط¯ط¯ط§ط´طھ ط³ظپط§ط±ط´ <span class="field-tag optional">ط§ط®طھغŒط§ط±غŒ</span></label>
               <textarea id="note" name="note" rows="3">{{ values.note }}</textarea>
             </div>
 
             <div class="checkout-field full">
-              <label for="discount_code">کد تخفیف <span class="field-tag optional">اختیاری</span></label>
+              <label for="discount_code">ع©ط¯ طھط®ظپغŒظپ <span class="field-tag optional">ط§ط®طھغŒط§ط±غŒ</span></label>
               <div class="discount-inline">
                 <input id="discount_code" type="text" name="discount_code" value="{{ values.discount_code }}" autocomplete="off">
-                <button type="button" id="discount-apply-btn" class="btn btn-outline small">ثبت کد</button>
+                <button type="button" id="discount-apply-btn" class="btn btn-outline small">ط«ط¨طھ ع©ط¯</button>
               </div>
               <input type="hidden" id="discount_code_applied" name="discount_code_applied" value="{{ discount_code }}">
               {% if errors.discount_code %}
                 <div id="discount-feedback" class="discount-feedback error">{{ errors.discount_code }}</div>
               {% elif discount_code and discount_percent %}
-                <div id="discount-feedback" class="discount-feedback ok">کد <strong dir="ltr">{{ discount_code }}</strong> اعمال شد ({{ discount_percent }}٪).</div>
+                <div id="discount-feedback" class="discount-feedback ok">ع©ط¯ <strong dir="ltr">{{ discount_code }}</strong> ط§ط¹ظ…ط§ظ„ ط´ط¯ ({{ discount_percent }}ظھ).</div>
               {% else %}
                 <div id="discount-feedback" class="discount-feedback hidden"></div>
               {% endif %}
             </div>
           </div>
+          <div class="checkout-field full">
+            <label class="inline-check">
+              <input type="checkbox" name="accept_terms" value="1" required>
+              <span>با <a href="{% url 'terms' %}" target="_blank">قوانین و مقررات</a> و <a href="{% url 'privacy' %}" target="_blank">حریم خصوصی</a> موافقم.</span>
+            </label>
+            <label class="inline-check">
+              <input type="checkbox" name="optin_email" value="1" {% if values.optin_email %}checked{% endif %}>
+              <span>دریافت ایمیل‌های اطلاع‌رسانی/تبلیغاتی</span>
+            </label>
+            <label class="inline-check">
+              <input type="checkbox" name="optin_sms" value="1" {% if values.optin_sms %}checked{% endif %}>
+              <span>دریافت پیامک‌های اطلاع‌رسانی/تبلیغاتی</span>
+            </label>
+          </div>
 
-          <button type="submit" class="btn btn-primary">ادامه به پرداخت</button>
+          <button type="submit" class="btn btn-primary">ط§ط¯ط§ظ…ظ‡ ط¨ظ‡ ظ¾ط±ط¯ط§ط®طھ</button>
         </form>
       </div>
 
@@ -118,7 +132,7 @@
         data-free-threshold="{{ free_shipping_min_total }}"
         data-discount-preview-url="{% url 'discount_preview' %}"
       >
-        <h2>خلاصه سفارش</h2>
+        <h2>ط®ظ„ط§طµظ‡ ط³ظپط§ط±ط´</h2>
 
         {% if cart_items %}
           <ul class="checkout-items">
@@ -126,9 +140,9 @@
               <li class="checkout-item">
                 <div class="checkout-item-main">
                   <div class="checkout-item-name">{{ item.product.name }}</div>
-                  <div class="checkout-item-meta">{{ item.quantity }} × {{ item.product.price|money }} تومان</div>
+                  <div class="checkout-item-meta">{{ item.quantity }} أ— {{ item.product.price|money }} طھظˆظ…ط§ظ†</div>
                 </div>
-                <div class="checkout-item-total">{{ item.total_price|money }} تومان</div>
+                <div class="checkout-item-total">{{ item.total_price|money }} طھظˆظ…ط§ظ†</div>
               </li>
             {% endfor %}
           </ul>
@@ -136,42 +150,42 @@
           <div class="summary-divider"></div>
 
           <div class="summary-row">
-            <span>جمع کالاها</span>
+            <span>ط¬ظ…ط¹ ع©ط§ظ„ط§ظ‡ط§</span>
             <strong>{{ items_subtotal|money }}</strong>
-            <span>تومان</span>
+            <span>طھظˆظ…ط§ظ†</span>
           </div>
 
           <div id="discount-row" class="summary-row {% if not discount_amount %}hidden{% endif %}">
-            <span>تخفیف (<span id="discount-percent">{{ discount_percent|default_if_none:0 }}</span>٪)</span>
+            <span>طھط®ظپغŒظپ (<span id="discount-percent">{{ discount_percent|default_if_none:0 }}</span>ظھ)</span>
             <strong id="discount-amount" dir="ltr">-{{ discount_amount|money }}</strong>
-            <span>تومان</span>
+            <span>طھظˆظ…ط§ظ†</span>
           </div>
 
           <div class="summary-row">
-            <span id="subtotal-label">{% if discount_amount %}جمع بعد از تخفیف{% else %}جمع قابل پرداخت کالاها{% endif %}</span>
+            <span id="subtotal-label">{% if discount_amount %}ط¬ظ…ط¹ ط¨ط¹ط¯ ط§ط² طھط®ظپغŒظپ{% else %}ط¬ظ…ط¹ ظ‚ط§ط¨ظ„ ظ¾ط±ط¯ط§ط®طھ ع©ط§ظ„ط§ظ‡ط§{% endif %}</span>
             <strong id="checkout-subtotal">{{ subtotal|money }}</strong>
-            <span>تومان</span>
+            <span>طھظˆظ…ط§ظ†</span>
           </div>
 
           <div class="summary-row">
-            <span>هزینه ارسال ({{ shipping_item_count }} کالا × {{ shipping_fee_per_item|money }} تومان)</span>
+            <span>ظ‡ط²غŒظ†ظ‡ ط§ط±ط³ط§ظ„ ({{ shipping_item_count }} ع©ط§ظ„ط§ أ— {{ shipping_fee_per_item|money }} طھظˆظ…ط§ظ†)</span>
             <div class="summary-price">
               <span id="shipping-fee-original" class="summary-strike {% if not shipping_is_free %}hidden{% endif %}">{{ shipping_total_full|money }}</span>
               <strong id="shipping-fee">{{ shipping_applied|money }}</strong>
-              <span class="summary-currency">تومان</span>
-              <span id="shipping-free-badge" class="summary-badge {% if not shipping_is_free %}hidden{% endif %}">ارسال رایگان شد</span>
+              <span class="summary-currency">طھظˆظ…ط§ظ†</span>
+              <span id="shipping-free-badge" class="summary-badge {% if not shipping_is_free %}hidden{% endif %}">ط§ط±ط³ط§ظ„ ط±ط§غŒع¯ط§ظ† ط´ط¯</span>
             </div>
           </div>
 
-          <div id="shipping-hint" class="shipping-hint {% if shipping_applicable %}hidden{% endif %}">لطفاً استان و شهر را انتخاب کنید.</div>
+          <div id="shipping-hint" class="shipping-hint {% if shipping_applicable %}hidden{% endif %}">ظ„ط·ظپط§ظ‹ ط§ط³طھط§ظ† ظˆ ط´ظ‡ط± ط±ط§ ط§ظ†طھط®ط§ط¨ ع©ظ†غŒط¯.</div>
 
           <div class="summary-row total">
-            <span>مبلغ قابل پرداخت</span>
+            <span>ظ…ط¨ظ„ط؛ ظ‚ط§ط¨ظ„ ظ¾ط±ط¯ط§ط®طھ</span>
             <strong id="final-total">{{ total_payable|money }}</strong>
-            <span>تومان</span>
+            <span>طھظˆظ…ط§ظ†</span>
           </div>
         {% else %}
-          <p class="empty-text">سبد خرید شما خالی است.</p>
+          <p class="empty-text">ط³ط¨ط¯ ط®ط±غŒط¯ ط´ظ…ط§ ط®ط§ظ„غŒ ط§ط³طھ.</p>
         {% endif %}
       </div>
     </div>
@@ -180,11 +194,11 @@
 
 {% if show_phone_verify_modal %}
   <div id="phone-verify-modal" class="modal-overlay open" data-open="1" aria-hidden="false">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-label="تایید شماره موبایل">
-      <button type="button" class="modal-close" data-modal-close aria-label="بستن">×</button>
-      <h3>شماره موبایل تایید نشده است</h3>
-      <p>برای ثبت سفارش، لطفاً ابتدا شماره موبایل خود را تایید کنید.</p>
-      <a class="btn btn-primary" href="{% url 'phone_otp_verify_page' %}?next={{ request.get_full_path|urlencode }}">رفتن به تایید شماره موبایل</a>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="طھط§غŒغŒط¯ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„">
+      <button type="button" class="modal-close" data-modal-close aria-label="ط¨ط³طھظ†">أ—</button>
+      <h3>ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ طھط§غŒغŒط¯ ظ†ط´ط¯ظ‡ ط§ط³طھ</h3>
+      <p>ط¨ط±ط§غŒ ط«ط¨طھ ط³ظپط§ط±ط´طŒ ظ„ط·ظپط§ظ‹ ط§ط¨طھط¯ط§ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„ ط®ظˆط¯ ط±ط§ طھط§غŒغŒط¯ ع©ظ†غŒط¯.</p>
+      <a class="btn btn-primary" href="{% url 'phone_otp_verify_page' %}?next={{ request.get_full_path|urlencode }}">ط±ظپطھظ† ط¨ظ‡ طھط§غŒغŒط¯ ط´ظ…ط§ط±ظ‡ ظ…ظˆط¨ط§غŒظ„</a>
     </div>
   </div>
 {% endif %}
@@ -194,3 +208,6 @@
   <script src="{% static 'js/iran-locations.js' %}"></script>
   <script src="{% static 'js/checkout.js' %}"></script>
 {% endblock %}
+
+
+

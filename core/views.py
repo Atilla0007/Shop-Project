@@ -173,3 +173,8 @@ def faq(request):
 def terms(request):
     """Render Terms & Conditions page."""
     return render(request, "terms.html")
+
+
+def privacy(request):
+    """Render Privacy Policy page."""
+    return render(request, "privacy.html")
