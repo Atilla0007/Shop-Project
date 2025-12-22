@@ -6,8 +6,7 @@ from threading import Thread
 
 from django.conf import settings
 from django.db import close_old_connections, transaction
-from django.db.models import Q, Sum, Value, IntegerField
-from django.db.models.functions import Coalesce
+from django.db.models import Avg, F, Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -18,7 +17,8 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .invoice import render_manual_invoice_pdf, render_order_invoice_pdf
-from .models import Product, CartItem, Order, OrderItem, Category, ManualInvoiceSequence, ShippingAddress
+from .models import Product, CartItem, Order, OrderItem, Category, ManualInvoiceSequence, ShippingAddress, ProductReview
+from .forms import ProductReviewForm
 from accounts.models import UserProfile
 from core.models import DiscountCode, DiscountRedemption, ShippingSettings
 from core.utils.formatting import format_money
@@ -222,17 +222,9 @@ def shop(request):
     if sort == "cheapest":
         order_fields = ["price", "id"]
     elif sort == "bestseller":
-        products = products.annotate(
-            sold_qty=Coalesce(
-                Sum(
-                    "orderitem__quantity",
-                    filter=Q(orderitem__order__status__in=["paid", "sent", "done"]),
-                ),
-                Value(0),
-                output_field=IntegerField(),
-            )
-        )
-        order_fields = ["-sold_qty", "-id"]
+        order_fields = ["-sales_count", "-id"]
+    elif sort == "most_viewed":
+        order_fields = ["-view_count", "-id"]
     else:
         order_fields = ["-created_at", "-id"]
 
@@ -273,10 +265,36 @@ def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     features = product.features.all()
     absolute_url = request.build_absolute_uri()
+    review_submitted = False
+
+    if request.method == "POST":
+        review_form = ProductReviewForm(request.POST)
+        if review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.product = product
+            review.is_approved = False
+            review.save()
+            review_submitted = True
+            review_form = ProductReviewForm()
+    else:
+        review_form = ProductReviewForm()
+
+    if request.method == "GET":
+        Product.objects.filter(pk=product.pk).update(view_count=F("view_count") + 1)
+        product.view_count = (product.view_count or 0) + 1
+
+    reviews_qs = product.reviews.filter(is_approved=True)
+    avg_rating = reviews_qs.aggregate(avg=Avg("rating"))["avg"] or 0
+
     return render(request, 'store/product_detail.html', {
         'product': product,
         'features': features,
         'absolute_url': absolute_url,
+        'review_form': review_form,
+        'reviews': reviews_qs,
+        'avg_rating': avg_rating,
+        'review_count': reviews_qs.count(),
+        'review_submitted': review_submitted,
     })
 
 

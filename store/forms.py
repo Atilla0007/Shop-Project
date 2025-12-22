@@ -1,15 +1,15 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import ContactMessage
 
-class SignUpForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    class Meta:
-        model = User
-        fields = ('username','email','password1','password2')
+from .models import ProductReview
 
-class ContactForm(forms.ModelForm):
+
+class ProductReviewForm(forms.ModelForm):
     class Meta:
-        model = ContactMessage
-        fields = ('name','email','message')
+        model = ProductReview
+        fields = ("name", "email", "rating", "comment")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "input"}),
+            "email": forms.EmailInput(attrs={"class": "input"}),
+            "rating": forms.NumberInput(attrs={"class": "input", "min": 1, "max": 5}),
+            "comment": forms.Textarea(attrs={"class": "textarea", "rows": 4}),
+        }

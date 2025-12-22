@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 
-from core.models import DiscountCode
+from core.models import DiscountCode, PaymentSettings
 
 
 def site_info(request):
@@ -11,12 +11,17 @@ def site_info(request):
     if not company_email:
         company_email = (getattr(settings, "DEFAULT_FROM_EMAIL", "") or "").strip()
     company_address = (getattr(settings, "COMPANY_ADDRESS", "") or "").strip()
+    payment_settings = PaymentSettings.get_solo()
+    whatsapp_number = (payment_settings.whatsapp_number or "").strip()
+    telegram_username = (payment_settings.telegram_username or "").strip().lstrip("@")
 
     return {
         "site_name": getattr(settings, "SITE_NAME", "استیرا"),
         "company_phone": company_phone,
         "company_email": company_email,
         "company_address": company_address,
+        "company_whatsapp": whatsapp_number,
+        "company_telegram": telegram_username,
     }
 
 

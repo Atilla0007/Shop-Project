@@ -147,6 +147,55 @@
       </div>
     </div>
   </div>
+  <div class="product-reviews">
+    <div class="product-content-card">
+      <div class="card-head">
+        <h2>نظرات مشتریان</h2>
+        <div class="review-summary">
+          <span>میانگین: {{ avg_rating|floatformat:1 }}/5</span>
+          <span class="sep">|</span>
+          <span>{{ review_count }} نظر</span>
+        </div>
+      </div>
+
+      <div class="reviews-grid">
+        {% for review in reviews %}
+          <div class="review-card">
+            <div class="review-head">
+              <strong>{{ review.name }}</strong>
+              <span class="review-rating">{{ review.rating }}/5</span>
+            </div>
+            <p>{{ review.comment|linebreaksbr }}</p>
+          </div>
+        {% empty %}
+          <p class="empty-text">هنوز نظری ثبت نشده است.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="product-content-card">
+      <div class="card-head">
+        <h2>ثبت نظر</h2>
+      </div>
+      {% if review_submitted %}
+        <div class="form-success">نظر شما ثبت شد و پس از تایید نمایش داده می‌شود.</div>
+      {% endif %}
+      <form method="post" class="review-form">
+        {% csrf_token %}
+        {{ review_form.non_field_errors }}
+        <label>نام</label>
+        {{ review_form.name }}
+        <label>ایمیل (اختیاری)</label>
+        {{ review_form.email }}
+        <label>امتیاز (1 تا 5)</label>
+        {{ review_form.rating }}
+        <label>متن نظر</label>
+        {{ review_form.comment }}
+        <button type="submit" class="btn btn-primary">ثبت نظر</button>
+      </form>
+    </div>
+  </div>
+
 </section>
 {% endblock %}
 

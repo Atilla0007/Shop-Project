@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}درباره استیرا | فروشگاه آنلاین{% endblock %}
+
+{% block content %}
+<section class="section about-section">
+  <div class="container">
+    <div class="about-hero">
+      <div>
+        <h1>درباره استیرا</h1>
+        <p class="section-subtitle">
+          استیرا یک فروشگاه تخصصی تجهیزات و لوازم فروشگاهی است که با تمرکز بر اصالت کالا،
+          قیمت شفاف و پشتیبانی واقعی شکل گرفته است. ما تلاش می‌کنیم تجربه خرید امن و سریع
+          را برای کسب‌وکارهای رستورانی، فروشگاهی و صنعتی فراهم کنیم و در تمام مراحل انتخاب،
+          ارسال و خدمات پس از فروش کنار شما باشیم.
+        </p>
+      </div>
+      <div class="about-highlights">
+        <div class="about-card">
+          <h3>ماموریت ما</h3>
+          <p>تامین تجهیزات باکیفیت و ارائه مشاوره تخصصی برای کمک به رشد کسب‌وکار شما.</p>
+        </div>
+        <div class="about-card">
+          <h3>تعهد به اصالت</h3>
+          <p>همه محصولات با ضمانت اصالت ارائه می‌شوند و اطلاعات فنی شفاف در اختیار شماست.</p>
+        </div>
+        <div class="about-card">
+          <h3>پشتیبانی واقعی</h3>
+          <p>پشتیبانی تلفنی و آنلاین برای ثبت سفارش، پیگیری و پاسخگویی سریع آماده است.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-contact">
+      <h2 class="section-title right">راه‌های ارتباطی</h2>
+      <div class="contact-grid">
+        {% if company_phone %}
+          <a class="contact-pill" href="tel:{{ company_phone }}" dir="ltr">
+            <i class="bx bx-phone"></i>
+            {{ company_phone }}
+          </a>
+        {% endif %}
+        {% if company_email %}
+          <a class="contact-pill" href="mailto:{{ company_email }}">
+            <i class="bx bx-envelope"></i>
+            {{ company_email }}
+          </a>
+        {% endif %}
+        {% if company_whatsapp %}
+          <a class="contact-pill" href="https://wa.me/{{ company_whatsapp|cut:'+' }}" target="_blank" rel="noopener">
+            <i class="bx bxl-whatsapp"></i>
+            واتساپ
+          </a>
+        {% endif %}
+        {% if company_telegram %}
+          <a class="contact-pill" href="https://t.me/{{ company_telegram }}" target="_blank" rel="noopener">
+            <i class="bx bxl-telegram"></i>
+            تلگرام
+          </a>
+        {% endif %}
+      </div>
+
+      {% if company_address %}
+        <div class="about-address">
+          <h3>آدرس</h3>
+          <p>{{ company_address|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -5,12 +5,12 @@ from django.utils.html import format_html
 
 from accounts.sms import send_sms
 from .emails import send_order_payment_approved_email
-from .models import CartItem, Category, ManualInvoiceSequence, Order, OrderItem, Product, ShippingAddress
+from .models import CartItem, Category, ManualInvoiceSequence, Order, OrderItem, Product, ProductReview, ShippingAddress
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "domain", "price", "is_available")
+    list_display = ("name", "category", "domain", "price", "is_available", "view_count", "sales_count")
     list_filter = ("category", "domain", "is_available")
     search_fields = ("name", "domain")
 
@@ -65,6 +65,7 @@ def approve_payment(modeladmin, request, queryset):
         order.payment_reviewed_at = now
         order.save(update_fields=["payment_status", "status", "payment_reviewed_at"])
         _notify_order(order, "تایید پرداخت سفارش", f"پرداخت سفارش شماره {order.id} تایید شد. ممنون از خرید شما.")
+        order.mark_sales_counted()
 
 
 @admin.action(description="رد پرداخت و لغو سفارش")
@@ -117,13 +118,13 @@ class OrderAdmin(admin.ModelAdmin):
                     "تایید پرداخت سفارش شما",
                     f"پرداخت سفارش شماره {obj.id} تایید شد. سفارش شما در حال پردازش است.",
                 )
+                obj.mark_sales_counted()
             elif obj.payment_status == "rejected":
                 _notify_order(
                     obj,
                     "رد پرداخت سفارش شما",
                     f"پرداخت سفارش شماره {obj.id} رد شد و سفارش لغو گردید. لطفاً برای بررسی با پشتیبانی هماهنگ کنید.",
                 )
-
     def receipt_preview(self, obj: Order):
         if not obj.receipt_file:
             return "—"
@@ -138,6 +139,14 @@ class OrderAdmin(admin.ModelAdmin):
         return format_html('<a href="{}" target="_blank" rel="noopener">مشاهده فایل</a>', url)
 
     receipt_preview.short_description = "فیش"
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ("id", "product", "name", "rating", "is_approved", "created_at")
+    list_filter = ("is_approved", "rating", "created_at")
+    search_fields = ("product__name", "name", "comment")
+    list_editable = ("is_approved",)
 
 
 @admin.register(ManualInvoiceSequence)

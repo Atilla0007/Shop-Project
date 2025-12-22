@@ -16,9 +16,18 @@ from django.utils import timezone
 
 from accounts.models import UserProfile
 from accounts.sms import send_sms
-from store.models import Order
+from store.models import Order, Product
 
-from .models import ContactMessage, DiscountCode, DiscountRedemption, News, PaymentSettings, ShippingSettings, SiteVisit
+from .models import (
+    ContactMessage,
+    DailyVisitStat,
+    DiscountCode,
+    DiscountRedemption,
+    News,
+    PaymentSettings,
+    ShippingSettings,
+    SiteVisit,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +36,12 @@ logger = logging.getLogger(__name__)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ("title", "created_at")
     search_fields = ("title",)
+
+
+@admin.register(DailyVisitStat)
+class DailyVisitStatAdmin(admin.ModelAdmin):
+    list_display = ("date", "total_hits", "unique_sessions")
+    list_filter = ("date",)
 
 
 @admin.register(ContactMessage)
@@ -374,7 +389,27 @@ def _build_admin_analytics(period_days: int = 30) -> dict:
         .count()
     )
 
+    total_hits = DailyVisitStat.objects.aggregate(total=Coalesce(Sum("total_hits"), 0))["total"] or 0
+    avg_daily_hits = (
+        DailyVisitStat.objects.filter(date__gte=period_start.date())
+        .aggregate(avg=Avg("total_hits"))["avg"] or 0
+    )
+    daily_stats = list(
+        DailyVisitStat.objects.filter(date__gte=period_start.date())
+        .order_by("date")
+        .values("date", "total_hits", "unique_sessions")
+    )
+
     conversion_rate = (orders_period / visits_period * 100) if visits_period else 0.0
+
+    top_viewed = list(
+        Product.objects.order_by("-view_count", "-created_at")
+        .values("name", "view_count")[:5]
+    )
+    top_sold = list(
+        Product.objects.order_by("-sales_count", "-created_at")
+        .values("name", "sales_count")[:5]
+    )
 
     return {
         "period_days": period_days,
@@ -383,7 +418,12 @@ def _build_admin_analytics(period_days: int = 30) -> dict:
         "avg_basket": _format_int(avg_basket),
         "orders_period": _format_int(orders_period),
         "visits_period": _format_int(visits_period),
+        "total_hits": _format_int(total_hits),
+        "avg_daily_hits": _format_int(avg_daily_hits),
+        "daily_stats": daily_stats,
         "conversion_rate": f"{conversion_rate:.1f}%",
+        "top_viewed": top_viewed,
+        "top_sold": top_sold,
         "generated_at": now,
     }
 

@@ -6,7 +6,7 @@
   {% if analytics %}
     <div class="module">
       <h2>Last {{ analytics.period_days }} days</h2>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-top:12px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:12px;">
         <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
           <div style="font-size:12px; color:#6b7280;">Sales</div>
           <div style="font-size:18px; font-weight:700;">{{ analytics.sales_period }} Toman</div>
@@ -24,14 +24,69 @@
           <div style="font-size:18px; font-weight:700;">{{ analytics.orders_period }}</div>
         </div>
         <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
-          <div style="font-size:12px; color:#6b7280;">Visits</div>
+          <div style="font-size:12px; color:#6b7280;">Unique sessions</div>
           <div style="font-size:18px; font-weight:700;">{{ analytics.visits_period }}</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Total hits</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.total_hits }}</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Average daily hits</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.avg_daily_hits }}</div>
         </div>
         <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
           <div style="font-size:12px; color:#6b7280;">All-time sales</div>
           <div style="font-size:18px; font-weight:700;">{{ analytics.sales_total }} Toman</div>
         </div>
       </div>
+
+      <div style="margin-top:18px; display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <h3 style="margin-top:0;">Daily visits</h3>
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr>
+                <th style="text-align:left; padding:6px 0; font-size:12px; color:#6b7280;">Date</th>
+                <th style="text-align:right; padding:6px 0; font-size:12px; color:#6b7280;">Hits</th>
+                <th style="text-align:right; padding:6px 0; font-size:12px; color:#6b7280;">Sessions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in analytics.daily_stats|slice:":7" %}
+                <tr>
+                  <td style="padding:4px 0;">{{ row.date }}</td>
+                  <td style="padding:4px 0; text-align:right;">{{ row.total_hits }}</td>
+                  <td style="padding:4px 0; text-align:right;">{{ row.unique_sessions }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3">No data yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <h3 style="margin-top:0;">Top viewed products</h3>
+          <ol style="margin:0; padding-left:18px;">
+            {% for row in analytics.top_viewed %}
+              <li>{{ row.name }} ({{ row.view_count }})</li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ol>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <h3 style="margin-top:0;">Top sold products</h3>
+          <ol style="margin:0; padding-left:18px;">
+            {% for row in analytics.top_sold %}
+              <li>{{ row.name }} ({{ row.sales_count }})</li>
+            {% empty %}
+              <li>No data yet.</li>
+            {% endfor %}
+          </ol>
+        </div>
+      </div>
+
       <p style="margin-top:12px; color:#6b7280; font-size:12px;">
         Generated at {{ analytics.generated_at|date:"Y-m-d H:i" }}
       </p>

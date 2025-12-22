@@ -6,10 +6,12 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives, get_connection
+from django.db import connections
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 
-from store.models import Category, Product
+from store.models import Category, Product, ProductReview
 
 from .forms import ContactForm
 from .models import News
@@ -20,7 +22,16 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     """Render home page with highlighted products and news."""
-    products = Product.objects.filter(is_available=True)[:8]
+    products = Product.objects.filter(is_available=True).order_by("-created_at")[:8]
+    top_viewed_products = (
+        Product.objects.filter(is_available=True)
+        .order_by("-view_count", "-created_at")[:10]
+    )
+    latest_reviews = (
+        ProductReview.objects.filter(is_approved=True)
+        .select_related("product")
+        .order_by("-created_at")[:6]
+    )
     news = News.objects.all()[:3]
     categories = Category.objects.all()
     cart_product_ids: set[int] = set()
@@ -41,6 +52,8 @@ def home(request):
 
     context = {
         "products": products,
+        "top_viewed_products": top_viewed_products,
+        "latest_reviews": latest_reviews,
         "news": news,
         "categories": categories,
         "cart_product_ids": cart_product_ids,
@@ -180,3 +193,26 @@ def terms(request):
 def privacy(request):
     """Render Privacy Policy page."""
     return render(request, "privacy.html")
+
+
+def about(request):
+    """Render About Us page."""
+    return render(request, "about.html")
+
+
+def health_check(request):
+    """Basic health check endpoint for monitoring."""
+    db_ok = True
+    try:
+        with connections["default"].cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+    except Exception:
+        db_ok = False
+
+    payload = {
+        "status": "ok" if db_ok else "degraded",
+        "database": "ok" if db_ok else "error",
+        "time": timezone.now().isoformat(),
+    }
+    return JsonResponse(payload, status=200 if db_ok else 503)

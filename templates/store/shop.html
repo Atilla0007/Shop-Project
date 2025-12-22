@@ -52,6 +52,7 @@
               <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>جدیدترین</option>
               <option value="cheapest" {% if filters.sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
               <option value="bestseller" {% if filters.sort == 'bestseller' %}selected{% endif %}>پرفروش</option>
+              <option value="most_viewed" {% if filters.sort == 'most_viewed' %}selected{% endif %}>پربازدید</option>
             </select>
           </div>
         </div>
@@ -111,6 +112,10 @@
             <h3>{{ product.name }}</h3>
             <p class="product-domain">{{ product.domain }}</p>
             <p class="product-price">{{ product.price|money }} تومان</p>
+            <div class="product-metrics">
+              <span>بازدید: {{ product.view_count|money }}</span>
+              <span>فروش: {{ product.sales_count|money }}</span>
+            </div>
 
             <div class="product-actions" data-no-card-nav>
               <a href="{% url 'add_to_compare' product.id %}" class="btn btn-outline small">مقایسه</a>

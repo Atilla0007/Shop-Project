@@ -85,6 +85,12 @@
       </button>
     </li>
     <li>
+      <button type="button" onclick="gotoPage(this)" data-url="{% url 'about' %}">
+        <i class="bx bx-info-circle"></i>
+        <p>درباره ما</p>
+      </button>
+    </li>
+    <li>
       <button type="button" onclick="gotoPage(this)" data-url="{% url 'faq' %}">
         <i class="bx bx-help-circle"></i>
         <p>سوالات متداول</p>
@@ -128,6 +134,12 @@
       {% endif %}
       {% if company_email %}
         <p>ایمیل: <a href="mailto:{{ company_email }}">{{ company_email }}</a></p>
+      {% endif %}
+      {% if company_whatsapp %}
+        <p>واتساپ: <a href="https://wa.me/{{ company_whatsapp|cut:'+' }}" dir="ltr" target="_blank" rel="noopener">{{ company_whatsapp }}</a></p>
+      {% endif %}
+      {% if company_telegram %}
+        <p>تلگرام: <a href="https://t.me/{{ company_telegram }}" target="_blank" rel="noopener">@{{ company_telegram }}</a></p>
       {% endif %}
       {% if company_address %}
         <p>آدرس: {{ company_address|linebreaksbr }}</p>

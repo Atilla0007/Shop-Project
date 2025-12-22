@@ -66,6 +66,19 @@ class SiteVisit(models.Model):
         return f"{self.session_key} @ {self.visited_on}"
 
 
+class DailyVisitStat(models.Model):
+    date = models.DateField(unique=True, db_index=True)
+    total_hits = models.PositiveIntegerField(default=0)
+    unique_sessions = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Daily visit stat"
+        verbose_name_plural = "Daily visit stats"
+
+    def __str__(self):
+        return f"{self.date} - {self.total_hits}"
+
+
 class ShippingSettings(models.Model):
     shipping_fee = models.PositiveIntegerField(default=0, verbose_name="هزینه ارسال (تومان)")
     free_shipping_min_total = models.PositiveIntegerField(

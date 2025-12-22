@@ -2,6 +2,7 @@ from pathlib import Path
 import uuid
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 
@@ -44,6 +45,8 @@ class Product(models.Model):
     is_available = models.BooleanField(default=True, db_index=True)
     domain = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    view_count = models.PositiveIntegerField(default=0)
+    sales_count = models.PositiveIntegerField(default=0)
 
     # فیلدهای جدید
     brand = models.CharField("برند", max_length=100, blank=True)
@@ -77,6 +80,27 @@ class ProductFeature(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    name = models.CharField(max_length=120)
+    email = models.EmailField(blank=True)
+    rating = models.PositiveSmallIntegerField(
+        default=5,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
+    comment = models.TextField()
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "نظر محصول"
+        verbose_name_plural = "نظرات محصول"
+
+    def __str__(self):
+        return f"{self.product.name} - {self.rating}"
 
 
 class CartItem(models.Model):
@@ -153,6 +177,7 @@ class Order(models.Model):
     payment_submitted_at = models.DateTimeField(null=True, blank=True)
     payment_reviewed_at = models.DateTimeField(null=True, blank=True)
     receipt_digest_sent_at = models.DateTimeField(null=True, blank=True)
+    sales_counted = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "سفارش"
@@ -160,6 +185,17 @@ class Order(models.Model):
 
     def __str__(self):
         return f"سفارش #{self.id} - {self.user or 'مهمان'}"
+
+    def mark_sales_counted(self) -> None:
+        if self.sales_counted:
+            return
+        items = list(self.items.select_related("product"))
+        for item in items:
+            Product.objects.filter(pk=item.product_id).update(
+                sales_count=models.F("sales_count") + item.quantity
+            )
+        self.sales_counted = True
+        self.save(update_fields=["sales_counted"])
 
 
 class OrderItem(models.Model):
