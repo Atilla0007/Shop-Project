@@ -5349,12 +5349,17 @@ section,
 }
 
 .product-badge,
-.product-chip,
-.chip-label,
-.chip-value {
+.product-chip {
     background: #182328;
     color: var(--text);
     border: 1px solid var(--border);
+}
+
+.chip-label,
+.chip-value {
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .product-actions .btn {
