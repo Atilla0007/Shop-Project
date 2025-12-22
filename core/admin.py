@@ -397,15 +397,6 @@ def analytics_view(request):
     return TemplateResponse(request, "admin/analytics_dashboard.html", context)
 
 
-def _wrap_admin_index(original_index):
-    def _index(request, extra_context=None):
-        extra = extra_context or {}
-        extra["analytics"] = _build_admin_analytics()
-        return original_index(request, extra_context=extra)
-
-    return _index
-
-
 def _wrap_admin_urls(original_get_urls):
     def get_urls():
         urls = original_get_urls()
@@ -417,6 +408,4 @@ def _wrap_admin_urls(original_get_urls):
     return get_urls
 
 
-admin.site.index = _wrap_admin_index(admin.site.index)
-admin.site.index_template = "admin/index.html"
 admin.site.get_urls = _wrap_admin_urls(admin.site.get_urls)
