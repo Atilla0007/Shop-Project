@@ -362,8 +362,8 @@ def _build_admin_analytics(period_days: int = 30) -> dict:
     paid_orders = Order.objects.filter(status__in=["paid", "sent", "done"], payment_status="approved")
     paid_period = paid_orders.filter(created_at__gte=period_start)
 
-    sales_period = paid_period.aggregate(total=Coalesce(Sum("total_price"), 0))["total"] or 0
-    sales_total = paid_orders.aggregate(total=Coalesce(Sum("total_price"), 0))["total"] or 0
+    sales_period = paid_period.aggregate(total=Sum("total_price"))["total"] or 0
+    sales_total = paid_orders.aggregate(total=Sum("total_price"))["total"] or 0
     avg_basket = paid_period.aggregate(avg=Avg("total_price"))["avg"] or 0
     orders_period = paid_period.count()
 
