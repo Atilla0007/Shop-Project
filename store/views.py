@@ -203,7 +203,7 @@ def shop(request):
     if category_id:
         products = products.filter(category_id=category_id)
     if domain:
-        products = products.filter(domain__icontains=domain)
+        products = products.filter(Q(name__icontains=domain) | Q(domain__icontains=domain))
     if brand:
         products = products.filter(brand=brand)
     if availability == "in_stock":
