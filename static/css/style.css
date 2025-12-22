@@ -5207,6 +5207,15 @@ select {
     justify-content: center;
 }
 
+.orders-filters .btn.btn-primary {
+    margin-top: 0.6rem;
+}
+
+.addresses-card {
+    margin-inline: auto;
+    width: min(1120px, 92vw);
+}
+
 /* Inputs: darker background when filled/idle (except submit buttons) */
 input[type="text"],
 input[type="email"],
