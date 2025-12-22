@@ -182,7 +182,7 @@ LOGGING = {
 
 # Branding / Invoice company info
 SITE_NAME = os.getenv('SITE_NAME', 'استیرا')
-ABOUT_TEMPLATE = os.getenv('ABOUT_TEMPLATE', 'about_designer.html')
+ABOUT_TEMPLATE = os.getenv('ABOUT_TEMPLATE', 'about.html')
 COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS', '').replace('\\n', '\n')
 COMPANY_PHONE = os.getenv('COMPANY_PHONE', '')
 COMPANY_EMAIL = os.getenv('COMPANY_EMAIL', '')
