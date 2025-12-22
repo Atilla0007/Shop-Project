@@ -76,6 +76,7 @@ MIDDLEWARE=[
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'core.middleware.SiteVisitMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'auth_security.middleware.LoginProtectionMiddleware',

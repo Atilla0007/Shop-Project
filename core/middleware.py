@@ -1,6 +1,13 @@
 from __future__ import annotations
 
-from django.utils import translation
+import logging
+
+from django.conf import settings
+from django.utils import timezone, translation
+
+from core.models import SiteVisit
+
+logger = logging.getLogger(__name__)
 
 
 class AdminEnglishMiddleware:
@@ -18,6 +25,58 @@ class AdminEnglishMiddleware:
             return self.get_response(request)
         finally:
             translation.activate(previous_language)
+
+
+class SiteVisitMiddleware:
+    """Track unique site visits per session per day for analytics."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        try:
+            if request.method not in ("GET", "HEAD"):
+                return response
+
+            path = request.path or "/"
+            if path.startswith("/admin"):
+                return response
+
+            static_url = getattr(settings, "STATIC_URL", "/static/") or "/static/"
+            media_url = getattr(settings, "MEDIA_URL", "/media/") or "/media/"
+            if path.startswith(static_url) or path.startswith(media_url):
+                return response
+
+            session = request.session
+            if not session.session_key:
+                session.save()
+            session_key = session.session_key
+            if not session_key:
+                return response
+
+            visited_on = timezone.localdate()
+            defaults = {"first_path": path}
+            if request.user.is_authenticated:
+                defaults["user"] = request.user
+
+            SiteVisit.objects.get_or_create(
+                session_key=session_key,
+                visited_on=visited_on,
+                defaults=defaults,
+            )
+
+            if request.user.is_authenticated:
+                SiteVisit.objects.filter(
+                    session_key=session_key,
+                    visited_on=visited_on,
+                    user__isnull=True,
+                ).update(user=request.user)
+        except Exception:
+            logger.exception("Failed to record site visit")
+
+        return response
 
 
 class SecurityHeadersMiddleware:

@@ -1,0 +1,18 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+  <h1 style="margin:0 0 12px; font-size:18px; font-weight:900; letter-spacing:-0.2px;">
+    پاسخ استیرا
+  </h1>
+  <p style="margin:0 0 16px; color:#D8DCE5; font-size:13px;">
+    سلام {{ recipient }}، پیام شما دریافت شد و پاسخ تیم پشتیبانی استیرا در ادامه آمده است.
+  </p>
+
+  <div style="background:rgba(0,0,0,0.22); border:1px solid rgba(244,244,249,0.14); border-radius:16px; padding:14px 16px; color:#F4F4F9; line-height:2; font-size:14px; white-space:pre-line;">
+    {{ message_text }}
+  </div>
+
+  <p style="margin:16px 0 0; color:#D8DCE5; font-size:12px;">
+    اگر سوال دیگری دارید می‌توانید همین ایمیل را پاسخ دهید یا از طریق سایت با ما در ارتباط باشید.
+  </p>
+{% endblock %}

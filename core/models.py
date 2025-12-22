@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 
 class News(models.Model):
@@ -20,7 +21,14 @@ class News(models.Model):
 class ContactMessage(models.Model):
     name = models.CharField(max_length=200)
     email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
     message = models.TextField()
+    STATUS_CHOICES = (
+        ("new", "New"),
+        ("replied", "Replied"),
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    replied_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -30,6 +38,32 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.email}"
+
+
+class SiteVisit(models.Model):
+    session_key = models.CharField(max_length=40, db_index=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="site_visits",
+    )
+    visited_on = models.DateField(default=timezone.localdate, db_index=True)
+    first_path = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Site visit"
+        verbose_name_plural = "Site visits"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["session_key", "visited_on"], name="uniq_site_visit_session_day"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.session_key} @ {self.visited_on}"
 
 
 class ShippingSettings(models.Model):

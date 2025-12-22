@@ -1,0 +1,42 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Analytics dashboard</h1>
+
+  {% if analytics %}
+    <div class="module">
+      <h2>Last {{ analytics.period_days }} days</h2>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-top:12px;">
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Sales</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.sales_period }} Toman</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Average basket</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.avg_basket }} Toman</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Conversion rate</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.conversion_rate }}</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Paid orders</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.orders_period }}</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">Visits</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.visits_period }}</div>
+        </div>
+        <div style="padding:12px; border:1px solid #d7d7d7; border-radius:10px;">
+          <div style="font-size:12px; color:#6b7280;">All-time sales</div>
+          <div style="font-size:18px; font-weight:700;">{{ analytics.sales_total }} Toman</div>
+        </div>
+      </div>
+      <p style="margin-top:12px; color:#6b7280; font-size:12px;">
+        Generated at {{ analytics.generated_at|date:"Y-m-d H:i" }}
+      </p>
+    </div>
+  {% else %}
+    <p>No analytics data yet.</p>
+  {% endif %}
+{% endblock %}

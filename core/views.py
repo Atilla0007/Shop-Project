@@ -105,6 +105,7 @@ def contact(request):
                     "یک پیام جدید از فرم تماس سایت دریافت شد.\n\n"
                     f"نام: {message.name}\n"
                     f"ایمیل: {message.email}\n"
+                    f"??????: {message.phone or '-'}\n"
                     f"زمان: {created_at}\n\n"
                     f"متن پیام:\n{message.message}"
                 )
@@ -117,6 +118,7 @@ def contact(request):
                         "subtitle": "یک پیام جدید از فرم تماس سایت دریافت شد.",
                         "name": message.name,
                         "email": message.email,
+                        "phone": message.phone,
                         "created_at": created_at,
                         "message_text": message.message,
                         "admin_url": admin_url,
