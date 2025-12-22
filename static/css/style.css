@@ -3045,12 +3045,14 @@ body.modal-open {
 
 @media (max-width: 768px) {
     .nav-container {
-        flex-wrap: nowrap;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
         gap: 0.4rem;
     }
 
     .logo {
-        order: 1;
+        justify-self: center;
     }
 
     .logo-text {
@@ -3058,14 +3060,23 @@ body.modal-open {
     }
 
     .sidebar-toggle-btn {
-        order: 2;
-        width: 54px;
-        height: 42px;
-        font-size: 14px;
+        justify-self: end;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    .sidebar-toggle-btn:hover {
+        box-shadow: none;
     }
 
     .sidebar-toggle-btn .icon {
-        width: 54px;
+        position: static;
+        width: 32px;
+        height: 32px;
     }
 
     .sidebar-toggle-btn .text {
@@ -3073,9 +3084,10 @@ body.modal-open {
     }
 
     .nav-actions {
-        order: 3;
+        justify-self: start;
         width: auto;
         justify-content: flex-end;
+        margin-inline-start: 0;
         flex-wrap: nowrap;
         gap: 0.35rem;
     }
@@ -3120,9 +3132,14 @@ body.modal-open {
     }
 
     .sidebar-toggle-btn {
-        width: 50px;
-        height: 38px;
-        font-size: 14px;
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .sidebar-toggle-btn .icon {
+        width: 28px;
+        height: 28px;
     }
 
     .sidebar-toggle-btn .text {

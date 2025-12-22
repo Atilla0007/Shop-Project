@@ -57,8 +57,8 @@
               <a href="{% url 'manual_invoice' %}" role="menuitem"><i class='bx bxs-receipt'></i> ساخت پیش‌فاکتور</a>
               <a href="{% url 'admin:analytics-dashboard' %}" role="menuitem"><i class='bx bx-chart'></i> داشبورد تحلیل</a>
             {% endif %}
-                      <a href="{% url 'logout' %}" role="menuitem"><i class='bx bx-log-out'></i> ????</a>
-</div>
+            <a href="{% url 'logout' %}" role="menuitem"><i class='bx bx-log-out'></i> خروج</a>
+          </div>
         </div>
       {% else %}
         <a href="{% url 'login' %}" class="user-profile" aria-label="User Login Button">
