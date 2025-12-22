@@ -3062,6 +3062,14 @@ body.modal-open {
     margin-inline-end: auto;
 }
 
+.main-header .nav-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-inline-start: 0;
+    padding-inline-end: 1.2rem;
+}
+
 .sidebar-toggle-button:hover {
     box-shadow: 0 0 20px 0 rgba(46, 46, 46, 0.23);
 }
