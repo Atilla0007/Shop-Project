@@ -180,6 +180,7 @@
               (titleCompact.includes("فاکتور") && !titleCompact.includes("پیش"));
             const buyerSignature = (document.querySelector('[data-role="buyer-signature"]')?.textContent || "").trim();
             const sellerSignature = (document.querySelector('[data-role="seller-signature"]')?.textContent || "").trim();
+            const notes = (document.querySelector('[data-role="invoice-notes"]')?.textContent || "").trim();
 
             const payload = {
               title: titleText,
@@ -195,6 +196,7 @@
               include_signatures: includeSignatures,
               buyer_signature: buyerSignature,
               seller_signature: sellerSignature,
+              notes,
             };
 
             const btn = document.getElementById("printBtn");

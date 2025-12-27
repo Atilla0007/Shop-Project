@@ -259,6 +259,26 @@
         font-weight: 600;
       }
 
+      .inv-notes {
+        margin: 0 18px 18px;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: #fff;
+        min-height: 110px;
+      }
+
+      .notes-label {
+        display: block;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+
+      .notes-box {
+        min-height: 60px;
+      }
+
       .inv-signatures {
         display: flex;
         gap: 18px;
@@ -467,6 +487,15 @@
         </div>
       </div>
       {% if include_signatures %}
+      <div class="inv-notes">
+        <span class="notes-label">توضیحات</span>
+        <div
+          class="notes-box"
+          contenteditable="true"
+          data-role="invoice-notes"
+          data-placeholder="در صورت نیاز توضیحات تکمیلی را اینجا وارد کنید."
+        ></div>
+      </div>
       <div class="inv-signatures">
         <div class="signature-block">
           <span class="signature-label">نام و امضای خریدار</span>

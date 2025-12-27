@@ -375,6 +375,7 @@ def render_manual_invoice_pdf(
     include_signatures: bool = False,
     buyer_signature: str = "",
     seller_signature: str = "",
+    notes: str = "",
 ) -> bytes:
     """Generate a PDF for the manual invoice builder (staff-only UI)."""
     buyer_lines = [ln for ln in (buyer_lines or []) if (ln or "").strip()]
@@ -629,22 +630,36 @@ def render_manual_invoice_pdf(
     y = y - tot_h - 24
 
     if include_signatures:
+        notes_text = (notes or "").strip()
+        notes_h = 90
         sig_gap = 18
         sig_h = 70
         sig_w = (content_w - sig_gap) / 2
         buyer_box_x = margin_x + content_w - sig_w
         seller_box_x = margin_x
 
-        if y - sig_h < margin_y:
+        if y - (notes_h + sig_gap + sig_h) < margin_y:
             c.showPage()
             y = height - margin_y
 
         c.setStrokeColor(BORDER_COLOR)
+        c.rect(margin_x, y - notes_h, content_w, notes_h, stroke=1, fill=0)
+        c.setFont(font_name, 10)
+        c.setFillColor(TEXT_COLOR)
+        c.drawRightString(margin_x + content_w - 6, y - 16, _rtl("توضیحات"))
+
+        if notes_text:
+            note_y = y - 34
+            max_notes_w = content_w - 14
+            for line in _wrap_rtl_lines(notes_text, font_name=font_name, font_size=10, max_width=max_notes_w)[:4]:
+                c.drawRightString(margin_x + content_w - 6, note_y, _rtl(line))
+                note_y -= 14
+
+        y = y - notes_h - sig_gap
+
         c.rect(buyer_box_x, y - sig_h, sig_w, sig_h, stroke=1, fill=0)
         c.rect(seller_box_x, y - sig_h, sig_w, sig_h, stroke=1, fill=0)
 
-        c.setFont(font_name, 10)
-        c.setFillColor(TEXT_COLOR)
         c.drawRightString(buyer_box_x + sig_w - 6, y - 16, _rtl("نام و امضای خریدار"))
         c.drawRightString(seller_box_x + sig_w - 6, y - 16, _rtl("نام و امضای فروشنده"))
 

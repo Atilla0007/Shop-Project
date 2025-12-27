@@ -1018,6 +1018,7 @@ def manual_invoice_pdf(request):
     include_signatures = bool(payload.get("include_signatures"))
     buyer_signature = str(payload.get("buyer_signature") or "").strip()
     seller_signature = str(payload.get("seller_signature") or "").strip()
+    notes = str(payload.get("notes") or "").strip()
     if not include_signatures:
         title_compact = title.replace(" ", "").replace("‌", "")
         if ("فاکتور" in title_compact and "پیش" not in title_compact) or buyer_signature or seller_signature:
@@ -1079,6 +1080,7 @@ def manual_invoice_pdf(request):
         include_signatures=include_signatures,
         buyer_signature=buyer_signature,
         seller_signature=seller_signature,
+        notes=notes,
     )
 
     safe_filename_digits = re.sub(r"\D", "", invoice_number)
