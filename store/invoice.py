@@ -106,8 +106,8 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    margin_x = 40
-    margin_y = 40
+    margin_x = 12
+    margin_y = 12
     content_w = width - (2 * margin_x)
     y = height - margin_y
 
@@ -386,8 +386,8 @@ def render_manual_invoice_pdf(
     c = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    margin_x = 40
-    margin_y = 40
+    margin_x = 12
+    margin_y = 12
     content_w = width - (2 * margin_x)
     y = height - margin_y
 

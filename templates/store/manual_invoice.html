@@ -10,7 +10,7 @@
       @media print {
         @page {
           size: A4;
-          margin: 12mm;
+          margin: 4mm;
         }
         .no-print {
           display: none !important;
@@ -430,41 +430,42 @@
         </div>
       </div>
 
-      <div class="inv-footer">
-        <div><!-- فضای خالی / توضیحات --></div>
+            <div class="inv-footer">
+        <div><!-- ??? ??????? / ????? --></div>
         <div>
           <table>
             <tr>
-              <th>جمع کالاها</th>
-              <td id="footerItemsSubtotal" contenteditable="true">۰ تومان</td>
+              <th>??? ??????</th>
+              <td id="footerItemsSubtotal" contenteditable="true">? ?????</td>
             </tr>
             <tr>
-              <th>تخفیف</th>
-              <td id="footerDiscount" contenteditable="true">۰ تومان</td>
+              <th>?????</th>
+              <td id="footerDiscount" contenteditable="true">? ?????</td>
             </tr>
             <tr>
-              <th>هزینه ارسال</th>
-              <td id="footerShipping" contenteditable="true">۰ تومان</td>
+              <th>????? ?????</th>
+              <td id="footerShipping" contenteditable="true">? ?????</td>
             </tr>
             <tr>
-              <th>مبلغ نهایی</th>
-              <td id="footerGrandTotal" contenteditable="true">۰ تومان</td>
+              <th>???? ?????</th>
+              <td id="footerGrandTotal" contenteditable="true">? ?????</td>
             </tr>
           </table>
         </div>
-            {% if include_signatures %}
+      </div>
+      {% if include_signatures %}
       <div class="inv-signatures">
         <div class="signature-block">
-          <span class="signature-label">نام و امضای خریدار</span>
-          <div class="signature-line" contenteditable="true" data-role="buyer-signature" data-placeholder="نام خریدار"></div>
+          <span class="signature-label">??? ? ????? ??????</span>
+          <div class="signature-line" contenteditable="true" data-role="buyer-signature" data-placeholder="??? ??????"></div>
         </div>
         <div class="signature-block">
-          <span class="signature-label">نام و امضای فروشنده</span>
-          <div class="signature-line" contenteditable="true" data-role="seller-signature" data-placeholder="نام فروشنده"></div>
+          <span class="signature-label">??? ? ????? ???????</span>
+          <div class="signature-line" contenteditable="true" data-role="seller-signature" data-placeholder="??? ???????"></div>
         </div>
       </div>
       {% endif %}
-</div>
+
     </div>
 
     <script>
