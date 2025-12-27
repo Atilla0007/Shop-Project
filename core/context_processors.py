@@ -14,6 +14,8 @@ def site_info(request):
     payment_settings = PaymentSettings.get_solo()
     whatsapp_number = (payment_settings.whatsapp_number or "").strip()
     telegram_username = (payment_settings.telegram_username or "").strip().lstrip("@")
+    if not telegram_username:
+        telegram_username = (getattr(settings, "COMPANY_TELEGRAM", "") or "").strip().lstrip("@")
 
     return {
         "site_name": getattr(settings, "SITE_NAME", "استیرا"),

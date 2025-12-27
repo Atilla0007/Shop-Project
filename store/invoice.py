@@ -113,6 +113,11 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
 
     c.setTitle(f"invoice-{getattr(order, 'id', '')}")
 
+    include_signatures = False
+    buyer_signature = ""
+    seller_signature = ""
+    notes_text = (getattr(order, "note", "") or "").strip()
+
     raw_order_id = str(getattr(order, "id", "")).strip()
     order_id_text = raw_order_id.zfill(6).translate(PERSIAN_DIGITS_TRANS) if raw_order_id else ""
     invoice_title = f"{title} #{order_id_text}".strip()
@@ -329,7 +334,26 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
         c.drawRightString(x_totals + totals_w - 6, row_mid_y, _rtl(label))
         c.drawRightString(x_totals + (totals_w - split2) - 6, row_mid_y, _rtl(value))
 
-    y = y - tot_h - 24
+    y = y - tot_h - 18
+
+    notes_h = 90
+    if y - notes_h < margin_y:
+        c.showPage()
+        y = height - margin_y
+
+    c.setStrokeColor(BORDER_COLOR)
+    c.rect(margin_x, y - notes_h, content_w, notes_h, stroke=1, fill=0)
+    c.setFont(font_name, 10)
+    c.setFillColor(TEXT_COLOR)
+    c.drawRightString(margin_x + content_w - 6, y - 16, _rtl("توضیحات"))
+    if notes_text:
+        note_y = y - 34
+        max_notes_w = content_w - 14
+        for line in _wrap_rtl_lines(notes_text, font_name=font_name, font_size=10, max_width=max_notes_w)[:4]:
+            c.drawRightString(margin_x + content_w - 6, note_y, _rtl(line))
+            note_y -= 14
+
+    y = y - notes_h - 18
 
     if include_signatures:
         sig_gap = 18

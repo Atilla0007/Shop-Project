@@ -186,6 +186,7 @@ ABOUT_TEMPLATE = os.getenv('ABOUT_TEMPLATE', 'about.html')
 COMPANY_ADDRESS = os.getenv('COMPANY_ADDRESS', '').replace('\\n', '\n')
 COMPANY_PHONE = os.getenv('COMPANY_PHONE', '')
 COMPANY_EMAIL = os.getenv('COMPANY_EMAIL', '')
+COMPANY_TELEGRAM = os.getenv('COMPANY_TELEGRAM', 'styra_steel')
 
 # Base URL (optional) - used for links in admin digest emails (e.g. https://styra.ir)
 SITE_BASE_URL = os.getenv('SITE_BASE_URL', '')
