@@ -174,7 +174,10 @@
               })
               .filter((it) => it.name || it.desc || it.qty > 0 || it.price > 0);
 
-            const includeSignatures = root?.dataset.includeSignatures === "1";
+            const titleCompact = titleText.replace(/\s+/g, "");
+            const includeSignatures =
+              root?.dataset.includeSignatures === "1" ||
+              (titleCompact.includes("فاکتور") && !titleCompact.includes("پیش"));
             const buyerSignature = (document.querySelector('[data-role="buyer-signature"]')?.textContent || "").trim();
             const sellerSignature = (document.querySelector('[data-role="seller-signature"]')?.textContent || "").trim();
 

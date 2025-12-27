@@ -380,6 +380,11 @@ def render_manual_invoice_pdf(
     buyer_lines = [ln for ln in (buyer_lines or []) if (ln or "").strip()]
     items = items or []
 
+    if not include_signatures:
+        title_compact = (title or "").replace(" ", "").replace("‌", "")
+        if "فاکتور" in title_compact and "پیش" not in title_compact:
+            include_signatures = True
+
     font_name = _register_invoice_font()
 
     buffer = BytesIO()
