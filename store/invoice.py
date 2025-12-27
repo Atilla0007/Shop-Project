@@ -329,6 +329,33 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
         c.drawRightString(x_totals + totals_w - 6, row_mid_y, _rtl(label))
         c.drawRightString(x_totals + (totals_w - split2) - 6, row_mid_y, _rtl(value))
 
+    y = y - tot_h - 24
+
+    if include_signatures:
+        sig_gap = 18
+        sig_h = 70
+        sig_w = (content_w - sig_gap) / 2
+        buyer_box_x = margin_x + content_w - sig_w
+        seller_box_x = margin_x
+
+        if y - sig_h < margin_y:
+            c.showPage()
+            y = height - margin_y
+
+        c.setStrokeColor(BORDER_COLOR)
+        c.rect(buyer_box_x, y - sig_h, sig_w, sig_h, stroke=1, fill=0)
+        c.rect(seller_box_x, y - sig_h, sig_w, sig_h, stroke=1, fill=0)
+
+        c.setFont(font_name, 10)
+        c.setFillColor(TEXT_COLOR)
+        c.drawRightString(buyer_box_x + sig_w - 6, y - 16, _rtl("نام و امضای خریدار"))
+        c.drawRightString(seller_box_x + sig_w - 6, y - 16, _rtl("نام و امضای فروشنده"))
+
+        if buyer_signature:
+            c.drawRightString(buyer_box_x + sig_w - 6, y - 36, _rtl(buyer_signature))
+        if seller_signature:
+            c.drawRightString(seller_box_x + sig_w - 6, y - 36, _rtl(seller_signature))
+
     c.save()
     return buffer.getvalue()
 
@@ -345,6 +372,9 @@ def render_manual_invoice_pdf(
     discount: int = 0,
     shipping: int = 0,
     grand_total: int = 0,
+    include_signatures: bool = False,
+    buyer_signature: str = "",
+    seller_signature: str = "",
 ) -> bytes:
     """Generate a PDF for the manual invoice builder (staff-only UI)."""
     buyer_lines = [ln for ln in (buyer_lines or []) if (ln or "").strip()]

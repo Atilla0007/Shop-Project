@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from urllib.parse import parse_qs, quote, urlencode, urlparse, urlunparse
 from .invoice import render_manual_invoice_pdf, render_order_invoice_pdf
 from .models import Product, CartItem, Order, OrderItem, Category, ManualInvoiceSequence, ShippingAddress, ProductReview
@@ -925,6 +926,7 @@ def order_invoice_pdf(request, order_id: int):
     return response
 
 
+@ensure_csrf_cookie
 @login_required
 def manual_invoice(request):
     """Return an editable HTML invoice template for staff to manually issue invoices."""
@@ -940,6 +942,10 @@ def manual_invoice(request):
 
     company_address_lines = [ln.strip() for ln in address.splitlines() if ln.strip()]
     company_contact = " | ".join([p for p in [phone, email] if p])
+
+    kind = (request.GET.get("kind") or "proforma").strip().lower()
+    include_signatures = kind in {"invoice", "final"}
+    invoice_title = "فاکتور" if include_signatures else "پیش‌فاکتور"
 
     now = timezone.now()
     issue_date = format_jalali(now, "Y/m/d")
@@ -982,6 +988,8 @@ def manual_invoice(request):
             "issue_date": issue_date,
             "due_date": due_date,
             "invoice_number": invoice_number,
+            "invoice_title": invoice_title,
+            "include_signatures": include_signatures,
             "shipping_fee_per_item": shipping_fee_per_item,
             "free_shipping_min_total": free_shipping_min_total,
             "products": products,
@@ -1007,6 +1015,9 @@ def manual_invoice_pdf(request):
     title = str(payload.get("title") or "").strip() or "ظ¾غŒط´â€Œظپط§ع©طھظˆط±"
     issue_date = str(payload.get("issue_date") or "").strip()
     due_date = str(payload.get("due_date") or "").strip()
+    include_signatures = bool(payload.get("include_signatures"))
+    buyer_signature = str(payload.get("buyer_signature") or "").strip()
+    seller_signature = str(payload.get("seller_signature") or "").strip()
 
     buyer_lines = payload.get("buyer_lines") or []
     if not isinstance(buyer_lines, list):
@@ -1061,6 +1072,9 @@ def manual_invoice_pdf(request):
         discount=discount,
         shipping=shipping,
         grand_total=grand_total,
+        include_signatures=include_signatures,
+        buyer_signature=buyer_signature,
+        seller_signature=seller_signature,
     )
 
     safe_filename_digits = re.sub(r"\D", "", invoice_number)

@@ -54,10 +54,11 @@
           <div class="user-menu-dropdown" role="menu">
             <a href="{% url 'profile' %}" role="menuitem"><i class='bx bx-user'></i> پروفایل</a>
             {% if user.is_staff %}
-              <a href="{% url 'manual_invoice' %}" role="menuitem"><i class='bx bxs-receipt'></i> ساخت پیش‌فاکتور</a>
+              <a href="{% url 'manual_invoice' %}?kind=proforma" role="menuitem"><i class='bx bxs-receipt'></i> ???? ??????????</a>
+              <a href="{% url 'manual_invoice' %}?kind=invoice" role="menuitem"><i class='bx bxs-receipt'></i> ???? ??????</a>
               <a href="{% url 'admin:analytics-dashboard' %}" role="menuitem"><i class='bx bx-chart'></i> داشبورد تحلیل</a>
             {% endif %}
-            <a href="{% url 'logout' %}" role="menuitem"><i class='bx bx-log-out'></i> خروج</a>
+            <a href="{% url 'logout' %}" role="menuitem"><i class='bx bx-log-out'></i> ????</a>
           </div>
         </div>
       {% else %}

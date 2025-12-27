@@ -249,6 +249,34 @@
         flex: 1;
       }
 
+      .inv-signatures {
+        display: flex;
+        gap: 18px;
+        padding: 0 18px 18px;
+      }
+
+      .signature-block {
+        flex: 1;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        min-height: 90px;
+        background: #fff;
+      }
+
+      .signature-label {
+        display: block;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+
+      .signature-line {
+        border-bottom: 1px solid var(--border);
+        min-height: 32px;
+        padding-bottom: 6px;
+      }
+
       [contenteditable="true"] {
         outline: 1px dashed rgba(71, 85, 105, 0.35);
         border-radius: 8px;
@@ -276,7 +304,8 @@
 
       @media (max-width: 740px) {
         .inv-header,
-        .inv-footer {
+        .inv-footer,
+        .inv-signatures {
           flex-direction: column;
         }
         .container {
@@ -309,10 +338,11 @@
       class="container"
       data-shipping-fee-per-item="{{ shipping_fee_per_item|default:0 }}"
       data-free-shipping-min-total="{{ free_shipping_min_total|default:0 }}"
+      data-include-signatures="{% if include_signatures %}1{% else %}0{% endif %}"
     >
       <div class="inv-title">
         <h1>
-          <span contenteditable="true">فاکتور</span>
+          <span contenteditable="true">{{ invoice_title }}</span>
           <span contenteditable="true" dir="ltr">{{ invoice_number }}</span>
         </h1>
       </div>
@@ -422,7 +452,19 @@
             </tr>
           </table>
         </div>
+            {% if include_signatures %}
+      <div class="inv-signatures">
+        <div class="signature-block">
+          <span class="signature-label">نام و امضای خریدار</span>
+          <div class="signature-line" contenteditable="true" data-role="buyer-signature" data-placeholder="نام خریدار"></div>
+        </div>
+        <div class="signature-block">
+          <span class="signature-label">نام و امضای فروشنده</span>
+          <div class="signature-line" contenteditable="true" data-role="seller-signature" data-placeholder="نام فروشنده"></div>
+        </div>
       </div>
+      {% endif %}
+</div>
     </div>
 
     <script>
@@ -579,7 +621,7 @@
             computeTotals();
 
             const titleSpans = document.querySelectorAll(".inv-title h1 span[contenteditable]");
-            const titleText = (titleSpans?.[0]?.textContent || "").trim() || "پیش‌فاکتور";
+            const titleText = (titleSpans?.[0]?.textContent || "").trim() || "{{ invoice_title }}";
             const invoiceNumber = (titleSpans?.[1]?.textContent || "").trim() || "{{ invoice_number }}";
 
             const issueDate = (document.querySelector(".inv-header table tr:nth-child(1) td")?.textContent || "").trim();
@@ -600,6 +642,10 @@
               })
               .filter((it) => it.name || it.desc || it.qty > 0 || it.price > 0);
 
+            const includeSignatures = root?.dataset.includeSignatures === "1";
+            const buyerSignature = (document.querySelector('[data-role="buyer-signature"]')?.textContent || "").trim();
+            const sellerSignature = (document.querySelector('[data-role="seller-signature"]')?.textContent || "").trim();
+
             const payload = {
               title: titleText,
               invoice_number: invoiceNumber,
@@ -611,6 +657,9 @@
               discount: parseNumber(document.getElementById("footerDiscount")?.textContent || 0),
               shipping: parseNumber(document.getElementById("footerShipping")?.textContent || 0),
               grand_total: parseNumber(document.getElementById("footerGrandTotal")?.textContent || 0),
+              include_signatures: includeSignatures,
+              buyer_signature: buyerSignature,
+              seller_signature: sellerSignature,
             };
 
             const btn = document.getElementById("printBtn");
