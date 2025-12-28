@@ -29,7 +29,7 @@
         </div>
 
         <div class="payment-cards payment-cards--select" data-payment-choice>
-          <label class="payment-option">
+          <label class="payment-option{% if not payment_settings.card_number %} payment-option--disabled{% endif %}">
             <input
               class="payment-option-input"
               type="checkbox"

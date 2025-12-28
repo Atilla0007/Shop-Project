@@ -2347,6 +2347,42 @@ textarea:focus {
     cursor: not-allowed;
 }
 
+.payment-option--disabled .payment-card--select {
+    overflow: hidden;
+}
+
+.payment-option--disabled .payment-card--select::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        transparent 46%,
+        rgba(0, 0, 0, 0.55) 48%,
+        rgba(0, 0, 0, 0.55) 52%,
+        transparent 54%
+    );
+    pointer-events: none;
+}
+
+.payment-option--disabled .payment-card--select::after {
+    content: "این روش فعلا غیرفعال است";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(244, 244, 249, 0.4);
+    color: #f4f4f9;
+    font-weight: 800;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    text-align: center;
+    pointer-events: none;
+}
+
 .payment-choice-actions {
     margin-top: 1rem;
     display: flex;
