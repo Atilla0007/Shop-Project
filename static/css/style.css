@@ -6610,3 +6610,74 @@ hr,
     object-fit: cover;
     display: block;
 }
+
+@media (max-width: 768px) {
+    .main-header .container {
+        width: min(1120px, 94vw);
+    }
+
+    .nav-container {
+        padding-inline: 0.8rem;
+        gap: 0.6rem;
+    }
+
+    .sidebar-toggle-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+        transition: none;
+    }
+
+    .sidebar-toggle-btn .icon {
+        position: static;
+        width: 26px;
+        height: 26px;
+        transition: none;
+    }
+
+    .sidebar-toggle-btn svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .sidebar-toggle-btn .text {
+        display: none;
+    }
+
+    .sidebar-toggle-btn:hover {
+        box-shadow: none;
+    }
+
+    .sidebar-toggle-btn:hover .icon {
+        width: 26px;
+    }
+}
+
+@media (max-width: 520px) {
+    .main-header .container {
+        width: min(1120px, 92vw);
+    }
+
+    .nav-container {
+        padding-inline: 0.7rem;
+        gap: 0.5rem;
+    }
+
+    .sidebar-toggle-btn {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+    }
+
+    .sidebar-toggle-btn .icon,
+    .sidebar-toggle-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+}
