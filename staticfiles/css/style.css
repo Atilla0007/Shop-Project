@@ -3218,6 +3218,10 @@ body.modal-open {
 }
 
 @media (max-width: 600px) {
+    .container {
+        width: min(1120px, 90vw);
+    }
+
     .section {
         padding: 3rem 0;
     }
@@ -3238,7 +3242,7 @@ body.modal-open {
     }
 
     .nav-container {
-        padding-inline: 0.2rem;
+        padding-inline: 0.75rem;
     }
 }
 
@@ -3260,12 +3264,15 @@ body.modal-open {
 
     .sidebar-toggle-btn {
         justify-self: end;
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
         padding: 0;
         background: transparent;
         box-shadow: none;
         border: none;
+        border-radius: 0;
+        transition: none;
     }
 
     .sidebar-toggle-btn:hover {
@@ -3274,12 +3281,22 @@ body.modal-open {
 
     .sidebar-toggle-btn .icon {
         position: static;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
+        transition: none;
     }
 
     .sidebar-toggle-btn .text {
         display: none;
+    }
+
+    .sidebar-toggle-btn:hover .icon {
+        width: 28px;
+    }
+
+    .sidebar-toggle-btn svg {
+        width: 28px;
+        height: 28px;
     }
 
     .nav-actions {
@@ -3331,14 +3348,15 @@ body.modal-open {
     }
 
     .sidebar-toggle-btn {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
         font-size: 12px;
     }
 
     .sidebar-toggle-btn .icon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
     }
 
     .sidebar-toggle-btn .text {

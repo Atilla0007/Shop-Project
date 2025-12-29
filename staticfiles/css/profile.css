@@ -45,6 +45,8 @@
   margin: 0.2rem 0 0;
   color: var(--muted);
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-info {
@@ -64,6 +66,7 @@
   border-radius: 14px;
   background: rgba(0, 0, 0, 0.14);
   border: 1px solid rgba(244, 244, 249, 0.1);
+  flex-wrap: wrap;
 }
 
 .profile-info .row span {
@@ -74,6 +77,11 @@
 
 .profile-info .row strong {
   font-weight: 700;
+  flex: 1 1 140px;
+  min-width: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .profile-badges {
@@ -284,6 +292,12 @@
   }
   .fields-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-shell {
+    padding-inline: 0.85rem;
   }
 }
 
