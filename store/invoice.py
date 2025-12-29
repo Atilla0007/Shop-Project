@@ -96,12 +96,24 @@ def _company_invoice_lines() -> list[str]:
     email = (getattr(settings, "COMPANY_EMAIL", "") or "").strip()
     if not email:
         email = (getattr(settings, "DEFAULT_FROM_EMAIL", "") or "").strip()
+    website = (getattr(settings, "COMPANY_WEBSITE", "") or "").strip()
+
+    try:
+        from core.models import PaymentSettings
+
+        payment_settings = PaymentSettings.get_solo()
+        address = (payment_settings.company_address or address or "").strip()
+        phone = (payment_settings.company_phone or phone or "").strip()
+        email = (payment_settings.company_email or email or "").strip()
+        website = (payment_settings.company_website or website or "").strip()
+    except Exception:
+        pass
 
     lines: list[str] = []
     if address:
         lines.extend([ln.strip() for ln in address.splitlines() if ln.strip()])
-    if phone or email:
-        contact = " | ".join([p for p in [phone, email] if p])
+    if phone or email or website:
+        contact = " | ".join([p for p in [phone, email, website] if p])
         lines.append(contact)
 
     if not lines:
@@ -150,7 +162,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
 
     # Logo (centered)
     logo_path = Path(settings.BASE_DIR) / "static" / "img" / "logo-styra.png"
-    y -= 18
+    y -= 22
     if logo_path.exists():
         try:
             logo_box = 90
@@ -185,7 +197,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     if include_validity:
         summary_rows.append(("مدت اعتبار", due_date))
 
-    row_h = 22
+    row_h = 26
     table_h = row_h * len(summary_rows)
     c.setStrokeColor(BORDER_COLOR)
     c.rect(x_summary, y - table_h, summary_w, table_h, stroke=1, fill=0)
@@ -198,7 +210,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     c.setFillColor(TEXT_COLOR)
     for idx, (label, value) in enumerate(summary_rows):
         row_top = y - (row_h * idx)
-        row_mid_y = row_top - 15
+        row_mid_y = row_top - 17
         # label cell (right side)
         c.drawRightString(x_summary + summary_w - 6, row_mid_y, _rtl(label))
         # value cell (left side)
@@ -212,17 +224,19 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
 
     c.setFont(font_name, 13)
     c.drawRightString(details_right, cursor_y - 2, _rtl(seller_name))
-    cursor_y -= 18
+    cursor_y -= 20
     c.setFont(font_name, 10)
     for line in seller_rest:
         for wrapped in _wrap_rtl_lines(line, font_name=font_name, font_size=10, max_width=details_w):
             c.drawRightString(details_right, cursor_y, _rtl(wrapped))
-            cursor_y -= 14
-    cursor_y -= 8
+            cursor_y -= 18
+    cursor_y -= 12
 
+    recipient_is_other = bool(getattr(order, "recipient_is_other", False))
+    buyer_heading = "تحویل‌گیرنده" if recipient_is_other else "خریدار / تحویل‌گیرنده"
     c.setFont(font_name, 13)
-    c.drawRightString(details_right, cursor_y, _rtl("مشخصات خریدار"))
-    cursor_y -= 18
+    c.drawRightString(details_right, cursor_y, _rtl(buyer_heading))
+    cursor_y -= 20
     c.setFont(font_name, 10)
 
     full_name = f"{getattr(order, 'first_name', '')} {getattr(order, 'last_name', '')}".strip() or "-"
@@ -234,10 +248,21 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     city = (getattr(order, "city", "") or "").strip()
     address = (getattr(order, "address", "") or "").strip()
 
-    buyer_lines = [
-        f"نام: {full_name}",
-        f"موبایل: {buyer_phone}",
-    ]
+    buyer_lines = []
+    if recipient_is_other and getattr(order, "user", None):
+        purchaser_name = (getattr(order.user, "get_full_name", lambda: "")() or "").strip()
+        if not purchaser_name:
+            purchaser_name = (getattr(order.user, "username", "") or "").strip()
+        if purchaser_name:
+            buyer_lines.append(f"سفارش‌دهنده: {purchaser_name}")
+
+    name_label = "تحویل‌گیرنده" if recipient_is_other else "نام"
+    buyer_lines.extend(
+        [
+            f"{name_label}: {full_name}",
+            f"موبایل: {buyer_phone}",
+        ]
+    )
     if buyer_email:
         buyer_lines.append(f"ایمیل: {buyer_email}")
     if province or city:
@@ -251,8 +276,10 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
             continue
         for wrapped in wrapped_lines[:3]:
             c.drawRightString(details_right, cursor_y, _rtl(wrapped))
-            cursor_y -= 14
+            cursor_y -= 18
+    cursor_y -= 6
 
+    cursor_y -= 6
     header_bottom = min(y - table_h, cursor_y)
     y = header_bottom - 24
 
@@ -268,7 +295,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
         col_product = content_w - col_price - col_qty
 
         def draw_items_header(at_y: float) -> float:
-            header_h = 26
+            header_h = 28
             c.setStrokeColor(BORDER_COLOR)
             c.setFillColor(colors.HexColor("#F4F4F9"))
             c.rect(margin_x, at_y - header_h, content_w, header_h, stroke=1, fill=1)
@@ -277,13 +304,13 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
             c.line(margin_x + col_price, at_y, margin_x + col_price, at_y - header_h)
             c.line(margin_x + col_price + col_qty, at_y, margin_x + col_price + col_qty, at_y - header_h)
             c.setFont(font_name, 11)
-            c.drawRightString(margin_x + content_w - 6, at_y - 17, _rtl("کالا"))
-            c.drawRightString(margin_x + col_price + col_qty - 6, at_y - 17, _rtl("تعداد"))
-            c.drawRightString(margin_x + col_price - 6, at_y - 17, _rtl("مبلغ"))
+            c.drawRightString(margin_x + content_w - 6, at_y - 19, _rtl("کالا"))
+            c.drawRightString(margin_x + col_price + col_qty - 6, at_y - 19, _rtl("تعداد"))
+            c.drawRightString(margin_x + col_price - 6, at_y - 19, _rtl("مبلغ"))
             return at_y - header_h
 
         y = draw_items_header(y)
-        row_h_item = 24
+        row_h_item = 30
         c.setFont(font_name, 10)
 
         for it in items:
@@ -307,7 +334,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
             c.line(margin_x + col_price, y, margin_x + col_price, y - row_h_item)
             c.line(margin_x + col_price + col_qty, y, margin_x + col_price + col_qty, y - row_h_item)
 
-            baseline_y = y - 16
+            baseline_y = y - 19
             c.drawRightString(margin_x + content_w - 6, baseline_y, _rtl(name))
             c.drawRightString(margin_x + col_price + col_qty - 6, baseline_y, _rtl(qty_text))
             c.drawRightString(margin_x + col_price - 6, baseline_y, _rtl(price_text))
@@ -334,7 +361,7 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
 
     totals_rows.append(("مبلغ قابل پرداخت", f"{format_money(getattr(order, 'total_price', 0))} تومان"))
 
-    tot_row_h = 22
+    tot_row_h = 26
     tot_h = tot_row_h * len(totals_rows)
     c.setStrokeColor(BORDER_COLOR)
     c.rect(x_totals, y - tot_h, totals_w, tot_h, stroke=1, fill=0)
@@ -346,13 +373,13 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     c.setFont(font_name, 10)
     for idx, (label, value) in enumerate(totals_rows):
         row_top = y - (tot_row_h * idx)
-        row_mid_y = row_top - 15
+        row_mid_y = row_top - 17
         c.drawRightString(x_totals + totals_w - 6, row_mid_y, _rtl(label))
         c.drawRightString(x_totals + (totals_w - split2) - 6, row_mid_y, _rtl(value))
 
     y = y - tot_h - 18
 
-    notes_h = 90
+    notes_h = 110
     if y - notes_h < margin_y:
         c.showPage()
         y = height - margin_y
@@ -363,13 +390,13 @@ def render_order_invoice_pdf(*, order, title: str = "فاکتور", include_vali
     c.setFillColor(TEXT_COLOR)
     c.drawRightString(margin_x + content_w - 6, y - 16, _rtl("توضیحات"))
     if notes_text:
-        note_y = y - 34
+        note_y = y - 38
         max_notes_w = content_w - 14
         for line in _wrap_rtl_lines(notes_text, font_name=font_name, font_size=10, max_width=max_notes_w)[:4]:
             c.drawRightString(margin_x + content_w - 6, note_y, _rtl(line))
-            note_y -= 14
+            note_y -= 18
 
-    y = y - notes_h - 18
+    y = y - notes_h - 20
 
     if include_signatures:
         sig_gap = 18
@@ -486,7 +513,7 @@ def render_manual_invoice_pdf(
     if not summary_rows:
         summary_rows.append(("تاریخ صدور", ""))
 
-    row_h = 22
+    row_h = 26
     table_h = row_h * len(summary_rows)
     c.setStrokeColor(BORDER_COLOR)
     c.rect(x_summary, y - table_h, summary_w, table_h, stroke=1, fill=0)
@@ -499,7 +526,7 @@ def render_manual_invoice_pdf(
     c.setFillColor(TEXT_COLOR)
     for idx, (label, value) in enumerate(summary_rows):
         row_top = y - (row_h * idx)
-        row_mid_y = row_top - 15
+        row_mid_y = row_top - 17
         c.drawRightString(x_summary + summary_w - 6, row_mid_y, _rtl(label))
         c.drawRightString(x_summary + (summary_w - split) - 6, row_mid_y, _rtl(value))
 
@@ -511,24 +538,24 @@ def render_manual_invoice_pdf(
 
     c.setFont(font_name, 13)
     c.drawRightString(details_right, cursor_y - 2, _rtl(seller_name))
-    cursor_y -= 18
+    cursor_y -= 20
     c.setFont(font_name, 10)
     for line in seller_rest:
         for wrapped in _wrap_rtl_lines(line, font_name=font_name, font_size=10, max_width=details_w):
             c.drawRightString(details_right, cursor_y, _rtl(wrapped))
-            cursor_y -= 14
-    cursor_y -= 8
+            cursor_y -= 18
+    cursor_y -= 12
 
     c.setFont(font_name, 13)
     c.drawRightString(details_right, cursor_y, _rtl("خریدار / تحویل‌گیرنده"))
-    cursor_y -= 18
+    cursor_y -= 20
     c.setFont(font_name, 10)
 
     if buyer_lines:
         for line in buyer_lines:
             for wrapped in _wrap_rtl_lines(line, font_name=font_name, font_size=10, max_width=details_w)[:3]:
                 c.drawRightString(details_right, cursor_y, _rtl(wrapped))
-                cursor_y -= 14
+                cursor_y -= 18
 
     header_bottom = min(y - table_h, cursor_y)
     y = header_bottom - 24
@@ -546,7 +573,7 @@ def render_manual_invoice_pdf(
         product_right = margin_x + content_w - 6
 
         def draw_items_header(at_y: float) -> float:
-            header_h = 26
+            header_h = 28
             c.setStrokeColor(BORDER_COLOR)
             c.setFillColor(colors.HexColor("#F4F4F9"))
             c.rect(margin_x, at_y - header_h, content_w, header_h, stroke=1, fill=1)
@@ -554,9 +581,9 @@ def render_manual_invoice_pdf(
             c.line(margin_x + col_price, at_y, margin_x + col_price, at_y - header_h)
             c.line(margin_x + col_price + col_qty, at_y, margin_x + col_price + col_qty, at_y - header_h)
             c.setFont(font_name, 11)
-            c.drawRightString(product_right, at_y - 17, _rtl("کالا"))
-            c.drawRightString(margin_x + col_price + col_qty - 6, at_y - 17, _rtl("تعداد"))
-            c.drawRightString(margin_x + col_price - 6, at_y - 17, _rtl("قیمت واحد"))
+            c.drawRightString(product_right, at_y - 19, _rtl("کالا"))
+            c.drawRightString(margin_x + col_price + col_qty - 6, at_y - 19, _rtl("تعداد"))
+            c.drawRightString(margin_x + col_price - 6, at_y - 19, _rtl("قیمت واحد"))
             return at_y - header_h
 
         y = draw_items_header(y)
@@ -582,7 +609,7 @@ def render_manual_invoice_pdf(
             name_lines = _wrap_rtl_lines(name or "-", font_name=font_name, font_size=10, max_width=max_text_w)
             desc_lines = _wrap_rtl_lines(desc, font_name=font_name, font_size=9, max_width=max_text_w) if desc else []
 
-            row_h_item = max(24, (14 * max(1, len(name_lines))) + (12 * len(desc_lines)) + 6)
+            row_h_item = max(28, (18 * max(1, len(name_lines))) + (14 * len(desc_lines)) + 8)
             if y - row_h_item < margin_y + 120:
                 c.showPage()
                 y = height - margin_y
@@ -595,32 +622,32 @@ def render_manual_invoice_pdf(
             c.line(margin_x + col_price, y, margin_x + col_price, y - row_h_item)
             c.line(margin_x + col_price + col_qty, y, margin_x + col_price + col_qty, y - row_h_item)
 
-            line_y = y - 16
+            line_y = y - 19
             c.setFont(font_name, 10)
             for line in name_lines[:3]:
                 c.setFillColor(TEXT_COLOR)
                 c.drawRightString(product_right, line_y, _rtl(line))
-                line_y -= 14
+                line_y -= 18
 
             if desc_lines:
                 c.setFont(font_name, 9)
                 c.setFillColor(colors.HexColor("#475569"))
                 for line in desc_lines[:4]:
                     c.drawRightString(product_right, line_y, _rtl(line))
-                    line_y -= 12
+                    line_y -= 16
 
             c.setFont(font_name, 10)
             c.setFillColor(TEXT_COLOR)
             qty_text = str(qty).translate(PERSIAN_DIGITS_TRANS)
             price_text = f"{format_money(price)} تومان"
-            baseline_y = y - 16
+            baseline_y = y - 19
             c.drawRightString(margin_x + col_price + col_qty - 6, baseline_y, _rtl(qty_text))
             c.drawRightString(margin_x + col_price - 6, baseline_y, _rtl(price_text))
 
             y -= row_h_item
 
     # Footer totals table (right aligned)
-    y -= 18
+    y -= 22
     totals_w = min(280, content_w * 0.52)
     x_totals = margin_x + content_w - totals_w
 
@@ -650,7 +677,7 @@ def render_manual_invoice_pdf(
         totals_rows.append(("هزینه ارسال", f"{format_money(shipping)} تومان"))
     totals_rows.append(("مبلغ نهایی", f"{format_money(grand_total)} تومان"))
 
-    tot_row_h = 22
+    tot_row_h = 26
     tot_h = tot_row_h * len(totals_rows)
     c.setStrokeColor(BORDER_COLOR)
     c.rect(x_totals, y - tot_h, totals_w, tot_h, stroke=1, fill=0)
@@ -663,7 +690,7 @@ def render_manual_invoice_pdf(
     c.setFillColor(TEXT_COLOR)
     for idx, (label, value) in enumerate(totals_rows):
         row_top = y - (tot_row_h * idx)
-        row_mid_y = row_top - 15
+        row_mid_y = row_top - 17
         c.drawRightString(x_totals + totals_w - 6, row_mid_y, _rtl(label))
         c.drawRightString(x_totals + (totals_w - split2) - 6, row_mid_y, _rtl(value))
 
@@ -671,7 +698,7 @@ def render_manual_invoice_pdf(
 
     if include_signatures:
         notes_text = (notes or "").strip()
-        notes_h = 90
+        notes_h = 110
         sig_gap = 18
         sig_h = 70
         sig_w = (content_w - sig_gap) / 2
@@ -689,11 +716,11 @@ def render_manual_invoice_pdf(
         c.drawRightString(margin_x + content_w - 6, y - 16, _rtl("توضیحات"))
 
         if notes_text:
-            note_y = y - 34
+            note_y = y - 38
             max_notes_w = content_w - 14
             for line in _wrap_rtl_lines(notes_text, font_name=font_name, font_size=10, max_width=max_notes_w)[:4]:
                 c.drawRightString(margin_x + content_w - 6, note_y, _rtl(line))
-                note_y -= 14
+                note_y -= 18
 
         y = y - notes_h - sig_gap
 

@@ -664,6 +664,7 @@ def checkout(request):
                     city=values['city'],
                     address=values['address'],
                     note=values['note'],
+                    recipient_is_other=recipient_is_other,
                     items_subtotal=int(items_subtotal),
                     discount_code=discount_code,
                     discount_percent=discount_percent,

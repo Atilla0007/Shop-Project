@@ -66,6 +66,12 @@
             {{ company_email }}
           </a>
         {% endif %}
+        {% if company_website %}
+          <a class="contact-pill" href="{{ company_website }}" target="_blank" rel="noopener" dir="ltr">
+            <i class="bx bx-globe"></i>
+            {{ company_website }}
+          </a>
+        {% endif %}
         {% if company_whatsapp %}
           <a class="contact-pill" href="https://wa.me/{{ company_whatsapp|cut:'+' }}" target="_blank" rel="noopener">
             <i class="bx bxl-whatsapp"></i>

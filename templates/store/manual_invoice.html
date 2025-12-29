@@ -22,9 +22,21 @@
       }
 
       @font-face {
-        font-family: "DivanFaNum", "Divan";
-        src: url("{% static 'fonts/IRAN-Kharazmi.ttf' %}") format("truetype");
-        font-weight: 400;
+        font-family: "Divan";
+        src:
+          url("{% static 'fonts/Divan-Black.woff2' %}") format("woff2"),
+          url("{% static 'fonts/Divan-Black.woff' %}") format("woff");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "DivanFaNum";
+        src:
+          url("{% static 'fonts/Divan-FaNum-Black.woff2' %}") format("woff2"),
+          url("{% static 'fonts/Divan-FaNum-Black.woff' %}") format("woff");
+        font-weight: 700;
         font-style: normal;
         font-display: swap;
       }

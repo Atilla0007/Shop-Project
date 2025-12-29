@@ -191,6 +191,7 @@ class Order(models.Model):
     city = models.CharField(max_length=100, blank=True)
     address = models.TextField(blank=True)
     note = models.TextField(blank=True)
+    recipient_is_other = models.BooleanField(default=False)
 
     items_subtotal = models.PositiveIntegerField(default=0)
     discount_code = models.CharField(max_length=50, blank=True)

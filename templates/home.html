@@ -176,7 +176,7 @@
         </div>
 
         {% if home_more_products %}
-        <div class="home-products-toggle">
+        <div class="home-products-toggle" data-home-products-toggle-anchor="top">
             <button type="button" class="btn btn-outline home-products-toggle-btn" data-home-products-toggle aria-expanded="false">
                 نمایش محصولات بیشتر
             </button>
@@ -238,6 +238,7 @@
             </div>
             {% endfor %}
         </div>
+        <div class="home-products-toggle home-products-toggle--after" data-home-products-toggle-anchor="bottom"></div>
         {% endif %}
 
         <div class="section-cta-center">

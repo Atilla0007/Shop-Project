@@ -857,6 +857,14 @@ input::placeholder {
     justify-content: center;
 }
 
+.home-products-toggle:empty {
+    display: none;
+}
+
+.home-products-toggle--after {
+    margin-top: 0.9rem;
+}
+
 .home-products-extra {
     margin-top: 0.8rem;
     overflow: hidden;
@@ -2289,6 +2297,7 @@ textarea:focus {
 }
 
 .checkout-steps {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2299,6 +2308,47 @@ textarea:focus {
     background: var(--surface);
     box-shadow: var(--shadow-soft);
     margin: 1rem 0 1.6rem;
+    --line-inset: 1.2rem;
+    --progress: 0;
+}
+
+.checkout-steps::before,
+.checkout-steps::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    height: 3px;
+    border-radius: 999px;
+    transform: translateY(-50%);
+    z-index: 0;
+}
+
+.checkout-steps::before {
+    left: var(--line-inset);
+    right: var(--line-inset);
+    background: rgba(153, 161, 166, 0.28);
+}
+
+.checkout-steps::after {
+    right: var(--line-inset);
+    width: calc((100% - (var(--line-inset) * 2)) * var(--progress));
+    background: var(--accent-2);
+}
+
+.checkout-steps.progress-1 {
+    --progress: 0;
+}
+
+.checkout-steps.progress-2 {
+    --progress: 0.33;
+}
+
+.checkout-steps.progress-3 {
+    --progress: 0.66;
+}
+
+.checkout-steps.progress-4 {
+    --progress: 1;
 }
 
 .checkout-step {
@@ -2311,6 +2361,7 @@ textarea:focus {
     font-size: 0.85rem;
     flex: 1;
     min-width: 0;
+    z-index: 1;
 }
 
 .checkout-step .step-dot {
@@ -2341,17 +2392,6 @@ textarea:focus {
 .checkout-step.is-active .step-label {
     color: var(--text);
     font-weight: 700;
-}
-
-.checkout-step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: -50%;
-    width: 100%;
-    height: 2px;
-    background: rgba(153, 161, 166, 0.28);
-    transform: translateY(-50%);
 }
 
 .checkout-items {
@@ -3513,6 +3553,7 @@ body.modal-open {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.9rem;
+        padding: 1rem 1rem 1rem 1.8rem;
     }
 
     .checkout-step {
@@ -3520,12 +3561,18 @@ body.modal-open {
         justify-content: flex-start;
     }
 
-    .checkout-step:not(:last-child)::after {
-        top: 100%;
-        right: 7px;
-        width: 2px;
-        height: 18px;
+    .checkout-steps::before,
+    .checkout-steps::after {
+        top: var(--line-inset);
+        bottom: var(--line-inset);
+        right: 1.1rem;
+        width: 3px;
+        height: auto;
         transform: none;
+    }
+
+    .checkout-steps::after {
+        height: calc((100% - (var(--line-inset) * 2)) * var(--progress));
     }
 }
 

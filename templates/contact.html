@@ -34,6 +34,9 @@
             {% if company_email %}
               <p>ایمیل: <a href="mailto:{{ company_email }}">{{ company_email }}</a></p>
             {% endif %}
+            {% if company_website %}
+              <p>وبسایت: <a href="{{ company_website }}" target="_blank" rel="noopener" dir="ltr">{{ company_website }}</a></p>
+            {% endif %}
             {% if company_whatsapp %}
               <p>واتساپ: <a href="https://wa.me/{{ company_whatsapp|cut:'+' }}" dir="ltr" target="_blank" rel="noopener">{{ company_whatsapp }}</a></p>
             {% endif %}

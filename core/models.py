@@ -184,6 +184,10 @@ class PaymentSettings(models.Model):
     card_holder = models.CharField(max_length=120, blank=True, verbose_name="نام صاحب کارت")
     telegram_username = models.CharField(max_length=64, blank=True, verbose_name="آیدی تلگرام (با @)")
     whatsapp_number = models.CharField(max_length=20, blank=True, verbose_name="شماره واتساپ")
+    company_phone = models.CharField(max_length=32, blank=True, verbose_name="شماره تماس")
+    company_email = models.EmailField(blank=True, verbose_name="ایمیل سایت")
+    company_address = models.TextField(blank=True, verbose_name="آدرس")
+    company_website = models.URLField(blank=True, verbose_name="وبسایت")
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
