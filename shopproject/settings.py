@@ -36,16 +36,24 @@ def _env_bool(name: str, default: bool = False) -> bool:
 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-unsafe-change-me")
-DEBUG = _env_bool("DEBUG", True)
+DEBUG = _env_bool("DEBUG", False)
 
 _allowed_hosts = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()]
-ALLOWED_HOSTS = _allowed_hosts or ["localhost", "127.0.0.1", "[::1]", "testserver","*"]
+if _allowed_hosts:
+    ALLOWED_HOSTS = _allowed_hosts
+elif DEBUG:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
+else:
+    ALLOWED_HOSTS = []
+
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
 ]
+if not CSRF_TRUSTED_ORIGINS and DEBUG:
+    CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://127.0.0.1"]
 
-#CSRF_TRUSTED_ORIGINS = ["https://*.trycloudflare.com"]
-#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if _env_bool("SECURE_PROXY_SSL_HEADER", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Localization
@@ -92,12 +100,50 @@ TEMPLATES=[{'BACKEND':'django.template.backends.django.DjangoTemplates','DIRS':[
 
 # تنظیم ASGI
 ASGI_APPLICATION = 'shopproject.asgi.application'
-DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':BASE_DIR/'db.sqlite3'}}
-STATIC_URL='/static/'
-STATICFILES_DIRS=[BASE_DIR/'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.sqlite3").strip()
+USE_PYMYSQL = _env_bool("USE_PYMYSQL", True)
+if DB_ENGINE == "django.db.backends.mysql" and USE_PYMYSQL:
+    try:
+        import pymysql
+
+        pymysql.install_as_MySQLdb()
+    except Exception:
+        pass
+
+DB_NAME = os.getenv("DB_NAME", "")
+DB_USER = os.getenv("DB_USER", "")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_CONN_MAX_AGE = int(os.getenv("DB_CONN_MAX_AGE", "60"))
+
+if DB_ENGINE == "django.db.backends.sqlite3":
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": DB_NAME or str(BASE_DIR / "db.sqlite3"),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": DB_NAME,
+            "USER": DB_USER,
+            "PASSWORD": DB_PASSWORD,
+            "HOST": DB_HOST,
+            "PORT": DB_PORT,
+            "OPTIONS": {"charset": "utf8mb4"},
+            "CONN_MAX_AGE": DB_CONN_MAX_AGE,
+        }
+    }
+
+STATIC_URL = os.getenv("STATIC_URL", "/static/")
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = Path(os.getenv("STATIC_ROOT", str(BASE_DIR / "staticfiles")))
+MEDIA_URL = os.getenv("MEDIA_URL", "/media/")
+MEDIA_ROOT = Path(os.getenv("MEDIA_ROOT", str(BASE_DIR / "media")))
 LOGIN_REDIRECT_URL='/'
 LOGOUT_REDIRECT_URL='/'
 
