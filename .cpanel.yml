@@ -1,0 +1,5 @@
+﻿---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/styrair/apps/styra_app
+    - /bin/cp -R * $DEPLOYPATH
