@@ -52,6 +52,10 @@ CSRF_TRUSTED_ORIGINS = [
 if not CSRF_TRUSTED_ORIGINS and DEBUG:
     CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://127.0.0.1"]
 
+_admin_path_raw = (os.getenv("ADMIN_PATH", "admin/") or "admin/").strip()
+_admin_path_clean = _admin_path_raw.strip("/")
+ADMIN_PATH = f"{_admin_path_clean}/" if _admin_path_clean else "admin/"
+
 if _env_bool("SECURE_PROXY_SSL_HEADER", False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -244,7 +248,8 @@ SITE_BASE_URL = os.getenv('SITE_BASE_URL', '')
 RECEIPT_PURGE_DELAY_SECONDS = int(os.getenv('RECEIPT_PURGE_DELAY_SECONDS', '7200'))
 
 # Authentication security (login brute-force protection)
-AUTH_SECURITY_LOGIN_PATHS = os.getenv("AUTH_SECURITY_LOGIN_PATHS", "/login/,/admin/login/")
+_default_admin_login = f"/{ADMIN_PATH}login/"
+AUTH_SECURITY_LOGIN_PATHS = os.getenv("AUTH_SECURITY_LOGIN_PATHS", f"/login/,{_default_admin_login}")
 AUTH_SECURITY_PROTECTED_PATHS = os.getenv(
     "AUTH_SECURITY_PROTECTED_PATHS",
     "/auth/email-otp/verify/,/password-reset/,/password_reset/",

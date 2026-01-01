@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path((getattr(settings, "ADMIN_PATH", "admin/") or "admin/").lstrip("/"), admin.site.urls),
     path('', include('otp_email.urls')),
     path('', include('core.urls')),
     path('shop/', include('store.urls')),

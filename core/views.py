@@ -131,7 +131,13 @@ def contact(request):
             if support_email:
                 created_at = format_jalali(message.created_at, "Y/m/d - H:i")
                 base_url = (getattr(settings, "SITE_BASE_URL", "") or "").strip().rstrip("/")
-                admin_url = f"{base_url}/admin/core/contactmessage/{message.id}/change/" if base_url else ""
+                admin_prefix = getattr(settings, "ADMIN_PATH", "admin/").strip("/")
+                admin_root = f"/{admin_prefix}/"
+                admin_url = (
+                    f"{base_url}{admin_root}core/contactmessage/{message.id}/change/"
+                    if base_url
+                    else f"{admin_root}core/contactmessage/{message.id}/change/"
+                )
 
                 brand = getattr(settings, "SITE_NAME", "استیرا")
                 subject = f"پیام جدید تماس با ما | {message.name}"

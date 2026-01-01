@@ -130,7 +130,9 @@ class Command(BaseCommand):
         digest_items = []
         attachments = []
         for o in orders_list:
-            admin_path = f"/admin/store/order/{o.id}/change/"
+            admin_prefix = getattr(settings, "ADMIN_PATH", "admin/").strip("/")
+            admin_root = f"/{admin_prefix}/"
+            admin_path = f"{admin_root}store/order/{o.id}/change/"
             admin_url = f"{base_url}{admin_path}" if base_url else admin_path
             submitted_at = format_jalali(o.payment_submitted_at or o.created_at, "Y/m/d - H:i")
             full_name = f"{o.first_name} {o.last_name}".strip() or (o.user.username if o.user else "میهمان")
