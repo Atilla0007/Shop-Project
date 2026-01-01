@@ -27,9 +27,9 @@ Thumbs.db
 .vscode/
 
 # Licensed fonts (local only)
-static/fonts/Divan-*.woff
-static/fonts/Divan-*.woff2
-static/fonts/Divan-*.ttf
-staticfiles/fonts/Divan-*.woff
-staticfiles/fonts/Divan-*.woff2
-staticfiles/fonts/Divan-*.ttf
+#static/fonts/Divan-*.woff
+#static/fonts/Divan-*.woff2
+#static/fonts/Divan-*.ttf
+#staticfiles/fonts/Divan-*.woff
+#staticfiles/fonts/Divan-*.woff2
+#staticfiles/fonts/Divan-*.ttf
