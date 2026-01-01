@@ -128,7 +128,7 @@ class CheckoutTests(TestCase):
         self.assertTrue(order.shipping_is_free)
         self.assertFalse(CartItem.objects.filter(user=self.user).exists())
 
-    def test_unverified_phone_blocks_checkout_and_shows_modal(self):
+    def test_unverified_phone_allows_checkout(self):
         self.profile.phone = "09120000000"
         self.profile.phone_verified = False
         self.profile.save(update_fields=["phone", "phone_verified"])
@@ -145,13 +145,10 @@ class CheckoutTests(TestCase):
                 "address": "تهران، خیابان مثال، پلاک ۱",
             },
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(Order.objects.filter(user=self.user).exists())
-        self.assertTrue(CartItem.objects.filter(user=self.user).exists())
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Order.objects.filter(user=self.user).count(), 1)
+        self.assertFalse(CartItem.objects.filter(user=self.user).exists())
 
-        content = response.content.decode("utf-8")
-        self.assertIn("شماره موبایل تایید نشده است", content)
-        self.assertIn(reverse("phone_otp_verify_page"), content)
 
     def test_discount_code_applies_to_items_only(self):
         DiscountCode.objects.create(code="OFF10", percent=10, is_active=True, is_public=False)

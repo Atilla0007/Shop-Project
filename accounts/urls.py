@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from otp_sms import views as sms_views
 
 urlpatterns = [
     path('login/', views.login_view, name='login'),
@@ -12,6 +11,4 @@ urlpatterns = [
     path('profile/addresses/<int:address_id>/save/', views.address_save, name='address_update'),
     path('profile/addresses/<int:address_id>/delete/', views.address_delete, name='address_delete'),
     path('profile/addresses/<int:address_id>/default/', views.address_set_default, name='address_set_default'),
-    path('verify-phone/', sms_views.verify_page, name='verify_phone'),
-    path('auth/phone-otp/', sms_views.verify_page, name='phone_otp_verify_page'),
 ]

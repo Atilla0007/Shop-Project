@@ -76,7 +76,6 @@ INSTALLED_APPS=[
     'store',
     'accounts',
     'otp_email',
-    'otp_sms',
 ]
 MIDDLEWARE=[
     'django.middleware.security.SecurityMiddleware',
@@ -248,7 +247,7 @@ RECEIPT_PURGE_DELAY_SECONDS = int(os.getenv('RECEIPT_PURGE_DELAY_SECONDS', '7200
 AUTH_SECURITY_LOGIN_PATHS = os.getenv("AUTH_SECURITY_LOGIN_PATHS", "/login/,/admin/login/")
 AUTH_SECURITY_PROTECTED_PATHS = os.getenv(
     "AUTH_SECURITY_PROTECTED_PATHS",
-    "/auth/email-otp/verify/,/auth/phone-otp/verify/,/password-reset/,/password_reset/",
+    "/auth/email-otp/verify/,/password-reset/,/password_reset/",
 )
 AUTH_SECURITY_TRUST_X_FORWARDED_FOR = _env_bool("AUTH_SECURITY_TRUST_X_FORWARDED_FOR", False)
 AUTH_SECURITY_LOGIN_IP_MAX_ATTEMPTS = int(os.getenv("AUTH_SECURITY_LOGIN_IP_MAX_ATTEMPTS", "10"))

@@ -48,7 +48,7 @@
         {% if profile.phone_verified %}
           <div class="phone-verify-done">موبایل تایید شده است</div>
         {% else %}
-          <a class="phone-verify-cta" href="{% url 'phone_otp_verify_page' %}?next={% url 'profile' %}">تایید موبایل</a>
+          <div class="phone-verify-done">تایید موبایل فعلا غیرفعال است</div>
         {% endif %}
       {% endif %}
 

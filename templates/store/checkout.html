@@ -223,16 +223,6 @@
   </div>
 </section>
 
-{% if show_phone_verify_modal %}
-  <div id="phone-verify-modal" class="modal-overlay open" data-open="1" aria-hidden="false">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-label="تایید شماره موبایل">
-      <button type="button" class="modal-close" data-modal-close aria-label="بستن"> ×</button>
-      <h3>تایید شماره موبایل الزامی است</h3>
-      <p>برای ادامه ثبت سفارش، لطفا شماره موبایل خود را تایید کنید.</p>
-      <a class="btn btn-primary" href="{% url 'phone_otp_verify_page' %}?next={{ request.get_full_path|urlencode }}">تایید شماره موبایل</a>
-    </div>
-  </div>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}

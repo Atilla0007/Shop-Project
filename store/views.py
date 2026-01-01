@@ -674,9 +674,6 @@ def checkout(request):
             new_phone = values['phone'].replace(' ', '').replace('-', '')
             values['phone'] = new_phone
 
-        if not profile.phone_verified:
-            errors['phone_verified'] = "برای ثبت سفارش باید موبایل خود را تایید کنید."
-
         discount_code = values.get('discount_code_applied') or ""
         if discount_code:
             discount = (
@@ -737,7 +734,6 @@ def checkout(request):
                 'total_payable': total_payable,
                 'values': values,
                 'errors': errors,
-                'show_phone_verify_modal': bool(errors.get('phone_verified')),
             })
 
         recheck_error = ""
@@ -884,7 +880,6 @@ def checkout(request):
                 'total_payable': total_payable,
                 'values': values,
                 'errors': errors,
-                'show_phone_verify_modal': bool(errors.get('phone_verified')),
             })
 
         return redirect(reverse('payment', args=[order.id]))
@@ -930,7 +925,6 @@ def checkout(request):
         'total_payable': total_payable,
         'values': values,
         'errors': {},
-        'show_phone_verify_modal': bool(values['phone'] and not profile.phone_verified),
     })
 
 
