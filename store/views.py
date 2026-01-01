@@ -357,8 +357,12 @@ def shop_suggest(request):
         return JsonResponse({"suggestions": []})
     query = _normalize_digits(query)
     suggestions = list(
-        Product.objects.filter(Q(name__icontains=query) | Q(domain__icontains=query))
+        Category.objects.filter(
+            name__icontains=query,
+            product__is_available=True,
+        )
         .values_list("name", flat=True)
+        .distinct()
         .order_by("name")[:8]
     )
     return JsonResponse({"suggestions": suggestions})

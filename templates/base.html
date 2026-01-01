@@ -62,16 +62,16 @@
           </div>
         </div>
       {% else %}
-        <a href="{% url 'login' %}" class="user-profile" aria-label="User Login Button">
+        <a href="{% url 'login' %}" class="user-profile user-profile-login" aria-label="User Login Button">
           <span class="user-profile-inner">
             <i class='bx bx-user' aria-hidden="true"></i>
-            <p>Log In</p>
+            <p>ورود</p>
           </span>
         </a>
-        <a href="{% url 'signup' %}" class="user-profile" aria-label="User Signup Button">
+        <a href="{% url 'signup' %}" class="user-profile user-profile-signup" aria-label="User Signup Button">
           <span class="user-profile-inner">
             <i class='bx bx-user' aria-hidden="true"></i>
-            <p>Sign Up</p>
+            <p>ثبت نام</p>
           </span>
         </a>
       {% endif %}

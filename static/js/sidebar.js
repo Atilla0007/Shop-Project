@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('sidebar-close');
     const subMenus = sidebar ? sidebar.querySelectorAll('.sub-menu') : [];
     const buttons = sidebar ? sidebar.querySelectorAll('button') : [];
+    const navButtons = sidebar ? sidebar.querySelectorAll('button[data-url]') : [];
 
     const openSidebar = () => {
         if (!sidebar) return;
@@ -50,6 +51,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const normalizePath = (path) => {
+        if (!path) return '/';
+        const cleanPath = path.split('#')[0].split('?')[0];
+        const trimmed = cleanPath.replace(/\/+$/, '');
+        return trimmed === '' ? '/' : trimmed;
+    };
+
+    const setActiveFromPath = () => {
+        if (!navButtons.length) return;
+        const current = normalizePath(window.location.pathname);
+        let best = null;
+        let bestPath = '';
+
+        navButtons.forEach((btn) => {
+            const url = btn.dataset.url;
+            if (!url) return;
+            let path = url;
+            try {
+                path = new URL(url, window.location.origin).pathname;
+            } catch (err) {
+                path = url;
+            }
+            const normalized = normalizePath(path);
+            if (
+                current === normalized ||
+                (normalized !== '/' && current.startsWith(`${normalized}/`))
+            ) {
+                if (!best || normalized.length > bestPath.length) {
+                    best = btn;
+                    bestPath = normalized;
+                }
+            }
+        });
+
+        if (best) {
+            navButtons.forEach((btn) => btn.classList.remove('active'));
+            best.classList.add('active');
+        }
+    };
+
     sidebar?.addEventListener('click', (event) => {
         const target = event.target;
         const button = target && target.closest ? target.closest('button[data-url]') : null;
@@ -74,6 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
             closeSidebar();
         }
     });
+
+    setActiveFromPath();
 
     // expose for inline handlers
     window.openSubmenu = openSubmenu;
