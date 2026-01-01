@@ -30,8 +30,10 @@
       <a href="{% url 'payment' order.id %}" class="btn btn-outline small">بازگشت به انتخاب روش</a>
     </div>
 
-    {% if submitted %}
-      <div class="form-success">درخواست پرداخت شما ثبت شد و در انتظار بررسی است.</div>
+    {% if invoice_sent %}
+      <div class="form-success">فاکتور به ایمیل شما ارسال شد.</div>
+    {% elif invoice_error %}
+      <div class="form-error">ارسال فاکتور ممکن نیست. لطفاً ایمیل حساب کاربری را بررسی کنید.</div>
     {% endif %}
 
     {% if error %}
@@ -43,13 +45,13 @@
     {% elif order.payment_status == 'approved' %}
       <div class="form-success">پرداخت این سفارش قبلاً تایید شده است.</div>
     {% elif order.payment_status == 'rejected' %}
-      <div class="form-error">پرداخت قبلی رد شده است؛ لطفاً دوباره درخواست پرداخت را ثبت کنید.</div>
+      <div class="form-error">پرداخت قبلی رد شده است. لطفاً با پشتیبانی هماهنگ کنید.</div>
     {% endif %}
 
     <div class="checkout-layout">
       <div class="checkout-form">
         <h2>ارتباط با ادمین</h2>
-        <p class="muted">برای پرداخت نهایی می‌توانید پیش‌فاکتور را دانلود کنید و با ادمین هماهنگ شوید.</p>
+        <p class="muted">بعد از دانلود پیش‌فاکتور با ادمین‌ها در ارتباط باشید یا با شماره ثبت‌شده تماس بگیرید.</p>
 
         <div class="payment-cards">
           <div class="payment-card">
@@ -68,9 +70,9 @@
               {% endif %}
             </div>
 
-            <form method="post">
+            <form method="post" action="{% url 'payment_invoice_email' order.id %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-primary">ثبت درخواست پرداخت</button>
+              <button type="submit" class="btn btn-primary">درخواست ارسال فاکتور ایمیلی</button>
             </form>
           </div>
         </div>

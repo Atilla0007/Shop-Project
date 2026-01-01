@@ -1042,22 +1042,12 @@ def payment_contact_admin(request, order_id: int):
             whatsapp_link = f"https://wa.me/{number}"
 
     error = None
-    submitted = request.GET.get('submitted') == '1'
+    invoice_sent = request.GET.get('emailed') == '1'
+    invoice_error = request.GET.get('emailed') == '0'
 
-    if request.method == 'POST' and order.status != 'canceled' and order.payment_status not in ('approved',):
-        already_submitted = order.payment_status == 'submitted'
-
+    if order.status != 'canceled' and order.payment_method != 'contact_admin':
         order.payment_method = 'contact_admin'
-        order.payment_status = 'submitted'
-        order.payment_submitted_at = timezone.now()
-        # If user switches to contact_admin, the receipt is not required.
-        order.receipt_file = None
-        order.save(update_fields=['payment_method', 'payment_status', 'payment_submitted_at', 'receipt_file'])
-
-        if not already_submitted:
-            _send_order_payment_submitted_email_nonblocking(order_id=order.id, request=request)
-
-        return redirect(f"{reverse('payment_contact_admin', args=[order.id])}?submitted=1")
+        order.save(update_fields=['payment_method'])
 
     return render(request, 'store/payment_contact_admin.html', {
         'order': order,
@@ -1065,9 +1055,25 @@ def payment_contact_admin(request, order_id: int):
         'payment_settings': payment_settings,
         'telegram_link': telegram_link,
         'whatsapp_link': whatsapp_link,
-        'submitted': submitted,
         'error': error,
+        'invoice_sent': invoice_sent,
+        'invoice_error': invoice_error,
     })
+
+
+@login_required
+@require_POST
+def payment_invoice_email(request, order_id: int):
+    from store.emails import send_order_invoice_request_email
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    if order.status == 'canceled':
+        return redirect(f"{reverse('payment_contact_admin', args=[order.id])}?emailed=0")
+
+    sent = send_order_invoice_request_email(order=order, request=request)
+    return redirect(
+        f"{reverse('payment_contact_admin', args=[order.id])}?emailed={'1' if sent else '0'}"
+    )
 
 
 @login_required

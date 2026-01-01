@@ -1,0 +1,21 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+  <p style="margin:0 0 10px 0; font-size:14px; color:#F4F4F9;">
+    {{ invoice_title }} سفارش شما به درخواستتان ارسال شد.
+  </p>
+
+  <p style="margin:0 0 14px 0; font-size:13px; color:#D8DCE5;">
+    شماره سفارش: <strong>#{{ order_id|order_number }}</strong>
+  </p>
+
+  <p style="margin:0 0 16px 0; font-size:13px; color:#D8DCE5;">
+    فایل PDF فاکتور به همین ایمیل پیوست شده است.
+  </p>
+
+  {% if cta_url %}
+    <a href="{{ cta_url }}" style="display:inline-block; padding:10px 16px; border-radius:999px; background:#586F7C; color:#000000; font-weight:800; font-size:13px; text-decoration:none;">
+      مشاهده سفارش‌ها
+    </a>
+  {% endif %}
+{% endblock %}

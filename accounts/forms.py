@@ -1,21 +1,33 @@
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm, UserCreationForm
-from django.contrib.auth.models import User
 
 
 class SignupForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ("username", "email", "password1", "password2")
 
     def clean_username(self):
         return (self.cleaned_data.get("username") or "").strip()
 
     def clean_email(self):
-        return (self.cleaned_data.get("email") or "").strip().lower()
+        email = (self.cleaned_data.get("email") or "").strip().lower()
+        if not email:
+            return email
+
+        user_model = get_user_model()
+        email_field = user_model.get_email_field_name()
+        users = user_model._default_manager.filter(
+            **{f"{email_field}__iexact": email},
+            is_active=True,
+        )
+        if not any(u.has_usable_password() for u in users):
+            raise forms.ValidationError("ایمیلی با این مشخصات ثبت نشده است.")
+        return email
 
 
 class PasswordResetRequestForm(PasswordResetForm):

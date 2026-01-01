@@ -180,3 +180,64 @@ def send_order_payment_approved_email(*, order, request=None) -> None:
     message.attach(f"order-{order.id}.pdf", pdf_bytes, "application/pdf")
 
     _send_email_message(message)
+
+
+def send_order_invoice_request_email(*, order, request=None) -> bool:
+    to_email = _get_order_to_email(order)
+    if not to_email:
+        return False
+
+    is_final = getattr(order, "payment_status", "") == "approved"
+    invoice_title = "فاکتور نهایی" if is_final else "پیش‌فاکتور"
+    brand = getattr(settings, "SITE_NAME", "استیرا")
+    subject = f"{invoice_title} سفارش (#{order.id})"
+
+    cta_url = None
+    try:
+        from django.urls import reverse
+
+        profile_path = reverse("profile")
+        if request is not None:
+            cta_url = request.build_absolute_uri(profile_path)
+        else:
+            base_url = (getattr(settings, "SITE_BASE_URL", "") or "").strip().rstrip("/")
+            if base_url:
+                cta_url = f"{base_url}{profile_path}"
+    except Exception:
+        cta_url = None
+
+    context = {
+        "title": f"ارسال {invoice_title}",
+        "preheader": f"{invoice_title} سفارش شما ارسال شد.",
+        "brand": brand,
+        "subtitle": "درخواست شما برای ارسال فاکتور ثبت شد.",
+        "order_id": order.id,
+        "invoice_title": invoice_title,
+        "cta_url": cta_url,
+        "footer": "در صورت نیاز به راهنمایی بیشتر با پشتیبانی در تماس باشید.",
+    }
+
+    text_body = (
+        f"{invoice_title} سفارش شما ارسال شد.\n"
+        f"سفارش #{order.id}\n"
+        "فایل PDF به همین ایمیل پیوست شده است."
+    )
+    html_body = render_to_string("emails/invoice_request.html", context)
+
+    message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
+        to=[to_email],
+    )
+    message.attach_alternative(html_body, "text/html")
+    pdf_bytes = render_order_invoice_pdf(
+        order=order,
+        title=invoice_title,
+        include_validity=not is_final,
+    )
+    filename = "invoice" if is_final else "proforma"
+    message.attach(f"{filename}-{order.id}.pdf", pdf_bytes, "application/pdf")
+
+    _send_email_message(message)
+    return True
