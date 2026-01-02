@@ -14,16 +14,22 @@
         {% if next %}
         <input type="hidden" name="next" value="{{ next }}">
         {% endif %}
-        {% if error %}
-        <div class="form-error">{{ error }}</div>
+        {% if form.non_field_errors %}
+        <div class="form-error">{{ form.non_field_errors }}</div>
         {% endif %}
         <span class="input-span">
             <label for="email" class="label">ایمیل</label>
-            <input type="text" name="username" id="email" autocomplete="username" required>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="form-error">{{ form.email.errors }}</div>
+            {% endif %}
         </span>
         <span class="input-span">
             <label for="password" class="label">رمز عبور</label>
-            <input type="password" name="password" id="password" autocomplete="current-password" required>
+            {{ form.password }}
+            {% if form.password.errors %}
+            <div class="form-error">{{ form.password.errors }}</div>
+            {% endif %}
         </span>
         <span class="span"><a href="{% url 'password_reset' %}">فراموشی رمز عبور</a></span>
         <button type="submit" class="user-profile auth-submit" aria-label="Login">

@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -8,7 +8,7 @@ from django.db.models import Q
 
 from store.models import Order, ShippingAddress
 
-from .forms import SignupForm
+from .forms import LoginForm, SignupForm
 from .models import UserProfile
 
 
@@ -35,19 +35,33 @@ def login_view(request):
         return redirect(next_url or "home")
 
     if request.method == "POST":
-        username = request.POST.get("username") or request.POST.get("email")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect(next_url or "home")
-        return render(
-            request,
-            "accounts/login.html",
-            {"error": "نام کاربری یا رمز عبور اشتباه است.", "next": next_url},
-        )
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data["email"]
+            password = form.cleaned_data["password"]
+            user_model = get_user_model()
+            email_field = user_model.get_email_field_name()
+            matched = list(
+                user_model._default_manager.filter(
+                    **{f"{email_field}__iexact": email},
+                    is_active=True,
+                )[:2]
+            )
+            if len(matched) == 1:
+                username = matched[0].get_username()
+                user = authenticate(request, username=username, password=password)
+            else:
+                user = authenticate(request, username=email, password=password)
 
-    return render(request, "accounts/login.html", {"next": next_url})
+            if user:
+                login(request, user)
+                return redirect(next_url or "home")
+
+            form.add_error(None, "رمز عبور نادرست است.")
+
+        return render(request, "accounts/login.html", {"form": form, "next": next_url})
+
+    return render(request, "accounts/login.html", {"form": LoginForm(), "next": next_url})
 
 
 def signup(request):

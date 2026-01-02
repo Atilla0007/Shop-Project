@@ -13,23 +13,27 @@
     {% csrf_token %}
     {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
     {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
-    {% if form and form.errors %}<div class="form-error">{{ form.errors.as_ul }}</div>{% endif %}
+    {% if form.non_field_errors %}<div class="form-error">{{ form.non_field_errors }}</div>{% endif %}
 
     <span class="input-span">
       <label for="email" class="label">ایمیل</label>
-      <input type="email" name="email" id="email" autocomplete="email" required>
+      <input type="email" name="email" id="email" autocomplete="email" value="{{ form.email.value|default_if_none:'' }}" required>
+      {% if form.email.errors %}<div class="form-error">{{ form.email.errors }}</div>{% endif %}
     </span>
     <span class="input-span">
       <label for="username" class="label">نام کاربری</label>
-      <input type="text" name="username" id="username" autocomplete="username" required>
+      <input type="text" name="username" id="username" autocomplete="username" value="{{ form.username.value|default_if_none:'' }}" required>
+      {% if form.username.errors %}<div class="form-error">{{ form.username.errors }}</div>{% endif %}
     </span>
     <span class="input-span">
       <label for="password1" class="label">رمز عبور</label>
       <input type="password" name="password1" id="password1" autocomplete="new-password" required>
+      {% if form.password1.errors %}<div class="form-error">{{ form.password1.errors }}</div>{% endif %}
     </span>
     <span class="input-span">
       <label for="password2" class="label">تکرار رمز عبور</label>
       <input type="password" name="password2" id="password2" autocomplete="new-password" required>
+      {% if form.password2.errors %}<div class="form-error">{{ form.password2.errors }}</div>{% endif %}
     </span>
 
     <label class="terms">
