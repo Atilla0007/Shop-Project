@@ -1,9 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 
+@override_settings(
+    STATICFILES_STORAGE="django.contrib.staticfiles.storage.StaticFilesStorage",
+    DEBUG=True,
+)
 class AuthFlowTests(TestCase):
     def setUp(self):
         self.user_model = get_user_model()
@@ -19,6 +23,7 @@ class AuthFlowTests(TestCase):
                 "password2": self.password,
                 "accept_terms": "1",
             },
+            secure=True,
         )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(
@@ -40,6 +45,7 @@ class AuthFlowTests(TestCase):
                 "password2": self.password,
                 "accept_terms": "1",
             },
+            secure=True,
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "این ایمیل قبلاً ثبت شده است")
@@ -57,6 +63,7 @@ class AuthFlowTests(TestCase):
         response = self.client.post(
             reverse("login"),
             data={"email": "login@example.com", "password": self.password},
+            secure=True,
         )
         self.assertEqual(response.status_code, 302)
 
@@ -69,6 +76,7 @@ class AuthFlowTests(TestCase):
         response = self.client.post(
             reverse("login"),
             data={"email": "login2@example.com", "password": "wrongpass"},
+            secure=True,
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "رمز عبور نادرست است.")
@@ -82,6 +90,7 @@ class AuthFlowTests(TestCase):
         response = self.client.post(
             reverse("password_reset"),
             data={"email": "reset@example.com"},
+            secure=True,
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(len(mail.outbox), 1)
@@ -90,6 +99,7 @@ class AuthFlowTests(TestCase):
         response = self.client.post(
             reverse("password_reset"),
             data={"email": "unknown@example.com"},
+            secure=True,
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "کاربری با این ایمیل وجود ندارد.")
