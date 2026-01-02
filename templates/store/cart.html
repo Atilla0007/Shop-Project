@@ -8,35 +8,41 @@
 <section class="section">
     <div class="container">
         <h1>سبد خرید شما</h1>
-        <div class="checkout-steps checkout-progress progress-1" aria-label="مراحل خرید">
-            <div class="progress-track" aria-hidden="true">
-                <div class="progress-fill" aria-hidden="true"></div>
-            </div>
-            <div class="checkout-step is-active" aria-current="step">
-                <div class="step-circle-wrapper">
-                    <div class="step-circle">
-                        <span class="step-number">1</span>
+                        <div class="checkout-steps checkout-progress" aria-label="????? ????">
+            <div class="progress-wrapper">
+                <div class="progress-bar">
+                    <div class="progress-track" aria-hidden="true">
+                        <div class="progress-fill" aria-hidden="true" style="width: 0%;"></div>
+                    </div>
+
+                    <div class="step active" aria-current="step">
+                        <div class="step-circle-wrapper">
+                            <div class="step-circle">
+                                <span class="step-number">1</span>
+                            </div>
+                        </div>
+                        <div class="step-label">?????? ???????</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle-wrapper">
+                            <div class="step-circle">
+                                <span class="step-number">2</span>
+                            </div>
+                        </div>
+                        <div class="step-label">??? ????</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-circle-wrapper">
+                            <div class="step-circle">
+                                <span class="step-number">3</span>
+                            </div>
+                        </div>
+                        <div class="step-label">??????</div>
                     </div>
                 </div>
-                <div class="step-label">انتخاب محصولات</div>
-            </div>
-            <div class="checkout-step">
-                <div class="step-circle-wrapper">
-                    <div class="step-circle">
-                        <span class="step-number">2</span>
-                    </div>
-                </div>
-                <div class="step-label">ثبت آدرس</div>
-            </div>
-            <div class="checkout-step">
-                <div class="step-circle-wrapper">
-                    <div class="step-circle">
-                        <span class="step-number">3</span>
-                    </div>
-                </div>
-                <div class="step-label">پرداخت</div>
             </div>
         </div>
+
         {% if removed_unavailable %}
         <div class="form-error">محصولات ناموجود از سبد حذف شدند: {{ removed_unavailable|join:", " }}</div>
         {% endif %}

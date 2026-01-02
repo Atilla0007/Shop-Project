@@ -7,35 +7,49 @@
 <section class="section">
   <div class="container">
     <h1>پرداخت سفارش #{{ order.id|order_number }}</h1>
-    <div class="checkout-steps checkout-progress progress-3" aria-label="مراحل خرید">
-      <div class="progress-track" aria-hidden="true">
-        <div class="progress-fill" aria-hidden="true"></div>
-      </div>
-      <div class="checkout-step is-done">
-        <div class="step-circle-wrapper">
-          <div class="step-circle">
-            <span class="step-number">1</span>
+        <div class="checkout-steps checkout-progress" aria-label="????? ????">
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" aria-hidden="true" style="width: 100%;"></div>
+          </div>
+
+          <div class="step completed">
+            <div class="step-circle-wrapper">
+              <div class="step-circle">
+                <div class="step-circle-icon">
+                  <svg class="checkmark" viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="checkmark-path" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="step-label">?????? ???????</div>
+          </div>
+          <div class="step completed">
+            <div class="step-circle-wrapper">
+              <div class="step-circle">
+                <div class="step-circle-icon">
+                  <svg class="checkmark" viewBox="0 0 24 24" aria-hidden="true">
+                    <path class="checkmark-path" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="step-label">??? ????</div>
+          </div>
+          <div class="step active" aria-current="step">
+            <div class="step-circle-wrapper">
+              <div class="step-circle">
+                <span class="step-number">3</span>
+              </div>
+            </div>
+            <div class="step-label">??????</div>
           </div>
         </div>
-        <div class="step-label">انتخاب محصولات</div>
-      </div>
-      <div class="checkout-step is-done">
-        <div class="step-circle-wrapper">
-          <div class="step-circle">
-            <span class="step-number">2</span>
-          </div>
-        </div>
-        <div class="step-label">ثبت آدرس</div>
-      </div>
-      <div class="checkout-step is-active" aria-current="step">
-        <div class="step-circle-wrapper">
-          <div class="step-circle">
-            <span class="step-number">3</span>
-          </div>
-        </div>
-        <div class="step-label">پرداخت</div>
       </div>
     </div>
+
 
     <div class="inline-actions">
       <a href="{% url 'payment' order.id %}" class="btn btn-outline small">بازگشت به انتخاب روش</a>

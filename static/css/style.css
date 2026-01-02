@@ -2332,126 +2332,163 @@ textarea:focus {
 }
 
 .checkout-steps.checkout-progress {
-    --circle-size: 56px;
-    --track-height: 6px;
-    --track-inset: 12%;
     position: relative;
+    padding: 1.35rem 1.1rem;
+}
+
+.checkout-steps.checkout-progress .progress-wrapper {
+    position: relative;
+}
+
+.checkout-steps.checkout-progress .progress-bar {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
-    gap: 0.8rem;
-    padding: 1.35rem 1.1rem 1.1rem;
+    align-items: flex-start;
+    position: relative;
 }
 
 .checkout-steps.checkout-progress .progress-track {
     position: absolute;
-    top: calc(var(--circle-size) / 2);
-    inset-inline-start: var(--track-inset);
-    inset-inline-end: var(--track-inset);
-    height: var(--track-height);
-    background: rgba(153, 161, 166, 0.28);
-    border-radius: 999px;
+    top: 30px;
+    right: 12%;
+    left: 12%;
+    height: 6px;
+    background: rgba(47, 69, 80, 0.35);
+    border-radius: 10px;
     overflow: hidden;
-    transform: translateY(-50%);
     z-index: 1;
+    transform: translateY(-50%);
 }
 
 .checkout-steps.checkout-progress .progress-fill {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    width: calc(var(--progress) * 100%);
+    height: 100%;
     background: linear-gradient(90deg, var(--accent-2), var(--accent));
-    border-radius: inherit;
-    box-shadow: 0 0 12px rgba(88, 111, 124, 0.35);
+    border-radius: 10px;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-html[dir="ltr"] .checkout-steps.checkout-progress .progress-fill {
-    left: 0;
-    right: auto;
-}
-
-.checkout-steps.checkout-progress .checkout-step {
     position: relative;
+    margin-left: auto;
+    box-shadow: 0 0 12px rgba(88, 111, 124, 0.35);
+}
+
+.checkout-steps.checkout-progress .progress-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(157, 158, 159, 0.35), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.checkout-steps.checkout-progress .step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.55rem;
-    flex: 1;
-    min-width: 0;
+    position: relative;
     z-index: 2;
+    flex: 1;
     text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
 }
 
 .checkout-steps.checkout-progress .step-circle-wrapper {
-    height: var(--circle-size);
+    position: relative;
+    margin-bottom: 16px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .checkout-steps.checkout-progress .step-circle {
-    width: var(--circle-size);
-    height: var(--circle-size);
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--surface);
-    border: 2px solid rgba(153, 161, 166, 0.5);
+    border: 3px solid rgba(157, 158, 159, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
+    font-weight: 700;
+    font-size: 18px;
     color: var(--muted);
-    position: relative;
-    transition: all 0.35s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.checkout-steps.checkout-progress .step-number {
-    font-size: 1rem;
+.checkout-steps.checkout-progress .step-circle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-steps.checkout-progress .checkmark {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text);
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.checkout-steps.checkout-progress .checkmark-path {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+    animation: draw 0.5s ease forwards;
 }
 
 .checkout-steps.checkout-progress .step-label {
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--muted);
     transition: all 0.3s ease;
 }
 
-.checkout-steps.checkout-progress .checkout-step.is-done .step-circle {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    color: var(--bg);
-    box-shadow: 0 8px 18px rgba(24, 35, 40, 0.25);
-}
-
-.checkout-steps.checkout-progress .checkout-step.is-done .step-number {
-    opacity: 0;
-}
-
-.checkout-steps.checkout-progress .checkout-step.is-done .step-circle::after {
-    content: "";
-    width: 12px;
-    height: 6px;
-    border-right: 3px solid var(--bg);
-    border-bottom: 3px solid var(--bg);
-    transform: rotate(45deg);
-    position: absolute;
-}
-
-.checkout-steps.checkout-progress .checkout-step.is-active .step-circle {
+.checkout-steps.checkout-progress .step.active .step-circle {
     background: var(--surface);
     border-color: var(--accent-2);
-    border-width: 3px;
     color: var(--accent-2);
-    box-shadow: 0 0 0 6px rgba(88, 111, 124, 0.22);
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px rgba(88, 111, 124, 0.2);
 }
 
-.checkout-steps.checkout-progress .checkout-step.is-active .step-label,
-.checkout-steps.checkout-progress .checkout-step.is-done .step-label {
+.checkout-steps.checkout-progress .step.completed .step-circle {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+    color: var(--text);
+    box-shadow: 0 5px 15px rgba(88, 111, 124, 0.3);
+}
+
+.checkout-steps.checkout-progress .step.active .step-label,
+.checkout-steps.checkout-progress .step.completed .step-label {
     color: var(--text);
     font-weight: 800;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@media (max-width: 768px) {
+    .checkout-steps.checkout-progress .step-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+    }
+
+    .checkout-steps.checkout-progress .step-circle-wrapper {
+        height: 50px;
+    }
+
+    .checkout-steps.checkout-progress .progress-track {
+        top: 25px;
+    }
+
+    .checkout-steps.checkout-progress .step-label {
+        font-size: 0.75rem;
+    }
 }
 
 .checkout-steps::before,
@@ -2475,18 +2512,6 @@ html[dir="ltr"] .checkout-steps.checkout-progress .progress-fill {
     right: var(--line-inset);
     width: calc((100% - (var(--line-inset) * 2)) * var(--progress));
     background: var(--accent-2);
-}
-
-.checkout-steps.progress-1 {
-    --progress: 0;
-}
-
-.checkout-steps.progress-2 {
-    --progress: 0.5;
-}
-
-.checkout-steps.progress-3 {
-    --progress: 1;
 }
 
 .checkout-steps:not(.checkout-progress) .checkout-step {
@@ -7159,27 +7184,6 @@ hr,
     }
 }
 
-@media (max-width: 700px) {
-    .checkout-steps.checkout-progress {
-        --circle-size: 48px;
-        --track-inset: 10%;
-        padding: 1.1rem 0.9rem 0.9rem;
-    }
-
-    .checkout-steps.checkout-progress .progress-track {
-        height: 5px;
-    }
-
-    .checkout-steps.checkout-progress .checkout-step {
-        gap: 0.35rem;
-        font-size: 0.75rem;
-    }
-
-    .checkout-steps.checkout-progress .step-number {
-        font-size: 0.9rem;
-    }
-}
-
 @media (max-width: 480px) {
     .cart-table tbody tr {
         padding: 0.75rem;
@@ -7192,28 +7196,9 @@ hr,
     .cart-table td::before {
         font-size: 0.7rem;
     }
-
-    .checkout-steps.checkout-progress {
-        --circle-size: 44px;
-        --track-inset: 9%;
-        padding: 1rem 0.8rem 0.8rem;
-    }
-
-    .checkout-steps.checkout-progress .step-label {
-        font-size: 0.7rem;
-    }
 }
 
 @media (max-width: 360px) {
-    .checkout-steps.checkout-progress {
-        --circle-size: 40px;
-        padding: 0.9rem 0.7rem 0.75rem;
-    }
-
-    .checkout-steps.checkout-progress .step-label {
-        font-size: 0.66rem;
-    }
-
     .cart-summary {
         gap: 0.6rem;
     }
