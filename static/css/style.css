@@ -2326,111 +2326,132 @@ textarea:focus {
     --progress: 0;
 }
 
-.checkout-steps.thermo-progress::before,
-.checkout-steps.thermo-progress::after {
+.checkout-steps.checkout-progress::before,
+.checkout-steps.checkout-progress::after {
     content: none;
 }
 
-.thermo-progress {
-    --line-inset: 1.2rem;
-    --dot-size: 18px;
-    --track-height: 8px;
-    --track-offset: 14px;
+.checkout-steps.checkout-progress {
+    --circle-size: 56px;
+    --track-height: 6px;
+    --track-inset: 12%;
     position: relative;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.8rem;
-    padding: 0.9rem 1rem 1.6rem;
+    padding: 1.35rem 1.1rem 1.1rem;
 }
 
-.thermo-progress .thermo-track,
-.thermo-progress .thermo-fill {
+.checkout-steps.checkout-progress .progress-track {
     position: absolute;
+    top: calc(var(--circle-size) / 2);
+    inset-inline-start: var(--track-inset);
+    inset-inline-end: var(--track-inset);
     height: var(--track-height);
+    background: rgba(153, 161, 166, 0.28);
     border-radius: 999px;
-    top: var(--track-offset);
-    z-index: 0;
+    overflow: hidden;
+    transform: translateY(-50%);
+    z-index: 1;
 }
 
-.thermo-progress .thermo-track {
-    inset-inline-start: var(--line-inset);
-    inset-inline-end: var(--line-inset);
-    background: rgba(153, 161, 166, 0.25);
+.checkout-steps.checkout-progress .progress-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: calc(var(--progress) * 100%);
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    border-radius: inherit;
+    box-shadow: 0 0 12px rgba(88, 111, 124, 0.35);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.thermo-progress .thermo-fill {
-    width: calc((100% - (var(--line-inset) * 2)) * var(--progress));
-    background: linear-gradient(90deg, rgba(88, 111, 124, 0.8), rgba(47, 69, 80, 1));
-    box-shadow: 0 0 14px rgba(88, 111, 124, 0.45);
-    transition: width 0.6s ease;
-    inset-inline-start: var(--line-inset);
+html[dir="ltr"] .checkout-steps.checkout-progress .progress-fill {
+    left: 0;
+    right: auto;
 }
 
-html[dir="rtl"] .thermo-progress .thermo-fill {
-    inset-inline-end: var(--line-inset);
-    inset-inline-start: auto;
-}
-
-html[dir="ltr"] .thermo-progress .thermo-fill {
-    inset-inline-start: var(--line-inset);
-    inset-inline-end: auto;
-}
-
-.thermo-step {
+.checkout-steps.checkout-progress .checkout-step {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.45rem;
-    color: var(--muted);
-    font-size: 0.82rem;
+    gap: 0.55rem;
     flex: 1;
     min-width: 0;
-    z-index: 1;
-    text-align: center;
-}
-
-.thermo-step .step-dot {
-    width: var(--dot-size);
-    height: var(--dot-size);
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: var(--surface-2);
-    box-shadow: 0 0 0 6px rgba(24, 35, 40, 0.25);
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    margin-top: calc(var(--track-offset) - (var(--dot-size) / 2));
-}
-
-.thermo-step .step-label {
-    white-space: normal;
-    position: relative;
     z-index: 2;
-    display: inline-block;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    background: var(--surface);
-    line-height: 1.3rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
 }
 
-.thermo-step.is-done .step-dot {
+.checkout-steps.checkout-progress .step-circle-wrapper {
+    height: var(--circle-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-steps.checkout-progress .step-circle {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid rgba(153, 161, 166, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--muted);
+    position: relative;
+    transition: all 0.35s ease;
+}
+
+.checkout-steps.checkout-progress .step-number {
+    font-size: 1rem;
+}
+
+.checkout-steps.checkout-progress .step-label {
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.3s ease;
+}
+
+.checkout-steps.checkout-progress .checkout-step.is-done .step-circle {
     background: var(--accent-2);
     border-color: var(--accent-2);
-    box-shadow: 0 0 0 6px rgba(88, 111, 124, 0.35);
+    color: var(--bg);
+    box-shadow: 0 8px 18px rgba(24, 35, 40, 0.25);
 }
 
-.thermo-step.is-active .step-dot {
+.checkout-steps.checkout-progress .checkout-step.is-done .step-number {
+    opacity: 0;
+}
+
+.checkout-steps.checkout-progress .checkout-step.is-done .step-circle::after {
+    content: "";
+    width: 12px;
+    height: 6px;
+    border-right: 3px solid var(--bg);
+    border-bottom: 3px solid var(--bg);
+    transform: rotate(45deg);
+    position: absolute;
+}
+
+.checkout-steps.checkout-progress .checkout-step.is-active .step-circle {
     background: var(--surface);
-    border-color: var(--text);
+    border-color: var(--accent-2);
     border-width: 3px;
-    box-shadow: 0 0 0 6px rgba(24, 35, 40, 0.35);
+    color: var(--accent-2);
+    box-shadow: 0 0 0 6px rgba(88, 111, 124, 0.22);
 }
 
-.thermo-step.is-done .step-label,
-.thermo-step.is-active .step-label {
+.checkout-steps.checkout-progress .checkout-step.is-active .step-label,
+.checkout-steps.checkout-progress .checkout-step.is-done .step-label {
     color: var(--text);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .checkout-steps::before,
@@ -2461,18 +2482,14 @@ html[dir="ltr"] .thermo-progress .thermo-fill {
 }
 
 .checkout-steps.progress-2 {
-    --progress: 0.33;
+    --progress: 0.5;
 }
 
 .checkout-steps.progress-3 {
-    --progress: 0.66;
-}
-
-.checkout-steps.progress-4 {
     --progress: 1;
 }
 
-.checkout-step:not(.thermo-step) {
+.checkout-steps:not(.checkout-progress) .checkout-step {
     position: relative;
     display: flex;
     align-items: center;
@@ -2485,7 +2502,7 @@ html[dir="ltr"] .thermo-progress .thermo-fill {
     z-index: 1;
 }
 
-.checkout-step:not(.thermo-step) .step-dot {
+.checkout-steps:not(.checkout-progress) .checkout-step .step-dot {
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -2494,7 +2511,7 @@ html[dir="ltr"] .thermo-progress .thermo-fill {
     flex: 0 0 auto;
 }
 
-.checkout-step:not(.thermo-step) .step-label {
+.checkout-steps:not(.checkout-progress) .checkout-step .step-label {
     white-space: nowrap;
     position: relative;
     z-index: 2;
@@ -2504,19 +2521,19 @@ html[dir="ltr"] .thermo-progress .thermo-fill {
     background: var(--surface);
 }
 
-.checkout-step:not(.thermo-step).is-done .step-dot {
+.checkout-steps:not(.checkout-progress) .checkout-step.is-done .step-dot {
     background: var(--accent-2);
     border-color: var(--accent-2);
 }
 
-.checkout-step:not(.thermo-step).is-active .step-dot {
+.checkout-steps:not(.checkout-progress) .checkout-step.is-active .step-dot {
     background: var(--surface-2);
     border-color: var(--text);
     box-shadow: 0 0 0 3px rgba(47, 69, 80, 0.35);
 }
 
-.checkout-step:not(.thermo-step).is-done .step-label,
-.checkout-step:not(.thermo-step).is-active .step-label {
+.checkout-steps:not(.checkout-progress) .checkout-step.is-done .step-label,
+.checkout-steps:not(.checkout-progress) .checkout-step.is-active .step-label {
     color: var(--text);
     font-weight: 700;
 }
@@ -3721,20 +3738,20 @@ body.modal-open {
 }
 
 @media (max-width: 700px) {
-    .checkout-steps:not(.thermo-progress) {
+    .checkout-steps:not(.checkout-progress) {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.9rem;
         padding: 1rem 1rem 1rem 1.8rem;
     }
 
-    .checkout-steps:not(.thermo-progress) .checkout-step {
+    .checkout-steps:not(.checkout-progress) .checkout-step {
         width: 100%;
         justify-content: flex-start;
     }
 
-    .checkout-steps:not(.thermo-progress)::before,
-    .checkout-steps:not(.thermo-progress)::after {
+    .checkout-steps:not(.checkout-progress)::before,
+    .checkout-steps:not(.checkout-progress)::after {
         top: var(--line-inset);
         bottom: var(--line-inset);
         right: 1.1rem;
@@ -3743,7 +3760,7 @@ body.modal-open {
         transform: none;
     }
 
-    .checkout-steps:not(.thermo-progress)::after {
+    .checkout-steps:not(.checkout-progress)::after {
         height: calc((100% - (var(--line-inset) * 2)) * var(--progress));
     }
 }
@@ -7143,21 +7160,23 @@ hr,
 }
 
 @media (max-width: 700px) {
-    .checkout-steps.thermo-progress {
-        --dot-size: 16px;
-        --track-offset: 12px;
-        padding: 0.85rem 0.85rem 1.4rem;
+    .checkout-steps.checkout-progress {
+        --circle-size: 48px;
+        --track-inset: 10%;
+        padding: 1.1rem 0.9rem 0.9rem;
     }
 
-    .thermo-progress .thermo-track,
-    .thermo-progress .thermo-fill {
-        height: 6px;
-        top: var(--track-offset);
+    .checkout-steps.checkout-progress .progress-track {
+        height: 5px;
     }
 
-    .thermo-step {
+    .checkout-steps.checkout-progress .checkout-step {
         gap: 0.35rem;
-        font-size: 0.74rem;
+        font-size: 0.75rem;
+    }
+
+    .checkout-steps.checkout-progress .step-number {
+        font-size: 0.9rem;
     }
 }
 
@@ -7174,24 +7193,24 @@ hr,
         font-size: 0.7rem;
     }
 
-    .thermo-progress {
-        --dot-size: 15px;
-        --track-offset: 11px;
-        padding: 0.8rem 0.7rem 1.35rem;
+    .checkout-steps.checkout-progress {
+        --circle-size: 44px;
+        --track-inset: 9%;
+        padding: 1rem 0.8rem 0.8rem;
     }
 
-    .thermo-step .step-label {
-        padding: 0.18rem 0.45rem;
+    .checkout-steps.checkout-progress .step-label {
         font-size: 0.7rem;
     }
 }
 
 @media (max-width: 360px) {
-    .thermo-progress {
-        padding: 0.8rem 0.6rem 1.5rem;
+    .checkout-steps.checkout-progress {
+        --circle-size: 40px;
+        padding: 0.9rem 0.7rem 0.75rem;
     }
 
-    .thermo-step .step-label {
+    .checkout-steps.checkout-progress .step-label {
         font-size: 0.66rem;
     }
 

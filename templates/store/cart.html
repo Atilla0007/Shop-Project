@@ -8,24 +8,33 @@
 <section class="section">
     <div class="container">
         <h1>سبد خرید شما</h1>
-        <div class="checkout-steps thermo-progress {% if request.user.is_authenticated %}progress-2{% else %}progress-1{% endif %}" aria-label="مراحل خرید">
-            <span class="thermo-track" aria-hidden="true"></span>
-            <span class="thermo-fill" aria-hidden="true"></span>
-            <div class="checkout-step thermo-step {% if request.user.is_authenticated %}is-done{% endif %}">
-                <span class="step-dot" aria-hidden="true"></span>
-                <span class="step-label">ورود</span>
+        <div class="checkout-steps checkout-progress progress-1" aria-label="مراحل خرید">
+            <div class="progress-track" aria-hidden="true">
+                <div class="progress-fill" aria-hidden="true"></div>
             </div>
-            <div class="checkout-step thermo-step is-active" aria-current="step">
-                <span class="step-dot" aria-hidden="true"></span>
-                <span class="step-label">انتخاب محصولات</span>
+            <div class="checkout-step is-active" aria-current="step">
+                <div class="step-circle-wrapper">
+                    <div class="step-circle">
+                        <span class="step-number">1</span>
+                    </div>
+                </div>
+                <div class="step-label">انتخاب محصولات</div>
             </div>
-            <div class="checkout-step thermo-step">
-                <span class="step-dot" aria-hidden="true"></span>
-                <span class="step-label">ثبت آدرس</span>
+            <div class="checkout-step">
+                <div class="step-circle-wrapper">
+                    <div class="step-circle">
+                        <span class="step-number">2</span>
+                    </div>
+                </div>
+                <div class="step-label">ثبت آدرس</div>
             </div>
-            <div class="checkout-step thermo-step">
-                <span class="step-dot" aria-hidden="true"></span>
-                <span class="step-label">پرداخت</span>
+            <div class="checkout-step">
+                <div class="step-circle-wrapper">
+                    <div class="step-circle">
+                        <span class="step-number">3</span>
+                    </div>
+                </div>
+                <div class="step-label">پرداخت</div>
             </div>
         </div>
         {% if removed_unavailable %}
