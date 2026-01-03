@@ -23,6 +23,7 @@ from .models import (
     DailyVisitStat,
     DiscountCode,
     DiscountRedemption,
+    Download,
     News,
     PaymentSettings,
     ShippingSettings,
@@ -34,8 +35,14 @@ logger = logging.getLogger(__name__)
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ("title", "created_at")
-    search_fields = ("title",)
+    list_display = ("title", "slug", "created_at")
+    search_fields = ("title", "summary", "text")
+
+
+@admin.register(Download)
+class DownloadAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "created_at")
+    search_fields = ("title", "category", "description")
 
 
 @admin.register(DailyVisitStat)
@@ -46,9 +53,22 @@ class DailyVisitStatAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "email", "phone", "status", "created_at", "replied_at")
-    list_filter = ("status", "created_at")
-    search_fields = ("name", "email", "phone")
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "phone",
+        "company",
+        "city",
+        "inquiry_type",
+        "service_package",
+        "product_interest",
+        "status",
+        "created_at",
+        "replied_at",
+    )
+    list_filter = ("status", "inquiry_type", "service_package", "created_at")
+    search_fields = ("name", "email", "phone", "company", "city")
     actions = ["send_reply"]
 
     class ReplyForm(forms.Form):

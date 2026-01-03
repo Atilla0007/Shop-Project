@@ -33,6 +33,34 @@ class News(models.Model):
         super().save(*args, **kwargs)
 
 
+class Download(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    category = models.CharField(max_length=120, blank=True)
+    description = models.TextField(blank=True)
+    file = models.FileField(upload_to="downloads/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "دانلود"
+        verbose_name_plural = "دانلودها"
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.title, allow_unicode=True) or "download"
+            candidate = base
+            suffix = 1
+            while Download.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
+                candidate = f"{base}-{suffix}"
+                suffix += 1
+            self.slug = candidate
+        super().save(*args, **kwargs)
+
+
 class ContactMessage(models.Model):
     INQUIRY_TYPE_CHOICES = (
         ("product", "??????? ?????"),
